@@ -1,6 +1,8 @@
-PLIK_DIR := /data/harryp/plc-2.0
-CLASS_DIR := /data/harryp/class
-MULTINEST_DIR := /data/harryp/MultiNest_v3.10
+HOME_DIR := /coepp/cephfs/adl/harryp
+
+PLIK_DIR := $(HOME_DIR)/plc-2.0
+CLASS_DIR := $(HOME_DIR)/class
+MULTINEST_DIR := $(HOME_DIR)/MultiNest_v3.10
 BATCH_DIR := /data/harryp
 
 # Flags for the C++ compiler
@@ -42,19 +44,12 @@ CPP_CC = $(addprefix $(CLASS_DIR)/cpp/, $(addsuffix .cc, $(basename $(CPP))))
 vpath %.cc $(CLASS_DIR)/cpp
 vpath %.o $(CLASS_DIR)/cpp
 
-all: plc_class pc_multinest pc_multinest_mpi
+all: pc_multinest pc_multinest_mpi
 
 $(CLASS_DIR)/cpp/ClassEngine.o: $(CLASS_DIR)/cpp/Engine.o
 
 %.o: %.cc
 	$(CPPC) -c -o $*.o $< $(OPT_FLAGS) $(INC_FLAGS) $(CLASS_LIB)
-
-# Original, old faithful PLC-class merger program
-plc_class: plc_class.o $(CLASS_CPP_OBJS)
-	$(CPPC) -o plc_class plc_class.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
-
-plc_class.o: plc_class.cc $(PLIK_DIR)/src/clik.c $(CPP_CC)
-	$(CPPC) -c -o plc_class.o plc_class.cc $(OPT_FLAGS) $(INC_FLAGS) $(PLC_FLAGS) $(LIB_FLAGS)
 
 # MultiNest-compatible program 
 # Must link with gfortran!!!
