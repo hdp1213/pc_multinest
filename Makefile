@@ -10,9 +10,9 @@ CPPC := g++
 OPT_FLAGS := -O3
 #-fopenmp
 INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include 
-PLC_FLAGS := -DHAVE_PYEMBED=1 -DHAVE_PYTHON_H=1 -DHAS_LAPACK -DLAPACK_CLIK -m64 -Wl,-rpath,$(PLIK_DIR)/lib -Wl,-rpath,$(PLIK_DIR) -Wl,-rpath,$(CLASS_DIR)
+# PLC_FLAGS := -DHAVE_PYEMBED=1 -DHAVE_PYTHON_H=1 -DHAS_LAPACK -DLAPACK_CLIK -m64 -Wl,-rpath,$(PLIK_DIR)/lib -Wl,-rpath,$(PLIK_DIR) -Wl,-rpath,$(CLASS_DIR)
 # LIB_FLAGS := -L$(PLIK_DIR)/lib -L$(PLIK_DIR) -L$(CLASS_DIR)/build -llapack -lblas -ldl -lcfitsio -lgfortran -lgomp -lclik
-LIB_FLAGS := -L$(PLIK_DIR)/lib -L$(PLIK_DIR) -L$(CLASS_DIR)/libclass.a -llapack -lblas -ldl -lgfortran -lgomp -lclik -L/home/harryp/.local/lib -lcfitsio
+# LIB_FLAGS := -L$(PLIK_DIR)/lib -L$(PLIK_DIR) -L$(CLASS_DIR)/libclass.a -llapack -lblas -ldl -lgfortran -lgomp -lclik -L/home/harryp/.local/lib -lcfitsio
 
 BATCH_PLC_FLAGS = -DHAVE_PYEMBED=1 -DHAVE_PYTHON_H=1 -DHAS_LAPACK -DLAPACK_CLIK -m64 -Wl,-rpath,$(BATCH_DIR)/lib -Wl,-rpath,$(PLIK_DIR) -Wl,-rpath,$(CLASS_DIR)
 BATCH_LIB_FLAGS = -llapack -lblas -ldl -lgfortran -lgomp -lclik -lcfitsio -L$(BATCH_DIR)/lib
@@ -44,7 +44,7 @@ CPP_CC = $(addprefix $(CLASS_DIR)/cpp/, $(addsuffix .cc, $(basename $(CPP))))
 vpath %.cc $(CLASS_DIR)/cpp
 vpath %.o $(CLASS_DIR)/cpp
 
-all: pc_multinest pc_multinest_mpi
+all: pc_multinest pc_multinest_mpi pc_speedtest
 
 $(CLASS_DIR)/cpp/ClassEngine.o: $(CLASS_DIR)/cpp/Engine.o
 
@@ -63,9 +63,18 @@ pc_multinest.o: pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_CC)
 # MultiNest-compatible program compiled with MPI
 pc_multinest_mpi: pc_multinest_mpi.o $(CLASS_CPP_OBJS)
 	$(FC_MPI) $(FC_MPI_FLAGS) -o pc_multinest_mpi pc_multinest_mpi.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
+	rm -f output/*
 
 pc_multinest_mpi.o: pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_CC)
 	$(CPPC) -c -o pc_multinest_mpi.o pc_multinest.cc $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
+
+# Speedtest program
+pc_speedtest: pc_speedtest.o $(CLASS_CPP_OBJS)
+	$(FC) $(FC_FLAGS) -o pc_speedtest pc_speedtest.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
+	rm -f output/*
+
+pc_speedtest.o: pc_speedtest.cc $(PLIK_DIR)/src/clik.c $(CPP_CC)
+	$(CPPC) -c -o pc_speedtest.o pc_speedtest.cc $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 clean:
 	rm -f *.o output/*
