@@ -7,7 +7,8 @@ BATCH_DIR := /data/harryp
 
 # Flags for the C++ compiler
 CPPC := g++
-OPT_FLAGS := -O3
+# turn off warnings
+OPT_FLAGS := -O3 -w
 #-fopenmp
 INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include 
 # PLC_FLAGS := -DHAVE_PYEMBED=1 -DHAVE_PYTHON_H=1 -DHAS_LAPACK -DLAPACK_CLIK -m64 -Wl,-rpath,$(PLIK_DIR)/lib -Wl,-rpath,$(PLIK_DIR) -Wl,-rpath,$(CLASS_DIR)
@@ -25,6 +26,9 @@ FC_LIBS := -L$(MULTINEST_DIR) -lnest3 -lstdc++
 # Flags for the MPI compilers
 FC_MPI := mpifort
 FC_MPI_FLAGS := -ffree-line-length-none -O3 -DMPI
+
+# Own object files to link against
+PC_OBJS = PLCPack.o
 
 # CLASS object files to link against
 CLASS_SOURCE = input.o background.o thermodynamics.o perturbations.o primordial.o nonlinear.o transfer.o spectra.o lensing.o
@@ -53,24 +57,24 @@ $(CLASS_DIR)/cpp/ClassEngine.o: $(CLASS_DIR)/cpp/Engine.o
 
 # MultiNest-compatible program 
 # Must link with gfortran!!!
-pc_multinest: pc_multinest.o $(CLASS_CPP_OBJS)
-	$(FC) $(FC_FLAGS) -o pc_multinest pc_multinest.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
+pc_multinest: pc_multinest.o $(CLASS_CPP_OBJS) $(PC_OBJS)
+	$(FC) $(FC_FLAGS) -o pc_multinest pc_multinest.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(PC_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -f output/*
 
 pc_multinest.o: pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_CC)
 	$(CPPC) -c -o pc_multinest.o pc_multinest.cc $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 # MultiNest-compatible program compiled with MPI
-pc_multinest_mpi: pc_multinest_mpi.o $(CLASS_CPP_OBJS)
-	$(FC_MPI) $(FC_MPI_FLAGS) -o pc_multinest_mpi pc_multinest_mpi.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
+pc_multinest_mpi: pc_multinest_mpi.o $(CLASS_CPP_OBJS) $(PC_OBJS)
+	$(FC_MPI) $(FC_MPI_FLAGS) -o pc_multinest_mpi pc_multinest_mpi.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(PC_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -f output/*
 
 pc_multinest_mpi.o: pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_CC)
 	$(CPPC) -c -o pc_multinest_mpi.o pc_multinest.cc $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 # Speedtest program
-pc_speedtest: pc_speedtest.o $(CLASS_CPP_OBJS)
-	$(FC) $(FC_FLAGS) -o pc_speedtest pc_speedtest.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
+pc_speedtest: pc_speedtest.o $(CLASS_CPP_OBJS) $(PC_OBJS)
+	$(FC) $(FC_FLAGS) -o pc_speedtest pc_speedtest.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(PC_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -f output/*
 
 pc_speedtest.o: pc_speedtest.cc $(PLIK_DIR)/src/clik.c $(CPP_CC)
