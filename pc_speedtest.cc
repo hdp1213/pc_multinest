@@ -3,6 +3,7 @@
 
 #include <cstdio> // for stderr
 #include <ctime> // for clock_t, clock()
+#include <sys/time.h> // for gettimeofday()
 
 #include <iostream>
 #include <vector>
@@ -12,11 +13,14 @@
 #include <math.h>
 
 #include <fstream> // for writing loop times out to file
-#include <iomanip> // setw
+#include <iomanip> // setw, setprecision
 
-static void print_usage(std::string name);
 std::vector<unsigned> create_l_vec(int max_l);
 void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context);
+
+double get_CPU_time();
+double get_wall_time();
+double get_accurate_wall_time();
 
 /*
   Uses CLASS (wherever that will be with GAMBIT) to produce spectra
@@ -38,9 +42,15 @@ int main(int argc, char *argv[]) {
   // Looping variables
   int LOOP_AMT = 4128;
   double step_size = 1.0/double(LOOP_AMT);
-  double loop_times[LOOP_AMT], A_cib_217_values[LOOP_AMT];
-  std::clock_t deltaT;
+  double CPU_times[LOOP_AMT], wall_times[LOOP_AMT],
+         acc_wall_times[LOOP_AMT], A_cib_217_values[LOOP_AMT],
+         likelihood_values[LOOP_AMT];
+  double CPU_time_before, wall_time_before, acc_wall_time_before;
+
+  // Timing results printing variables
   std::ofstream time_file;
+  std::string time_file_dir;
+  int DOUBLE_PRECIS = 6;
 
   // My own variables
   const int CL_AMT = 6;
@@ -56,6 +66,20 @@ int main(int argc, char *argv[]) {
   int cl_flags_plc[CL_AMT], l_maxes[CL_AMT], max_l, prev_max_l;
   parname *param_names;
   int param_amts;
+
+  // Extract out file location
+  if (argc == 1) { // default directory
+    time_file_dir = "output/A_cib_217_times.txt";
+  }
+  else if (argc == 2) { // custom directory
+    time_file_dir = argv[1];
+  }
+  else {
+    std::cerr << "Too many args given!" << std::endl;
+    throw std::exception();
+  }
+
+  std::cout << "Printing results to " << time_file_dir << std::endl;
 
   // Initialise error (the PLC way)
   _err = initError();
@@ -156,30 +180,53 @@ int main(int argc, char *argv[]) {
 
     std::cout << "------------------------"<< std::endl;
 
-    // Run LogLike method and time it
-    deltaT = std::clock();
+    // Time the LogLike method
+    CPU_time_before = get_CPU_time();
+    wall_time_before = get_wall_time();
+    acc_wall_time_before = get_accurate_wall_time();
+
     LogLike(Cube, ndims, nPar, lnew, context);
-    deltaT = std::clock() - deltaT;
 
-    // Loop times in s
-    loop_times[i] = double(deltaT) / double(CLOCKS_PER_SEC);
+    // LogLike times in seconds
+    CPU_times[i] = get_CPU_time() - CPU_time_before;
+    wall_times[i] = get_wall_time() - wall_time_before;
+    acc_wall_times[i] = get_accurate_wall_time() - acc_wall_time_before;
 
-    // Also extract value of A_cib_217
+    // Also extract value of A_cib_217 and likelihood
     A_cib_217_values[i] = Cube[0];
+    likelihood_values[i] = lnew;
 
-    // std::cout << "Time: " << loop_times[i] << " ms." << std::endl;
-    // std::cout << "A_cib_217: " << A_cib_217_values << std::endl;
-    // std::cout << "Likelihood: " << lnew << std::endl;
+    // std::cout << "CPU time: "
+    //           << std::setprecision(DOUBLE_PRECIS) << CPU_times[i]
+    //           << " s." << std::endl;
+    // std::cout << "Wall time: " 
+    //           << std::setprecision(DOUBLE_PRECIS) << wall_times[i]
+    //           << " s." << std::endl;
+    // std::cout << "Accurate wall time: "
+    //           << std::setprecision(DOUBLE_PRECIS) << acc_wall_times[i] 
+    //           << " s." << std::endl;
+    // std::cout << "A_cib_217: " << A_cib_217_values[i] << std::endl;
+    // std::cout << "Likelihood: " << likelihood_values[i] << std::endl;
   }
 
-  // Print contents of loop_times to file
-  time_file.open("output/A_cib_217_loop_times.txt");
-  time_file << std::setw(24) << "A_cib_217 value"
-            << std::setw(24) << "Loop time (s)"
+  // Print contents of CPU_times to file
+  // Changed to tab delimiter 23/10/16
+  time_file.open(time_file_dir.c_str());
+  time_file << "A_cib_217 value" << '\t'
+            << "Log likelihood" << '\t'
+            << "CPU time (s)" << '\t'
+            << "Wall time (s)" << '\t'
+            << "Accurate wall time (s)"
             << std::endl;
   for (int i = 0; i < LOOP_AMT; ++i) {
-    time_file << std::setw(24) << A_cib_217_values[i]
-              << std::setw(24) << loop_times[i]
+    time_file << A_cib_217_values[i] << '\t'
+              << likelihood_values[i] << '\t'
+              << std::setprecision(DOUBLE_PRECIS) << CPU_times[i]
+              << '\t'
+              << std::setprecision(DOUBLE_PRECIS) << wall_times[i]
+              << '\t'
+              << std::setprecision(DOUBLE_PRECIS) << acc_wall_times[i]
+              << '\t'
               << std::endl;
   }
   time_file.close();
@@ -191,17 +238,6 @@ int main(int argc, char *argv[]) {
 
 
 /*** Secondary Functions ***/
-
-// This method is not actually used, haha!
-static void print_usage(std::string name) {
-  std::cerr << "Usage: " << name << " [-h -v -l] PLIK_FILE\n"
-            << "Options:\n"
-            << "\t-h,--help\t\tShow this help message\n"
-            << "\t-v,--verbose\t\tVerbose output\n"
-            << "\t-l,--do-lensing\t\tDo a lensing likelihood computation"
-            // << "\t-c,--class-arg CLASS_INI\t\tGive .ini file CLASS_INI for CLASS to initialise with"
-            << std::endl;
-}
 
 // Create vector of multipoles to pass to class_engine.getCls()
 std::vector<unsigned> create_l_vec(int max_l) {
@@ -523,4 +559,39 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   // Clean up after running
   delete class_engine;
   delete[] cl_and_pars;
+}
+
+
+/***********************/
+/*      SpeedTest      */
+/***********************/
+
+// Returns the sum of user + system time
+double get_CPU_time() {
+  return clock() / (double) CLOCKS_PER_SEC;
+}
+
+// Might be prone to errors. POSIX.1-2008 recommends against using this
+// for accurate timing due to associated hardware dependencies.
+double get_wall_time() {
+  struct timeval time;
+  if (gettimeofday(&time, NULL)) {
+    std::cerr << "ERROR: gettimeofday() threw an error!"
+              << std::endl;
+    return 0;
+  }
+  return (double) time.tv_sec + (double) time.tv_usec * 0.000001;
+}
+
+// Uses a different method of getting walltime that shouldn't depend
+// on how many processes are running nor over how many cores.
+// Has nanosecond precision.
+double get_accurate_wall_time() {
+  struct timespec time;
+  if (clock_gettime(CLOCK_MONOTONIC, &time)) {
+    std::cerr << "ERROR: clock_gettime() threw an error!"
+              << std::endl;
+    return 0;
+  }
+  return (double) time.tv_sec + (double) time.tv_nsec * 0.000000001;  
 }

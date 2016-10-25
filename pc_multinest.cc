@@ -35,10 +35,10 @@ int main(int argc, char *argv[]) {
   int nlive = 500;        // number of live points
   double efr = 0.8;       // set the required efficiency
   double tol = 0.1;       // tol, defines the stopping criteria
-  int ndims = 15;         // dimensionality (no. of free parameters)
+  int ndims = 1;          // dimensionality (no. of free parameters)
   int nPar = 22;          // total no. of parameters including free &
                           // derived parameters
-  int nClsPar = 15;       // no. of parameters to do mode separation on
+  int nClsPar = 1;        // no. of parameters to do mode separation on
   int updInt = 1000;      // after how many iterations feedback is
                           // required & the output files should be updated
                           // note: posterior files are updated & dumper
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
   int pWrap[ndims];       // which parameters to have periodic boundary
                           // conditions?
   for(int i = 0; i < ndims; i++) pWrap[i] = 0;
-  char root[100] = "output/pc_multinest_500_0.1_nuis-";      // root for output files
+  char root[100] = "output/pc_multinest_500_0.1_-";      // root for output files
   int seed = -1;          // random no. generator seed, if < 0 then take
                           // the seed from system clock
   int fb = 1;             // need feedback on standard output?
