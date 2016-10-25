@@ -1,0 +1,17 @@
+Job Name                   Description
+---------------------------------------------------------------------------
+pc_multinest_100           Run of 100 live points over one Planck nuisance
+                           parameter, A_cib_217. Tolerance at default 0.5
+                           as given in eggbox_C++ example code. Output
+                           written to
+                             output/pc_multinest_100-*
+
+pc_multinest_500_0.1       Run of 500 live points over same parameter at
+                           0.1 tolerance. Output written to
+                             output/pc_multinest_500-*
+
+pc_speedtest_A_cib_217     Run of pc_speedtest making same number of sweeps
+                           as pc_multinest_500_0.1 does in order to time
+                           code. Output written to
+                             output/A_cib_217_loop_times.txt
+                           Only timed CPU time.
