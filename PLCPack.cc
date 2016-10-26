@@ -1,7 +1,7 @@
 #include "PLCPack.h"
 
 #include <cstdio> // for stderr
-#include <stdexcept> // for std::exception
+#include <exception> // for std::exception
 #include <iostream> // for std::cerr
 
 // Will this do preliminary checks on the clik_object?
@@ -45,6 +45,11 @@ PLCPack::PLCPack(clik_object *clik_id) {
     }
   }
   m_cap_size += m_param_amt;
+
+  // Create vector of multipoles l for CLASS
+  for (int l = 2; l <= m_max_l; ++l) {
+    m_class_l_vec.push_back(l);
+  }
 }
 
 PLCPack::~PLCPack() {
@@ -67,6 +72,10 @@ int* PLCPack::get_cl_flags() {
 
 int PLCPack::get_param_amt() const {
   return m_param_amt;
+}
+
+std::vector<unsigned> PLCPack::get_class_l_vec() const {
+  return m_class_l_vec;
 }
 
 /*

@@ -18,6 +18,19 @@ pc_speedtest_A_cib_217    Run of pc_speedtest making same number of sweeps
 
 pc_speedtest_500_0.1_     Run of pc_speedtest using pc_multinest_500_0.1 as
   alltimes                a benchmark. Output written to
-                            output/pc_speedtest_500_0.1_alltimes
+                            output/pc_speedtest_500_0.1_alltimes.txt
                           Timed both CPU and wall times.
                           The benchmark test.
+
+pc_speedtest_500_0.1_     Second benchmark run of pc_speedtest to confirm
+  alltimes_2              results of first run. Output written to
+                            output/pc_speedest_500_0.1_alltimes_2.txt
+                          Both CPU and wall times.
+
+pc_speedtest_500_0.1_     Third benchmark run of pc_speedtest to confirm
+  alltimes_3              results of first run. Output written to
+                            output/pc_speedest_500_0.1_alltimes_3.txt
+                          Both CPU and wall times. stdout output should
+                          also contain the output from two date commands
+                          run before and after the program to validify
+                          wall time results.

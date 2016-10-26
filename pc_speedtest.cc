@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-#include <stdexcept>
+#include <stdexcept> // gives various standard exceptions
 #include <math.h>
 
 #include <fstream> // for writing loop times out to file
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
   // Timing results printing variables
   std::ofstream time_file;
   std::string time_file_dir;
-  int DOUBLE_PRECIS = 6;
+  const int DOUBLE_PRECIS = 6;
 
   // My own variables
   const int CL_AMT = 6;
@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
     A_cib_217_values[i] = Cube[0];
     likelihood_values[i] = lnew;
 
-    //*
+    /*
     std::cout << "CPU time: "
               << std::setprecision(DOUBLE_PRECIS) << CPU_times[i]
               << " s." << std::endl;
@@ -174,27 +174,15 @@ int main(int argc, char *argv[]) {
               << std::setprecision(DOUBLE_PRECIS) << wall_times[i]
               << '\t'
               << std::setprecision(DOUBLE_PRECIS) << acc_wall_times[i]
-              << '\t'
               << std::endl;
   }
   time_file.close();
 
-  clik_cleanup(&clik_id);
+  delete plc_pack;
 
   return 0;
 }
 
-
-/*** Secondary Functions ***/
-
-// Create vector of multipoles to pass to class_engine.getCls()
-std::vector<unsigned> create_l_vec(int max_l) {
-  std::vector<unsigned> l_vec;
-  for (int l = 2; l <= max_l; ++l) {
-    l_vec.push_back(l);
-  }
-  return l_vec;
-}
 
 /***********************/
 /*      MultiNest      */
@@ -386,19 +374,19 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   try {
     class_engine = new ClassEngine(class_params);
   }
-  catch (std::exception &e) {
+  catch (std::exception const &e) {
     std::cerr << "[ERROR] CLASS failed, throwing exception " << e.what() << std::endl;
     throw e;
   }
 
   // Create vector of multipoles to calculate Cls for
-  l_vec = create_l_vec(max_l);
+  l_vec = plc_pack->get_class_l_vec();
 
   // Calculate Cls from CLASS
   try {
     class_engine->getCls(l_vec, cl_tt, cl_te, cl_ee, cl_bb);
   }
-  catch (std::exception &e) {
+  catch (std::exception const &e) {
     std::cerr << "[ERROR] Spectra extraction unsuccessful, threw " << e.what() << std::endl;
     throw e;
   }
@@ -434,7 +422,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
 
   // Check if we have done enough initialising
   if (nuisance_pars.size() > param_amts) {
-    std::cerr << "[ERROR] More nuisance paramters initialised than needed!"
+    std::cerr << "[ERROR] More nuisance parameters initialised than needed!"
               << std::endl;
     throw std::exception();
   }
@@ -445,7 +433,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   }
 
   // Construct the cl_and_pars array that PLC wants
-  // First transpose spectra
+  // First add spectra
   cl_and_pars = new double[cap_size];
   int cap_ind = 0;
   for (int cl_ind = 0; cl_ind < CL_AMT; ++cl_ind) {
@@ -466,7 +454,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
     }
   }
 
-  // Then transpose nuisance parameters
+  // Then add nuisance parameters
   for (int i = 0; i < param_amts; ++i) {
     cl_and_pars[cap_ind] = nuisance_pars[i];
     cap_ind++;
@@ -477,7 +465,6 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   // Compute the log likelihood using PLC
   lnew = plc_pack->get_clik_likelihood(cl_and_pars);
 
-  // This will get old pretty fast
   /*
   std::cout << "[plc_class] Calculated log likelihood of "
             << lnew

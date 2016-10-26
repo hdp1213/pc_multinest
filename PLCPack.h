@@ -1,5 +1,6 @@
 // Header file for plc_pack class
 #include "clik.h"
+#include <vector>
 
 
 class PLCPack {
@@ -13,6 +14,8 @@ public:
   int* get_cl_flags();
   int get_param_amt() const;
   // parname get_param_names() const;
+
+  std::vector<unsigned> get_class_l_vec() const;
 
   double get_clik_likelihood(double *cl_and_pars);
 
@@ -31,8 +34,10 @@ private:
   int m_cap_size; // Size of cl_and_pars array
   int m_cl_max_ls[CL_AMT];
   int m_cl_flags[CL_AMT];
-
   int m_param_amt;
   parname *m_param_names;
+
+  // CLASS bits
+  std::vector<unsigned> m_class_l_vec;
 
 };
