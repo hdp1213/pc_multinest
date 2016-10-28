@@ -1,9 +1,9 @@
-HOME_DIR := /coepp/cephfs/adl/harryp
+HOME_DIR := /home/harry
 
 PLIK_DIR := $(HOME_DIR)/plc-2.0
-CLASS_DIR := $(HOME_DIR)/class
+CLASS_DIR := /home/harry/Documents/git-repos/class
 MULTINEST_DIR := $(HOME_DIR)/MultiNest_v3.10
-BATCH_DIR := /data/harryp
+LIB_DIR := /home/harry/plc-2.0
 
 # Flags for the C++ compiler
 CPPC := g++
@@ -15,8 +15,8 @@ INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include
 # LIB_FLAGS := -L$(PLIK_DIR)/lib -L$(PLIK_DIR) -L$(CLASS_DIR)/build -llapack -lblas -ldl -lcfitsio -lgfortran -lgomp -lclik
 # LIB_FLAGS := -L$(PLIK_DIR)/lib -L$(PLIK_DIR) -L$(CLASS_DIR)/libclass.a -llapack -lblas -ldl -lgfortran -lgomp -lclik -L/home/harryp/.local/lib -lcfitsio
 
-BATCH_PLC_FLAGS = -DHAVE_PYEMBED=1 -DHAVE_PYTHON_H=1 -DHAS_LAPACK -DLAPACK_CLIK -m64 -Wl,-rpath,$(BATCH_DIR)/lib -Wl,-rpath,$(PLIK_DIR) -Wl,-rpath,$(CLASS_DIR)
-BATCH_LIB_FLAGS = -llapack -lblas -ldl -lgfortran -lgomp -lclik -lcfitsio -L$(BATCH_DIR)/lib
+BATCH_PLC_FLAGS = -DHAVE_PYEMBED=1 -DHAVE_PYTHON_H=1 -DHAS_LAPACK -DLAPACK_CLIK -m64 -Wl,-rpath,$(LIB_DIR)/lib -Wl,-rpath,$(PLIK_DIR) -Wl,-rpath,$(CLASS_DIR)
+BATCH_LIB_FLAGS = -llapack -lblas -ldl -lgfortran -lgomp -lclik -lcfitsio -L$(LIB_DIR)/lib
 
 # Flags for the Fortran compiler which compiles the .o files into the final binary when adding MultiNest
 FC := gfortran

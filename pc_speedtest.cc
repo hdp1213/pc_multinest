@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
   PLCPack *plc_pack = 0;
 
   // Variables for PLC manipulations
-  char *clik_path = "/data/harryp/pc_multinest/plik_dx11dr2_HM_v18_TT.clik/";
+  char *clik_path = "/home/harry/plc_2.0/hi_l/plik/plik_dx11dr2_HM_v18_TT.clik/";
   error *_err, **err;
   clik_object *clik_id;
   int is_lensed;
