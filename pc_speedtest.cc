@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
   void *context = 0;
 
   // Looping variables
-  int LOOP_AMT = 4128;
+  int LOOP_AMT = 1000;
   double step_size = 1.0/double(LOOP_AMT);
   double CPU_times[LOOP_AMT], wall_times[LOOP_AMT],
          acc_wall_times[LOOP_AMT], A_cib_217_values[LOOP_AMT],
@@ -125,22 +125,23 @@ int main(int argc, char *argv[]) {
     }
 
     std::cout << "------------------------"<< std::endl;
+    std::cout << "Loop number " << i << std::endl;
 
     // Time the LogLike method
-    CPU_time_before = get_CPU_time();
-    wall_time_before = get_wall_time();
-    acc_wall_time_before = get_accurate_wall_time();
+    // CPU_time_before = get_CPU_time();
+    // wall_time_before = get_wall_time();
+    // acc_wall_time_before = get_accurate_wall_time();
 
     LogLike(Cube, ndims, nPar, lnew, context);
 
     // LogLike times in seconds
-    CPU_times[i] = get_CPU_time() - CPU_time_before;
-    wall_times[i] = get_wall_time() - wall_time_before;
-    acc_wall_times[i] = get_accurate_wall_time() - acc_wall_time_before;
+    // CPU_times[i] = get_CPU_time() - CPU_time_before;
+    // wall_times[i] = get_wall_time() - wall_time_before;
+    // acc_wall_times[i] = get_accurate_wall_time() - acc_wall_time_before;
 
     // Also extract value of A_cib_217 and likelihood
-    A_cib_217_values[i] = Cube[0];
-    likelihood_values[i] = lnew;
+    // A_cib_217_values[i] = Cube[0];
+    // likelihood_values[i] = lnew;
 
     /*
     std::cout << "CPU time: "
@@ -159,6 +160,7 @@ int main(int argc, char *argv[]) {
 
   // Print contents of CPU_times to file
   // Changed to tab delimiter 23/10/16
+  /*
   time_file.open(time_file_dir.c_str());
   time_file << "A_cib_217 value" << '\t'
             << "Log likelihood" << '\t'
@@ -177,6 +179,7 @@ int main(int argc, char *argv[]) {
               << std::endl;
   }
   time_file.close();
+  //*/
 
   delete plc_pack;
 
