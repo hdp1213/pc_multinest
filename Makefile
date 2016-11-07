@@ -7,25 +7,21 @@ BATCH_DIR := /data/harryp
 
 # Flags for the C++ compiler
 CPPC := g++
-# turn off warnings
-OPT_FLAGS := -O3 -w
-#-fopenmp
-INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include 
-# PLC_FLAGS := -DHAVE_PYEMBED=1 -DHAVE_PYTHON_H=1 -DHAS_LAPACK -DLAPACK_CLIK -m64 -Wl,-rpath,$(PLIK_DIR)/lib -Wl,-rpath,$(PLIK_DIR) -Wl,-rpath,$(CLASS_DIR)
-# LIB_FLAGS := -L$(PLIK_DIR)/lib -L$(PLIK_DIR) -L$(CLASS_DIR)/build -llapack -lblas -ldl -lcfitsio -lgfortran -lgomp -lclik
-# LIB_FLAGS := -L$(PLIK_DIR)/lib -L$(PLIK_DIR) -L$(CLASS_DIR)/libclass.a -llapack -lblas -ldl -lgfortran -lgomp -lclik -L/home/harryp/.local/lib -lcfitsio
+# turn off warnings using -w
+OPT_FLAGS := -O4 -ffast-math -fopenmp -w
+INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include
 
 BATCH_PLC_FLAGS = -DHAVE_PYEMBED=1 -DHAVE_PYTHON_H=1 -DHAS_LAPACK -DLAPACK_CLIK -m64 -Wl,-rpath,$(BATCH_DIR)/lib -Wl,-rpath,$(PLIK_DIR) -Wl,-rpath,$(CLASS_DIR)
 BATCH_LIB_FLAGS = -llapack -lblas -ldl -lgfortran -lgomp -lclik -lcfitsio -L$(BATCH_DIR)/lib
 
 # Flags for the Fortran compiler which compiles the .o files into the final binary when adding MultiNest
 FC := gfortran
-FC_FLAGS := -ffree-line-length-none -O3
+FC_FLAGS := -ffree-line-length-none
 FC_LIBS := -L$(MULTINEST_DIR) -lnest3 -lstdc++
 
 # Flags for the MPI compilers
 FC_MPI := mpifort
-FC_MPI_FLAGS := -ffree-line-length-none -O3 -DMPI
+FC_MPI_FLAGS := -ffree-line-length-none -DMPI
 
 # Own object files to link against
 PC_OBJS = PLCPack.o
