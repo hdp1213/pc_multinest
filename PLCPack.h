@@ -1,4 +1,7 @@
 // Header file for plc_pack class
+#ifndef PLCPACK_H
+#define PLCPACK_H
+
 #include "clik.h"
 #include <vector>
 
@@ -41,3 +44,5 @@ private:
   std::vector<unsigned> m_class_l_vec;
 
 };
+
+#endif

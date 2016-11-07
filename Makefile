@@ -39,7 +39,7 @@ CLASS_BUILD_OBJS = $(addprefix $(CLASS_DIR)/build/, $(CLASS_SOURCE) $(CLASS_TOOL
 CLASS_CPP_OBJS = $(addprefix $(CLASS_DIR)/cpp/, $(CPP))
 
 # Same thing, but with CLASS sources to compile myself (lame)
-CPP_CC = $(addprefix $(CLASS_DIR)/cpp/, $(addsuffix .cc, $(basename $(CPP))))
+CPP_SRC = $(addprefix $(CLASS_DIR)/cpp/, $(addsuffix .cc, $(basename $(CPP))))
 
 vpath %.cc $(CLASS_DIR)/cpp
 vpath %.o $(CLASS_DIR)/cpp
@@ -57,7 +57,7 @@ pc_multinest: pc_multinest.o $(CLASS_CPP_OBJS) $(PC_OBJS)
 	$(FC) $(FC_FLAGS) -o pc_multinest pc_multinest.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(PC_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -f output/*
 
-pc_multinest.o: pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_CC)
+pc_multinest.o: pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC)
 	$(CPPC) -c -o pc_multinest.o pc_multinest.cc $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 # MultiNest-compatible program compiled with MPI
@@ -65,7 +65,7 @@ pc_multinest_mpi: pc_multinest_mpi.o $(CLASS_CPP_OBJS) $(PC_OBJS)
 	$(FC_MPI) $(FC_MPI_FLAGS) -o pc_multinest_mpi pc_multinest_mpi.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(PC_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -f output/*
 
-pc_multinest_mpi.o: pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_CC)
+pc_multinest_mpi.o: pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC)
 	$(CPPC) -c -o pc_multinest_mpi.o pc_multinest.cc $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 # Speedtest program
@@ -73,7 +73,7 @@ pc_speedtest: pc_speedtest.o $(CLASS_CPP_OBJS) $(PC_OBJS)
 	$(FC) $(FC_FLAGS) -o pc_speedtest pc_speedtest.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(PC_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -f output/*
 
-pc_speedtest.o: pc_speedtest.cc $(PLIK_DIR)/src/clik.c $(CPP_CC)
+pc_speedtest.o: pc_speedtest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC)
 	$(CPPC) -c -o pc_speedtest.o pc_speedtest.cc $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 clean:
