@@ -1,5 +1,6 @@
 #include "ClassEngine.hh"
 #include "PLCPack.h"
+#include "ClikObject.h"
 
 #include <cstdio> // for stderr
 #include <ctime> // for clock_t, clock()
@@ -41,7 +42,7 @@ int main(int argc, char *argv[]) {
   void *context = 0;
 
   // Looping variables
-  int LOOP_AMT = 1000;
+  int LOOP_AMT = 20;
   double step_size = 1.0/double(LOOP_AMT);
   double CPU_times[LOOP_AMT], wall_times[LOOP_AMT],
          acc_wall_times[LOOP_AMT], A_cib_217_values[LOOP_AMT],
@@ -53,18 +54,19 @@ int main(int argc, char *argv[]) {
   std::string time_file_dir;
   const int DOUBLE_PRECIS = 6;
 
-  // My own variables
-  const int CL_AMT = 6;
-  int do_lensing = 0; // input flags
-  PLCPack *plc_pack = 0;
+  // High l likelihood variables
+  char *hi_l_clik_path = "/data/harryp/pc_multinest/plik_dx11dr2_HM_v18_TT.clik/";
+  ClikObject *hi_l_clik = 0;
+  std::vector<ClikPar::param_t> hi_l_nuis_enums;
 
-  // Variables for PLC manipulations
-  char *clik_path = "/home/harry/plc_2.0/hi_l/plik/plik_dx11dr2_HM_v18_TT.clik/";
-  error *_err, **err;
-  clik_object *clik_id;
-  int is_lensed;
-  parname *param_names;
+  // Low l likelihood variables  
+  ClikObject *lo_l_clik = 0;
+  char *lo_l_clik_path = "/data/harryp/pc_multinest/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
+  std::vector<ClikPar::param_t> lo_l_nuis_enums;
+
   int param_amts;
+  parname *param_names;
+  PLCPack *plc_pack = 0;
 
   // Extract out file location
   if (argc == 1) { // default directory
@@ -80,35 +82,33 @@ int main(int argc, char *argv[]) {
 
   std::cout << "Printing results to " << time_file_dir << std::endl;
 
-  // Initialise error (the PLC way)
-  _err = initError();
-  err = &_err;
+  // Create new clik object for high l likelihood
+  hi_l_clik = new ClikObject(hi_l_clik_path);
 
-  // Check if likelihood uses lensing (it should if it is physical!)
-  // TODO: find if lensing is physical I guess (21/9/16)
-  is_lensed = clik_try_lensing(clik_path, err);
-  quitOnError(*err, __LINE__, stderr);
+  hi_l_nuis_enums.push_back(ClikPar::A_cib_217);
+  hi_l_nuis_enums.push_back(ClikPar::cib_index);
+  hi_l_nuis_enums.push_back(ClikPar::xi_sz_cib);
+  hi_l_nuis_enums.push_back(ClikPar::A_sz);
+  hi_l_nuis_enums.push_back(ClikPar::ps_A_100_100);
+  hi_l_nuis_enums.push_back(ClikPar::ps_A_143_143);
+  hi_l_nuis_enums.push_back(ClikPar::ps_A_143_217);
+  hi_l_nuis_enums.push_back(ClikPar::ps_A_217_217);
+  hi_l_nuis_enums.push_back(ClikPar::ksz_norm);
+  hi_l_nuis_enums.push_back(ClikPar::gal545_A_100);
+  hi_l_nuis_enums.push_back(ClikPar::gal545_A_143);
+  hi_l_nuis_enums.push_back(ClikPar::gal545_A_143_217);
+  hi_l_nuis_enums.push_back(ClikPar::gal545_A_217);
+  hi_l_nuis_enums.push_back(ClikPar::calib_100T);
+  hi_l_nuis_enums.push_back(ClikPar::calib_217T);
+  hi_l_nuis_enums.push_back(ClikPar::A_planck);
 
-  if (is_lensed != do_lensing) {
-    std::cerr << "[ERROR] Inconsistent lensing requirement for .clik "
-              << "file: '"
-              << clik_path
-              << "'. Check your command line arguments or .clik file!"
-              << std::endl;
-    throw std::exception();
-  }
-
-  // Initialise Planck likelihood
-  clik_id = clik_init(clik_path, err);
-  quitOnError(*err, __LINE__, stderr);
-
-  // Create new PLCPack object for the clik_object to live in
-  plc_pack = new PLCPack(clik_id);
+  hi_l_clik->set_nuisance_param_enums(hi_l_nuis_enums);
 
   // Print out nuisance parameter names for the world to see
-  param_amts = clik_get_extra_parameter_names(clik_id, &param_names, err);
+  param_amts = hi_l_clik->get_param_amt();
+  param_names = hi_l_clik->get_param_names();
 
-  std::cout << "This .clik file requires "
+  std::cout << "The high-l .clik file requires "
             << param_amts
             << " nuisance parameters to be marginalised over:\n";
   for (int i = 0; i < param_amts; ++i) {
@@ -116,7 +116,34 @@ int main(int argc, char *argv[]) {
   }
   std::cout << std::endl;
 
+
+  // Create new clik object for low l likelihood
+  lo_l_clik = new ClikObject(lo_l_clik_path);
+
+  lo_l_nuis_enums.push_back(ClikPar::A_planck);
+
+  lo_l_clik->set_nuisance_param_enums(lo_l_nuis_enums);
+
+  // Print out nuisance parameter names for the world to see
+  param_amts = lo_l_clik->get_param_amt();
+  param_names = lo_l_clik->get_param_names();
+
+  std::cout << "The low-l .clik file requires "
+            << param_amts
+            << " nuisance parameters to be marginalised over:\n";
+  for (int i = 0; i < param_amts; ++i) {
+    std::cout << '\t' << param_names[i] << std::endl;
+  }
+  std::cout << std::endl;
+
+
+  // Package it all together
+  plc_pack = new PLCPack();
+  plc_pack->add_clik_object(hi_l_clik);
+  plc_pack->add_clik_object(lo_l_clik);
+
   context = plc_pack;
+
 
   // Manually looping over LogLike method
   for (int i = 0; i < LOOP_AMT; ++i) {
@@ -129,22 +156,22 @@ int main(int argc, char *argv[]) {
     std::cout << "Loop number " << i << std::endl;
 
     // Time the LogLike method
-    // CPU_time_before = get_CPU_time();
-    // wall_time_before = get_wall_time();
-    // acc_wall_time_before = get_accurate_wall_time();
+    CPU_time_before = get_CPU_time();
+    wall_time_before = get_wall_time();
+    acc_wall_time_before = get_accurate_wall_time();
 
     LogLike(Cube, ndims, nPar, lnew, context);
 
     // LogLike times in seconds
-    // CPU_times[i] = get_CPU_time() - CPU_time_before;
-    // wall_times[i] = get_wall_time() - wall_time_before;
-    // acc_wall_times[i] = get_accurate_wall_time() - acc_wall_time_before;
+    CPU_times[i] = get_CPU_time() - CPU_time_before;
+    wall_times[i] = get_wall_time() - wall_time_before;
+    acc_wall_times[i] = get_accurate_wall_time() - acc_wall_time_before;
 
     // Also extract value of A_cib_217 and likelihood
-    // A_cib_217_values[i] = Cube[0];
-    // likelihood_values[i] = lnew;
+    A_cib_217_values[i] = Cube[0];
+    likelihood_values[i] = lnew;
 
-    /*
+    //*
     std::cout << "CPU time: "
               << std::setprecision(DOUBLE_PRECIS) << CPU_times[i]
               << " s." << std::endl;
@@ -161,7 +188,7 @@ int main(int argc, char *argv[]) {
 
   // Print contents of CPU_times to file
   // Changed to tab delimiter 23/10/16
-  /*
+  //*
   time_file.open(time_file_dir.c_str());
   time_file << "A_cib_217 value" << '\t'
             << "Log likelihood" << '\t'

@@ -1,5 +1,6 @@
 #include "ClassEngine.hh"
 #include "PLCPack.h"
+#include "ClikObject.h"
 #include "multinest.h"
 
 #include <cstdio> // for stderr
@@ -12,9 +13,8 @@
 #include <math.h>
 
 #include "loglike.h"
+#include "ClikPar.h"
 
-static void print_usage(std::string name);
-std::vector<unsigned> create_l_vec(int max_l);
 void convert_Dl_to_Cl(std::vector<double> *dl_vec);
 void dumper(int &nSamples, int &nlive, int &nPar, double **physLive, double **posterior, double **paramConstr, double &maxLogLike, double &logZ, double &INSlogZ, double &logZerr, void *context);
 
@@ -72,55 +72,79 @@ int main(int argc, char *argv[]) {
                           // information user wants to pass
 
 
-  // My own variables
-  const int CL_AMT = 6;
-  int do_lensing = 0; // input flags
+  // High l likelihood variables
+  char *hi_l_clik_path = "/data/harryp/pc_multinest/plik_dx11dr2_HM_v18_TT.clik/";
+  ClikObject *hi_l_clik = 0;
+  std::vector<ClikPar::param_t> hi_l_nuis_enums;
+
+  // Low l likelihood variables  
+  ClikObject *lo_l_clik = 0;
+  char *lo_l_clik_path = "/data/harryp/pc_multinest/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
+  std::vector<ClikPar::param_t> lo_l_nuis_enums;
+
+  int param_amts;
+  parname *param_names;
   PLCPack *plc_pack = 0;
 
-  // Variables for PLC manipulations
-  char *clik_path = "/data/harryp/pc_multinest/plik_dx11dr2_HM_v18_TT.clik/";
-  error *_err, **err;
-  clik_object *clik_id;
-  // clik_lensing_object *clik_lens_id;
-  int is_lensed;
-  parname *param_names;
-  int param_amts;
+  // Create new clik object for high l likelihood
+  hi_l_clik = new ClikObject(hi_l_clik_path);
 
-  // Initialise error (the PLC way)
-  _err = initError();
-  err = &_err;
+  hi_l_nuis_enums.push_back(ClikPar::A_cib_217);
+  hi_l_nuis_enums.push_back(ClikPar::cib_index);
+  hi_l_nuis_enums.push_back(ClikPar::xi_sz_cib);
+  hi_l_nuis_enums.push_back(ClikPar::A_sz);
+  hi_l_nuis_enums.push_back(ClikPar::ps_A_100_100);
+  hi_l_nuis_enums.push_back(ClikPar::ps_A_143_143);
+  hi_l_nuis_enums.push_back(ClikPar::ps_A_143_217);
+  hi_l_nuis_enums.push_back(ClikPar::ps_A_217_217);
+  hi_l_nuis_enums.push_back(ClikPar::ksz_norm);
+  hi_l_nuis_enums.push_back(ClikPar::gal545_A_100);
+  hi_l_nuis_enums.push_back(ClikPar::gal545_A_143);
+  hi_l_nuis_enums.push_back(ClikPar::gal545_A_143_217);
+  hi_l_nuis_enums.push_back(ClikPar::gal545_A_217);
+  hi_l_nuis_enums.push_back(ClikPar::calib_100T);
+  hi_l_nuis_enums.push_back(ClikPar::calib_217T);
+  hi_l_nuis_enums.push_back(ClikPar::A_planck);
 
-  // Check if likelihood uses lensing (it should if it is physical!)
-  // TODO: find if lensing is physical I guess (21/9/16)
-  is_lensed = clik_try_lensing(clik_path, err);
-  quitOnError(*err, __LINE__, stderr);
-
-  if (is_lensed != do_lensing) {
-    std::cerr << "[ERROR] Inconsistent lensing requirement for .clik "
-              << "file: '"
-              << clik_path
-              << "'. Check your command line arguments or .clik file!"
-              << std::endl;
-    throw std::exception();
-  }
-
-  // Initialise Planck likelihood
-  clik_id = clik_init(clik_path, err);
-  quitOnError(*err, __LINE__, stderr);
-
-  // Create new PLCPack object for the clik_object to live in
-  plc_pack = new PLCPack(clik_id);
+  hi_l_clik->set_nuisance_param_enums(hi_l_nuis_enums);
 
   // Print out nuisance parameter names for the world to see
-  param_amts = clik_get_extra_parameter_names(clik_id, &param_names, err);
+  param_amts = hi_l_clik->get_param_amt();
+  param_names = hi_l_clik->get_param_names();
 
-  std::cout << "This .clik file requires "
+  std::cout << "The high-l .clik file requires "
             << param_amts
             << " nuisance parameters to be marginalised over:\n";
   for (int i = 0; i < param_amts; ++i) {
     std::cout << '\t' << param_names[i] << std::endl;
   }
   std::cout << std::endl;
+
+
+  // Create new clik object for low l likelihood
+  lo_l_clik = new ClikObject(lo_l_clik_path);
+
+  lo_l_nuis_enums.push_back(ClikPar::A_planck);
+
+  lo_l_clik->set_nuisance_param_enums(lo_l_nuis_enums);
+
+  // Print out nuisance parameter names for the world to see
+  param_amts = lo_l_clik->get_param_amt();
+  param_names = lo_l_clik->get_param_names();
+
+  std::cout << "The low-l .clik file requires "
+            << param_amts
+            << " nuisance parameters to be marginalised over:\n";
+  for (int i = 0; i < param_amts; ++i) {
+    std::cout << '\t' << param_names[i] << std::endl;
+  }
+  std::cout << std::endl;
+
+
+  // Package it all together
+  plc_pack = new PLCPack();
+  plc_pack->add_clik_object(hi_l_clik);
+  plc_pack->add_clik_object(lo_l_clik);
 
   context = plc_pack;
   
@@ -131,33 +155,13 @@ int main(int argc, char *argv[]) {
               resume, outfile, initMPI, logZero, maxiter, LogLike, dumper,
               context);
 
-  clik_cleanup(&clik_id);
+  delete plc_pack;
 
   return 0;
 }
 
 
 /*** Secondary Functions ***/
-
-// This method is not actually used, haha!
-static void print_usage(std::string name) {
-  std::cerr << "Usage: " << name << " [-h -v -l] PLIK_FILE\n"
-            << "Options:\n"
-            << "\t-h,--help\t\tShow this help message\n"
-            << "\t-v,--verbose\t\tVerbose output\n"
-            << "\t-l,--do-lensing\t\tDo a lensing likelihood computation"
-            // << "\t-c,--class-arg CLASS_INI\t\tGive .ini file CLASS_INI for CLASS to initialise with"
-            << std::endl;
-}
-
-// Create vector of multipoles to pass to class_engine.getCls()
-std::vector<unsigned> create_l_vec(int max_l) {
-  std::vector<unsigned> l_vec;
-  for (int l = 2; l <= max_l; ++l) {
-    l_vec.push_back(l);
-  }
-  return l_vec;
-}
 
 // Converts Dl=l(l+1)Cl/2pi to Cl again
 // Not really needed as of now (23/9/16)

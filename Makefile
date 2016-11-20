@@ -24,7 +24,8 @@ FC_MPI := mpifort
 FC_MPI_FLAGS := -ffree-line-length-none -DMPI
 
 # Own object files to link against
-PC_OBJS = PLCPack.o
+PC_OBJS = PLCPack.o ClikObject.o
+PC_INC = loglike.h ClikPar.h
 
 # CLASS object files to link against
 CLASS_SOURCE = input.o background.o thermodynamics.o perturbations.o primordial.o nonlinear.o transfer.o spectra.o lensing.o
@@ -44,9 +45,17 @@ CPP_SRC = $(addprefix $(CLASS_DIR)/cpp/, $(addsuffix .cc, $(basename $(CPP))))
 vpath %.cc $(CLASS_DIR)/cpp
 vpath %.o $(CLASS_DIR)/cpp
 
+
+# Various dependencies for targets
+
 all: pc_multinest pc_multinest_mpi pc_speedtest
 
 $(CLASS_DIR)/cpp/ClassEngine.o: $(CLASS_DIR)/cpp/Engine.o
+
+PLCPack.o: ClikObject.o
+
+
+# Compilation commands
 
 %.o: %.cc
 	$(CPPC) -c -o $*.o $< $(OPT_FLAGS) $(INC_FLAGS) $(CLASS_LIB)
@@ -57,7 +66,7 @@ pc_multinest: pc_multinest.o $(CLASS_CPP_OBJS) $(PC_OBJS)
 	$(FC) $(FC_FLAGS) -o pc_multinest pc_multinest.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(PC_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -f output/*
 
-pc_multinest.o: pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC)
+pc_multinest.o: pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC)
 	$(CPPC) -c -o pc_multinest.o pc_multinest.cc $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 # MultiNest-compatible program compiled with MPI
@@ -65,7 +74,7 @@ pc_multinest_mpi: pc_multinest_mpi.o $(CLASS_CPP_OBJS) $(PC_OBJS)
 	$(FC_MPI) $(FC_MPI_FLAGS) -o pc_multinest_mpi pc_multinest_mpi.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(PC_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -f output/*
 
-pc_multinest_mpi.o: pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC)
+pc_multinest_mpi.o: pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC)
 	$(CPPC) -c -o pc_multinest_mpi.o pc_multinest.cc $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 # Speedtest program
@@ -73,7 +82,7 @@ pc_speedtest: pc_speedtest.o $(CLASS_CPP_OBJS) $(PC_OBJS)
 	$(FC) $(FC_FLAGS) -o pc_speedtest pc_speedtest.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(PC_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -f output/*
 
-pc_speedtest.o: pc_speedtest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC)
+pc_speedtest.o: pc_speedtest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC)
 	$(CPPC) -c -o pc_speedtest.o pc_speedtest.cc $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 clean:
