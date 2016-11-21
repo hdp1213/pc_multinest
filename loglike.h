@@ -27,10 +27,6 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   // Cube     = can use nuisance parameter part to construct cl_and_pars
   // context  = PLC object. has to be! In the future for now.
   
-  
-
-  // My own variables
-  const int CL_AMT = 6;
   double par_min[npars], par_max[npars];
 
   // Variables for PLC manipulations
@@ -62,8 +58,8 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   par_max[ClikPar::ln10_10_A_s] = 4.0;
 
   // Nuisance parameters for PLC
-  par_min[ClikPar::A_cib_217] = 60.0;
-  par_max[ClikPar::A_cib_217] = 70.0;
+  par_min[ClikPar::A_cib_217] = 0.0;
+  par_max[ClikPar::A_cib_217] = 200.0;
   par_min[ClikPar::cib_index] = -1.3;
   par_max[ClikPar::cib_index] = -1.3;
   par_min[ClikPar::xi_sz_cib] = 0.0;
@@ -108,23 +104,29 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   // Set any fixed parameters
   Cube[ClikPar::cib_index] = -1.3;
 
-  // Setting to Planck best fit for base_plikHM_TT_lowTEB
-  // Just as a test for Gaussianity of A_cib_217
-  // Cube[ClikPar::A_cib_217] = 66.6;
+  // Setting Planck 68% limits for base_plikHM_TT_lowTEB
+  // for accuracy test
+  Cube[ClikPar::omega_b] = 0.02222;
+  Cube[ClikPar::omega_cdm] = 0.1197;
+  Cube[ClikPar::hundredxtheta_s] = 1.04085;
+  Cube[ClikPar::tau_reio] = 0.078;
+  Cube[ClikPar::n_s] = 0.9655;
+  Cube[ClikPar::ln10_10_A_s] = 3.089;
+  // Cube[ClikPar::A_cib_217] = 63.9;
   Cube[ClikPar::xi_sz_cib] = 0.05;
-  Cube[ClikPar::A_sz] = 7.14;
-  Cube[ClikPar::ps_A_100_100] = 251.8;
-  Cube[ClikPar::ps_A_143_143] = 39.2;
-  Cube[ClikPar::ps_A_143_217] = 33.6;
-  Cube[ClikPar::ps_A_217_217] = 97.8;
+  Cube[ClikPar::A_sz] = 5.2;
+  Cube[ClikPar::ps_A_100_100] = 257;
+  Cube[ClikPar::ps_A_143_143] = 44;
+  Cube[ClikPar::ps_A_143_217] = 39;
+  Cube[ClikPar::ps_A_217_217] = 97;
   Cube[ClikPar::ksz_norm] = 0.0;
-  Cube[ClikPar::gal545_A_100] = 7.41;
-  Cube[ClikPar::gal545_A_143] = 8.98;
-  Cube[ClikPar::gal545_A_143_217] = 17.53;
-  Cube[ClikPar::gal545_A_217] = 82.0;
-  Cube[ClikPar::calib_100T] = 0.99789;
-  Cube[ClikPar::calib_217T] = 0.99593;
-  Cube[ClikPar::A_planck] = 1.00030;
+  Cube[ClikPar::gal545_A_100] = 7.4;
+  Cube[ClikPar::gal545_A_143] = 8.9;
+  Cube[ClikPar::gal545_A_143_217] = 17.1;
+  Cube[ClikPar::gal545_A_217] = 81.8;
+  Cube[ClikPar::calib_100T] = 0.99788;
+  Cube[ClikPar::calib_217T] = 0.9959;
+  Cube[ClikPar::A_planck] = 1.0004;
   
 
   /* plc_class code begins */
@@ -145,20 +147,12 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   /******************************/
 
   // MultiNest parameters to sweep over (be careful here!)
-  // class_params.add("omega_b", Cube[ClikPar::omega_b]);
-  // class_params.add("omega_cdm", Cube[ClikPar::omega_cdm]);
-  // class_params.add("100*theta_s", Cube[ClikPar::hundredxtheta_s]);
-  // class_params.add("tau_reio", Cube[ClikPar::tau_reio]);
-  // class_params.add("n_s", Cube[ClikPar::n_s]); // k_0 = 0.05 Mpc^-1 by default
-  // class_params.add("ln10^{10}A_s", Cube[ClikPar::ln10_10_A_s]);
-
-  // Set variables to Planck best fit
-  class_params.add("omega_b", 0.022242);
-  class_params.add("omega_cdm", 0.11977);
-  class_params.add("100*theta_s", 1.040862);
-  class_params.add("tau_reio", 0.0781);
-  class_params.add("n_s", 0.9658); // k_0 = 0.05 Mpc^-1 by default
-  class_params.add("ln10^{10}A_s", 3.0904);
+  class_params.add("omega_b", Cube[ClikPar::omega_b]);
+  class_params.add("omega_cdm", Cube[ClikPar::omega_cdm]);
+  class_params.add("100*theta_s", Cube[ClikPar::hundredxtheta_s]);
+  class_params.add("tau_reio", Cube[ClikPar::tau_reio]);
+  class_params.add("n_s", Cube[ClikPar::n_s]); // k_0 = 0.05 Mpc^-1 by default
+  class_params.add("ln10^{10}A_s", Cube[ClikPar::ln10_10_A_s]);
 
   // Options to set for spectra output
   class_params.add("output", "tCl,pCl"); // pCl, lCl for lensed spectra
@@ -169,7 +163,9 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
     class_engine = new ClassEngine(class_params);
   }
   catch (std::exception const &e) {
-    std::cerr << "[ERROR] CLASS failed, throwing exception " << e.what() << std::endl;
+    std::cerr << "[ERROR] CLASS failed, throwing exception "
+              << e.what()
+              << std::endl;
     throw e;
   }
 
@@ -181,7 +177,9 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
     class_engine->getCls(l_vec, cl_tt, cl_te, cl_ee, cl_bb);
   }
   catch (std::exception const &e) {
-    std::cerr << "[ERROR] Spectra extraction unsuccessful, threw " << e.what() << std::endl;
+    std::cerr << "[ERROR] Spectra extraction unsuccessful, threw "
+              << e.what()
+              << std::endl;
     throw e;
   }
 
@@ -201,7 +199,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   // Compute the log likelihood using PLC
   lnew = plc_pack->calculate_likelihood();
 
-  //*
+  /*
   std::cout << "[plc_class] Calculated log likelihood of "
             << lnew
             << std::endl;
