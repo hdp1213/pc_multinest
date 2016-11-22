@@ -112,8 +112,9 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   Cube[ClikPar::tau_reio] = 0.078;
   Cube[ClikPar::n_s] = 0.9655;
   Cube[ClikPar::ln10_10_A_s] = 3.089;
+  
   // Cube[ClikPar::A_cib_217] = 63.9;
-  Cube[ClikPar::xi_sz_cib] = 0.05;
+  // Cube[ClikPar::xi_sz_cib] = 0.05;
   Cube[ClikPar::A_sz] = 5.2;
   Cube[ClikPar::ps_A_100_100] = 257;
   Cube[ClikPar::ps_A_143_143] = 44;
