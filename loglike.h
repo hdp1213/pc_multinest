@@ -44,18 +44,20 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   //  Planck 2015 results. XI. CMB power spectra, ... . p 21,41
 
   // Input parameters for CLASS
-  par_min[ClikPar::omega_b] = 0.005;
-  par_max[ClikPar::omega_b] = 0.1;
-  par_min[ClikPar::omega_cdm] = 0.001;
-  par_max[ClikPar::omega_cdm] = 0.99;
-  par_min[ClikPar::hundredxtheta_s] = 0.5;
-  par_max[ClikPar::hundredxtheta_s] = 10.0;
-  par_min[ClikPar::tau_reio] = 0.01;
-  par_max[ClikPar::tau_reio] = 0.8;
-  par_min[ClikPar::n_s] = 0.8;
-  par_max[ClikPar::n_s] = 1.2;
-  par_min[ClikPar::ln10_10_A_s] = 2.0;
-  par_max[ClikPar::ln10_10_A_s] = 4.0;
+  // Priors will deviate from Planck as CLASS cannot accomodate
+  //  them all.
+  par_min[ClikPar::omega_b] = 0.020;
+  par_max[ClikPar::omega_b] = 0.024;
+  par_min[ClikPar::omega_cdm] = 0.10;
+  par_max[ClikPar::omega_cdm] = 0.13;
+  par_min[ClikPar::hundredxtheta_s] = 0.99;
+  par_max[ClikPar::hundredxtheta_s] = 1.11;
+  par_min[ClikPar::tau_reio] = 0.04;
+  par_max[ClikPar::tau_reio] = 0.12;
+  par_min[ClikPar::n_s] = 0.90;
+  par_max[ClikPar::n_s] = 1.00;
+  par_min[ClikPar::ln10_10_A_s] = 2.9;
+  par_max[ClikPar::ln10_10_A_s] = 3.2;
 
   // Nuisance parameters for PLC
   par_min[ClikPar::A_cib_217] = 0.0;
@@ -106,15 +108,15 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
 
   // Setting Planck 68% limits for base_plikHM_TT_lowTEB
   // for accuracy test
-  Cube[ClikPar::omega_b] = 0.02222;
-  Cube[ClikPar::omega_cdm] = 0.1197;
-  Cube[ClikPar::hundredxtheta_s] = 1.04085;
-  Cube[ClikPar::tau_reio] = 0.078;
-  Cube[ClikPar::n_s] = 0.9655;
-  Cube[ClikPar::ln10_10_A_s] = 3.089;
+  // Cube[ClikPar::omega_b] = 0.02222;
+  // Cube[ClikPar::omega_cdm] = 0.1197;
+  // Cube[ClikPar::hundredxtheta_s] = 1.04085;
+  // Cube[ClikPar::tau_reio] = 0.078;
+  // Cube[ClikPar::n_s] = 0.9655;
+  // Cube[ClikPar::ln10_10_A_s] = 3.089;
   
-  // Cube[ClikPar::A_cib_217] = 63.9;
-  // Cube[ClikPar::xi_sz_cib] = 0.05;
+  Cube[ClikPar::A_cib_217] = 63.9;
+  Cube[ClikPar::xi_sz_cib] = 0.05;
   Cube[ClikPar::A_sz] = 5.2;
   Cube[ClikPar::ps_A_100_100] = 257;
   Cube[ClikPar::ps_A_143_143] = 44;

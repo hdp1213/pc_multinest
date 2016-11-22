@@ -5,6 +5,13 @@ struct ClikPar
 {
   enum param_t
   {
+    // Free parameters (CLASS)
+    omega_b,
+    omega_cdm,
+    hundredxtheta_s,
+    tau_reio,
+    n_s,
+    ln10_10_A_s,
     // Free parameters (PLC)
     A_cib_217,
     xi_sz_cib,
@@ -21,13 +28,6 @@ struct ClikPar
     calib_100T,
     calib_217T,
     A_planck,
-    // Free parameters (CLASS)
-    omega_b,
-    omega_cdm,
-    hundredxtheta_s,
-    tau_reio,
-    n_s,
-    ln10_10_A_s,
     // Derived parameters
     cib_index // cib_index = -1.3 is constant
   };
