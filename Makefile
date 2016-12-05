@@ -1,27 +1,28 @@
-HOME_DIR := /coepp/cephfs/adl/harryp
+HOME_DIR := /home/a1648400
 
 PLIK_DIR := $(HOME_DIR)/plc-2.0
 CLASS_DIR := $(HOME_DIR)/class
 MULTINEST_DIR := $(HOME_DIR)/MultiNest_v3.10
-BATCH_DIR := /data/harryp
+CFITSIO_DIR := $(HOME_DIR)/cfitsio
 
 # Flags for the C++ compiler
-CPPC := g++
+CPPC := icc
 # turn off warnings using -w
-OPT_FLAGS := -O4 -ffast-math -fopenmp -w
-INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include
+OPT_FLAGS := -Ofast -qopenmp -fPIC
+INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include -I$(CFITSIO_DIR)/include
 
-BATCH_PLC_FLAGS = -DHAVE_PYEMBED=1 -DHAVE_PYTHON_H=1 -DHAS_LAPACK -DLAPACK_CLIK -m64 -Wl,-rpath,$(BATCH_DIR)/lib -Wl,-rpath,$(PLIK_DIR) -Wl,-rpath,$(CLASS_DIR)
-BATCH_LIB_FLAGS = -llapack -lblas -ldl -lgfortran -lgomp -lclik -lcfitsio -L$(BATCH_DIR)/lib
+BATCH_PLC_FLAGS = -D HAS_LAPACK -D LAPACK_CLIK -D NOHEALPIX -D CLIK_LENSING -D 'CLIKSVNVERSION="6dc2a8cf3965 MAKEFILE"' -D CAMSPEC_V1 -m64
+BATCH_LIB_FLAGS = -L$(CFITSIO_DIR)/lib -lcfitsio -L/apps/software/ifort/2015.3.187/lib/intel64 -lintlc -limf -lsvml -liomp5 -lifport -lifcoremt -lpthread -L$(PLIK_DIR)/lib -lclik -llapack_clik
 
 # Flags for the Fortran compiler which compiles the .o files into the final binary when adding MultiNest
-FC := gfortran
-FC_FLAGS := -ffree-line-length-none
+FC := ifort
+FC_FLAGS :=
 FC_LIBS := -L$(MULTINEST_DIR) -lnest3 -lstdc++
 
 # Flags for the MPI compilers
-FC_MPI := mpifort
-FC_MPI_FLAGS := -ffree-line-length-none -DMPI
+FC_MPI := mpifort -nofor_main
+FC_MPI_FLAGS := -DMPI
+# FC_MPI_FLAGS := -lmpi -DMPI -I/apps/software/OpenMPI/1.8.3-iccifort-2015.3.187/include/
 
 # Own object files to link against
 PC_OBJS = PLCPack.o ClikObject.o

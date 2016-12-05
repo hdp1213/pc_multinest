@@ -36,10 +36,10 @@ int main(int argc, char *argv[]) {
   int nlive = 500;        // number of live points
   double efr = 0.8;       // set the required efficiency
   double tol = 0.1;       // tol, defines the stopping criteria
-  int ndims = 6;          // dimensionality (no. of free parameters)
+  int ndims = 21;         // dimensionality (no. of free parameters)
   int nPar = 22;          // total no. of parameters including free &
                           // derived parameters
-  int nClsPar = 6;        // no. of parameters to do mode separation on
+  int nClsPar = 21;       // no. of parameters to do mode separation on
   int updInt = 1000;      // after how many iterations feedback is
                           // required & the output files should be updated
                           // note: posterior files are updated & dumper
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
   int pWrap[ndims];       // which parameters to have periodic boundary
                           // conditions?
   for(int i = 0; i < ndims; i++) pWrap[i] = 0;
-  char root[100] = "output/pc_multinest_bflike_lambda_cdm_-";      // root for output files
+  char root[100] = "output/pc_multinest_mpi_full_-";      // root for output files
   int seed = -1;          // random no. generator seed, if < 0 then take
                           // the seed from system clock
   int fb = 1;             // need feedback on standard output?
@@ -73,13 +73,13 @@ int main(int argc, char *argv[]) {
 
 
   // High l likelihood variables
-  char *hi_l_clik_path = "/data/harryp/pc_multinest/plik_dx11dr2_HM_v18_TT.clik/";
+  char *hi_l_clik_path = "/home/a1648400/plc_2.0/hi_l/plik/plik_dx11dr2_HM_v18_TT.clik/";
   ClikObject *hi_l_clik = 0;
   std::vector<ClikPar::param_t> hi_l_nuis_enums;
 
   // Low l likelihood variables  
   ClikObject *lo_l_clik = 0;
-  char *lo_l_clik_path = "/data/harryp/pc_multinest/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
+  char *lo_l_clik_path = "/home/a1648400/plc_2.0/low_l/bflike/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
   std::vector<ClikPar::param_t> lo_l_nuis_enums;
 
   int param_amts;

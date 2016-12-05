@@ -115,21 +115,21 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   // Cube[ClikPar::n_s] = 0.9655;
   // Cube[ClikPar::ln10_10_A_s] = 3.089;
   
-  Cube[ClikPar::A_cib_217] = 63.9;
-  Cube[ClikPar::xi_sz_cib] = 0.05;
-  Cube[ClikPar::A_sz] = 5.2;
-  Cube[ClikPar::ps_A_100_100] = 257;
-  Cube[ClikPar::ps_A_143_143] = 44;
-  Cube[ClikPar::ps_A_143_217] = 39;
-  Cube[ClikPar::ps_A_217_217] = 97;
-  Cube[ClikPar::ksz_norm] = 0.0;
-  Cube[ClikPar::gal545_A_100] = 7.4;
-  Cube[ClikPar::gal545_A_143] = 8.9;
-  Cube[ClikPar::gal545_A_143_217] = 17.1;
-  Cube[ClikPar::gal545_A_217] = 81.8;
-  Cube[ClikPar::calib_100T] = 0.99788;
-  Cube[ClikPar::calib_217T] = 0.9959;
-  Cube[ClikPar::A_planck] = 1.0004;
+  // Cube[ClikPar::A_cib_217] = 63.9;
+  // Cube[ClikPar::xi_sz_cib] = 0.05;
+  // Cube[ClikPar::A_sz] = 5.2;
+  // Cube[ClikPar::ps_A_100_100] = 257;
+  // Cube[ClikPar::ps_A_143_143] = 44;
+  // Cube[ClikPar::ps_A_143_217] = 39;
+  // Cube[ClikPar::ps_A_217_217] = 97;
+  // Cube[ClikPar::ksz_norm] = 0.0;
+  // Cube[ClikPar::gal545_A_100] = 7.4;
+  // Cube[ClikPar::gal545_A_143] = 8.9;
+  // Cube[ClikPar::gal545_A_143_217] = 17.1;
+  // Cube[ClikPar::gal545_A_217] = 81.8;
+  // Cube[ClikPar::calib_100T] = 0.99788;
+  // Cube[ClikPar::calib_217T] = 0.9959;
+  // Cube[ClikPar::A_planck] = 1.0004;
   
 
   /* plc_class code begins */
