@@ -46,18 +46,19 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   // Input parameters for CLASS
   // Priors will deviate from Planck as CLASS cannot accomodate
   //  them all.
-  par_min[ClikPar::omega_b] = 0.020;
-  par_max[ClikPar::omega_b] = 0.024;
-  par_min[ClikPar::omega_cdm] = 0.10;
-  par_max[ClikPar::omega_cdm] = 0.13;
-  par_min[ClikPar::hundredxtheta_s] = 0.99;
-  par_max[ClikPar::hundredxtheta_s] = 1.11;
-  par_min[ClikPar::tau_reio] = 0.04;
-  par_max[ClikPar::tau_reio] = 0.12;
-  par_min[ClikPar::n_s] = 0.90;
-  par_max[ClikPar::n_s] = 1.00;
-  par_min[ClikPar::ln10_10_A_s] = 2.9;
-  par_max[ClikPar::ln10_10_A_s] = 3.2;
+  // Comments specify up to what +/- sigma the range covers
+  par_min[ClikPar::omega_b] = 0.021; // 3-sigma
+  par_max[ClikPar::omega_b] = 0.023;
+  par_min[ClikPar::omega_cdm] = 0.108; // 4-sigma
+  par_max[ClikPar::omega_cdm] = 0.130;
+  par_min[ClikPar::hundredxtheta_s] = 1.0394; // 3-sigma
+  par_max[ClikPar::hundredxtheta_s] = 1.0423;
+  par_min[ClikPar::tau_reio] = 0.04;  // 2-sigma
+  par_max[ClikPar::tau_reio] = 0.116;
+  par_min[ClikPar::n_s] = 0.94; // 4-sigma
+  par_max[ClikPar::n_s] = 0.99;
+  par_min[ClikPar::ln10_10_A_s] = 2.981; // 3-sigma
+  par_max[ClikPar::ln10_10_A_s] = 3.197;
 
   // Nuisance parameters for PLC
   par_min[ClikPar::A_cib_217] = 0.0;

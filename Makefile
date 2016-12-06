@@ -8,7 +8,7 @@ CFITSIO_DIR := $(HOME_DIR)/cfitsio
 # Flags for the C++ compiler
 CPPC := icc
 # turn off warnings using -w
-OPT_FLAGS := -Ofast -qopenmp -fPIC
+OPT_FLAGS := -Ofast -openmp -fPIC
 INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include -I$(CFITSIO_DIR)/include
 
 BATCH_PLC_FLAGS = -D HAS_LAPACK -D LAPACK_CLIK -D NOHEALPIX -D CLIK_LENSING -D 'CLIKSVNVERSION="6dc2a8cf3965 MAKEFILE"' -D CAMSPEC_V1 -m64
