@@ -17,7 +17,7 @@ BATCH_LIB_FLAGS = -L$(CFITSIO_DIR)/lib -lcfitsio -L/apps/software/ifort/2015.3.1
 # Flags for the Fortran compiler which compiles the .o files into the final binary when adding MultiNest
 FC := ifort
 FC_FLAGS :=
-FC_LIBS := -L$(MULTINEST_DIR) -lnest3 -lstdc++
+FC_LIBS := -L$(MULTINEST_DIR)/lib -lnest3 -lstdc++
 
 # Flags for the MPI compilers
 FC_MPI := mpifort -nofor_main

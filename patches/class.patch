@@ -1,0 +1,29 @@
+--- /home/a1648400/class_old/Makefile	2016-12-07 11:32:42.000000000 +1030
++++ /home/a1648400/class/Makefile	2016-12-07 20:29:36.267652207 +1030
+@@ -17,8 +17,8 @@
+ ########################################################
+ 
+ # your C compiler:
+-CC       = gcc
+-#CC       = icc
++# CC       = gcc
++CC       = icc
+ #CC       = pgcc
+ 
+ # your tool for creating static libraries:
+@@ -28,12 +28,12 @@
+ PYTHON = python
+ 
+ # your optimization flag
+-OPTFLAG = -O4 -ffast-math #-march=native
+-#OPTFLAG = -Ofast -ffast-math #-march=native
++# OPTFLAG = -O4 -ffast-math #-march=native
++OPTFLAG = -Ofast #-march=native
+ #OPTFLAG = -fast
+ 
+ # your openmp flag (comment for compiling without openmp)
+-OMPFLAG   = -fopenmp
++OMPFLAG   = -openmp
+ #OMPFLAG   = -mp -mp=nonuma -mp=allcores -g
+ #OMPFLAG   = -openmp
+ 
