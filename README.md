@@ -47,9 +47,14 @@ to use them.
 Before compiling any of the dependencies, it will first be necessary to clone
 into `pc_multinest` using `git`. Run
 ```
-$ git clone git@gitlab.coepp.org.au:harryp/pc_multinest.git
+$ git clone https://gitlab.coepp.org.au/harryp/pc_multinest.git
 ```
 in your home directory to clone into this repository.
+
+If you need to change to a particular branch, then run
+```
+$ git checkout <branch>
+```
 
 ### CLASS
 CLASS can be downloaded (or cloned) from the
@@ -142,14 +147,38 @@ At this point, you should finally be able to compile `pc_multinest`.
 Congratulations! If this goes off without a hitch, you can consider yourself
 very lucky and should immediately go out and buy a lottery ticket.
 
+Before compilation, it is recommended to look at the `Makefile` to change the
+root home directory for `pc_multinest`. You can also verify the other
+directories correspond to where you have installed the other dependencies.
+
 Depending on which branch you have checked out, it is wise to compile
-whichever executable is the primary development focus. For Phoenix, this is
-`pc_multinest_mpi`. So, by running
+whichever executable is the primary development focus. For the `phoenix` branch,
+this is `pc_multinest_mpi`. So, by running
 ```
 $ make pc_multinest_mpi
 ```
 you should find you are the proud owner of a sparkly fresh copy of a
 parallelised `pc_multinest`.
 
+For the `master` branch, which is usually for use on the CoEPP cloud, you should
+run
+```
+$ make pc_multinest
+```
+
 ## Troubleshooting
-TODO: troubleshooting
+
+### `<library>.so: cannot open shared object file`
+If `pc_multinest` compiles but does not run because of an error of the form
+```
+./pc_multinest_mpi: error while loading shared libraries: <library>.so: cannot open shared object file: No such file or directory
+```
+it is because `<library>.so` is not on your `LD_LIBRARY_PATH` path environment
+variable. In order to rectify this, you must find the location of the missing
+`<library>.so` and add it to the path using
+```bash
+export LD_LIBRARY_PATH=/path/to/lib:$LD_LIBRARY_PATH
+```
+
+This can be put into your `.bashrc` so that it runs every time you open a new
+`bash` session.
