@@ -47,9 +47,14 @@ to use them.
 Before compiling any of the dependencies, it will first be necessary to clone
 into `pc_multinest` using `git`. Run
 ```
-$ git clone git@gitlab.coepp.org.au:harryp/pc_multinest.git
+$ git clone https://gitlab.coepp.org.au/harryp/pc_multinest.git
 ```
 in your home directory to clone into this repository.
+
+If you need to change to a particular branch, then run
+```
+$ git checkout <branch>
+```
 
 ### CLASS
 CLASS can be downloaded (or cloned) from the
@@ -142,14 +147,65 @@ At this point, you should finally be able to compile `pc_multinest`.
 Congratulations! If this goes off without a hitch, you can consider yourself
 very lucky and should immediately go out and buy a lottery ticket.
 
+Before compilation, it is recommended to look at the `Makefile` to change the
+root home directory for `pc_multinest`. You can also verify the other
+directories correspond to where you have installed the other dependencies.
+
 Depending on which branch you have checked out, it is wise to compile
-whichever executable is the primary development focus. For Phoenix, this is
-`pc_multinest_mpi`. So, by running
+whichever executable is the primary development focus. For the `phoenix` branch,
+this is `pc_multinest_mpi`. So, by running
 ```
 $ make pc_multinest_mpi
 ```
 you should find you are the proud owner of a sparkly fresh copy of a
 parallelised `pc_multinest`.
 
+For the `master` branch, which is usually for use on the CoEPP cloud, you should
+run
+```
+$ make pc_multinest
+```
+
+## Running the Program
+`pc_multinest` takes some command line arguments used to specity where to write
+MultiNest output files to. The full format is
+```
+./pc_multinest <directory/to/output/root->
+```
+where the first command line argument specifies the directory to write MultiNest
+chain outputs. It defaults to `output/pc_multinest-`. If you want to run
+multiple instances of `pc_multinest` independently, you can simply change the
+root of the output files to something different for each run, e.g.
+`output/pc_multinest_full_run00-`.
+
+Giving no command line arguments to `pc_multinest` will just use default values
+for each variable that can be changed. Right now, that is only the output
+directory and root file name.
+
 ## Troubleshooting
-TODO: troubleshooting
+
+### `<library>.so: cannot open shared object file`
+If `pc_multinest` compiles but does not run because of an error of the form
+```
+./pc_multinest_mpi: error while loading shared libraries: <library>.so: cannot open shared object file: No such file or directory
+```
+it is because `<library>.so` is not on your `LD_LIBRARY_PATH` path environment
+variable. In order to rectify this, you must find the location of the missing
+`<library>.so` and add it to the path using
+```bash
+export LD_LIBRARY_PATH=/path/to/lib:$LD_LIBRARY_PATH
+```
+
+This can be put into your `.bashrc` so that it runs every time you open a new
+`bash` session.
+
+### PLC cannot find `clik_lensing.h` during compilation
+This is a bit of a bug with PLC. You can remedy this by copying the
+`clik_lensing.h` file from the `src/` directory into the `inc/` directory.
+Compilation should then work.
+
+### MultiNest complaining about there not being an `output/` directory
+If you run `pc_multinest` only to find that MultiNest crashes the program with
+an error about the `output/` directory, it is because that directory does not
+exist. The problem can be rectified by making the directory and running the
+program again.

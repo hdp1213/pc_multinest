@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
   int pWrap[ndims];       // which parameters to have periodic boundary
                           // conditions?
   for(int i = 0; i < ndims; i++) pWrap[i] = 0;
-  char root[100] = "output/pc_multinest_mpi_full_-";      // root for output files
+  char *root;             // root for output files
   int seed = -1;          // random no. generator seed, if < 0 then take
                           // the seed from system clock
   int fb = 1;             // need feedback on standard output?
@@ -85,6 +85,17 @@ int main(int argc, char *argv[]) {
   int param_amts;
   parname *param_names;
   PLCPack *plc_pack = 0;
+
+  // Use the first command line argument as a non-default output root
+  // That is, if an argument is even specified
+  if (argc == 2) {
+    root = argv[1];
+  }
+  else {
+    root = "output/pc_multinest_-";
+  }
+
+  std::cout << "Printing results to " << root << std::endl;
 
   // Create new clik object for high l likelihood
   hi_l_clik = new ClikObject(hi_l_clik_path);
