@@ -1,8 +1,12 @@
 #ifndef CLIKPAR_H
 #define CLIKPAR_H
 
-struct ClikPar
-{
+class ClikPar {
+
+public:
+  ClikPar();
+  ~ClikPar();
+
   enum param_t
   {
     // Free parameters (CLASS)
@@ -29,8 +33,24 @@ struct ClikPar
     calib_217T,
     A_planck,
     // Derived parameters
-    cib_index // cib_index = -1.3 is constant
+    cib_index, // cib_index = -1.3 is constant
+    // Final total number of parameters
+    TOTAL_PARAMS
   };
+
+  int get_free_param_amt() const;
+  int get_gaussian_param_amt() const;
+
+  void scale_Cube(double* Cube);
+  double calculate_gaussian_priors(double* Cube) const;
+  double calculate_misc_priors(double* Cube) const;
+  
+
+private:
+  bool m_is_gaussian[TOTAL_PARAMS];
+  double m_min[TOTAL_PARAMS], m_max[TOTAL_PARAMS];
+  double m_mean[TOTAL_PARAMS], m_stddev[TOTAL_PARAMS];
+  int m_free_param_amt, m_gaussian_param_amt;
 };
 
 #endif

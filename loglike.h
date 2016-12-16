@@ -40,107 +40,17 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   std::vector<double> cl_tt, cl_ee, cl_bb, cl_te, nuisance_pars;
   std::vector<std::vector<double> > class_cls;
 
+  plc_pack = static_cast<PLCPack*>(context);
+
   // Initialise the nuisance parameter priors using results outlined in
   //  Planck 2015 results. XI. CMB power spectra, ... . p 21,41
+  plc_pack->get_pars()->scale_Cube(Cube);
 
-  // Input parameters for CLASS
-  // Priors will deviate from Planck as CLASS cannot accomodate
-  //  them all.
-  // Comments specify up to what +/- sigma the range covers
-  par_min[ClikPar::omega_b] = 0.021; // 3-sigma
-  par_max[ClikPar::omega_b] = 0.023;
-  par_min[ClikPar::omega_cdm] = 0.108; // 4-sigma
-  par_max[ClikPar::omega_cdm] = 0.130;
-  par_min[ClikPar::hundredxtheta_s] = 1.0394; // 3-sigma
-  par_max[ClikPar::hundredxtheta_s] = 1.0423;
-  par_min[ClikPar::tau_reio] = 0.04;  // 2-sigma
-  par_max[ClikPar::tau_reio] = 0.116;
-  par_min[ClikPar::n_s] = 0.94; // 4-sigma
-  par_max[ClikPar::n_s] = 0.99;
-  par_min[ClikPar::ln10_10_A_s] = 2.981; // 3-sigma
-  par_max[ClikPar::ln10_10_A_s] = 3.197;
-
-  // Nuisance parameters for PLC
-  par_min[ClikPar::A_cib_217] = 0.0;
-  par_max[ClikPar::A_cib_217] = 200.0;
-  par_min[ClikPar::cib_index] = -1.3;
-  par_max[ClikPar::cib_index] = -1.3;
-  par_min[ClikPar::xi_sz_cib] = 0.0;
-  par_max[ClikPar::xi_sz_cib] = 0.5;
-  par_min[ClikPar::A_sz] = 5.0;
-  par_max[ClikPar::A_sz] = 10.0;
-  par_min[ClikPar::ps_A_100_100] = 200.0;
-  par_max[ClikPar::ps_A_100_100] = 300.0;
-  par_min[ClikPar::ps_A_143_143] = 0.0;
-  par_max[ClikPar::ps_A_143_143] = 100.0;
-  par_min[ClikPar::ps_A_143_217] = 0.0;
-  par_max[ClikPar::ps_A_143_217] = 100.0;
-  par_min[ClikPar::ps_A_217_217] = 50.0;
-  par_max[ClikPar::ps_A_217_217] = 150.0;
-  par_min[ClikPar::ksz_norm] = 0.0;
-  par_max[ClikPar::ksz_norm] = 7.0;
-  par_min[ClikPar::gal545_A_100] = 0.0;
-  par_max[ClikPar::gal545_A_100] = 20.0;
-  par_min[ClikPar::gal545_A_143] = 0.0;
-  par_max[ClikPar::gal545_A_143] = 20.0;
-  par_min[ClikPar::gal545_A_143_217] = 0.0;
-  par_max[ClikPar::gal545_A_143_217] = 30.0;
-  par_min[ClikPar::gal545_A_217] = 60.0;
-  par_max[ClikPar::gal545_A_217] = 100.0;
-  par_min[ClikPar::calib_100T] = 0.0;
-  par_max[ClikPar::calib_100T] = 2.0;
-  par_min[ClikPar::calib_217T] = 0.0;
-  par_max[ClikPar::calib_217T] = 2.0;
-  par_min[ClikPar::A_planck] = 0.9;
-  par_max[ClikPar::A_planck] = 1.1;
-
-  // Scale parameters
-  for (int i = 0; i < npars; i++) {
-    if (i < ndim) { // free parameter
-      Cube[i] = par_min[i] + (par_max[i] - par_min[i]) * Cube[i];
-    }
-    else { // derived parameter
-      Cube[i] = (par_min[i] + par_max[i]) / 2.0;
-    }
-  }
-
-  // Set any fixed parameters
-  Cube[ClikPar::cib_index] = -1.3;
-
-  // Setting Planck 68% limits for base_plikHM_TT_lowTEB
-  // for accuracy test
-  // Cube[ClikPar::omega_b] = 0.02222;
-  // Cube[ClikPar::omega_cdm] = 0.1197;
-  // Cube[ClikPar::hundredxtheta_s] = 1.04085;
-  // Cube[ClikPar::tau_reio] = 0.078;
-  // Cube[ClikPar::n_s] = 0.9655;
-  // Cube[ClikPar::ln10_10_A_s] = 3.089;
   
-  // Cube[ClikPar::A_cib_217] = 63.9;
-  // Cube[ClikPar::xi_sz_cib] = 0.05;
-  // Cube[ClikPar::A_sz] = 5.2;
-  // Cube[ClikPar::ps_A_100_100] = 257;
-  // Cube[ClikPar::ps_A_143_143] = 44;
-  // Cube[ClikPar::ps_A_143_217] = 39;
-  // Cube[ClikPar::ps_A_217_217] = 97;
-  // Cube[ClikPar::ksz_norm] = 0.0;
-  // Cube[ClikPar::gal545_A_100] = 7.4;
-  // Cube[ClikPar::gal545_A_143] = 8.9;
-  // Cube[ClikPar::gal545_A_143_217] = 17.1;
-  // Cube[ClikPar::gal545_A_217] = 81.8;
-  // Cube[ClikPar::calib_100T] = 0.99788;
-  // Cube[ClikPar::calib_217T] = 0.9959;
-  // Cube[ClikPar::A_planck] = 1.0004;
-  
-
-  /* plc_class code begins */
-
-
   /******************************/
   /*   Planck Likelihood Code   */
   /******************************/
 
-  plc_pack = static_cast<PLCPack*>(context);
 
   // Get maximum l over all included .clik files
   max_l = plc_pack->get_largest_max_l();
@@ -202,6 +112,12 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
 
   // Compute the log likelihood using PLC
   lnew = plc_pack->calculate_likelihood();
+
+  // Subtract Gaussian priors for those parameters with them
+  lnew -= plc_pack->get_pars()->calculate_gaussian_priors(Cube);
+
+  // Subtract any remaining priors (like SZ degeneracy prior)
+  lnew -= plc_pack->get_pars()->calculate_misc_priors(Cube);
 
   /*
   std::cout << "[plc_class] Calculated log likelihood of "

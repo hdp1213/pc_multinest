@@ -82,6 +82,9 @@ int main(int argc, char *argv[]) {
   char *lo_l_clik_path = "/home/a1648400/plc_2.0/low_l/bflike/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
   std::vector<ClikPar::param_t> lo_l_nuis_enums;
 
+  // Clik Pars variable
+  ClikPar *clik_par = new ClikPar();
+
   int param_amts;
   parname *param_names;
   PLCPack *plc_pack = 0;
@@ -156,6 +159,7 @@ int main(int argc, char *argv[]) {
   plc_pack = new PLCPack();
   plc_pack->add_clik_object(hi_l_clik);
   plc_pack->add_clik_object(lo_l_clik);
+  plc_pack->set_pars(clik_par);
 
   context = plc_pack;
   

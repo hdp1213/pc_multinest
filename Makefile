@@ -25,8 +25,8 @@ FC_MPI_FLAGS := -DMPI
 # FC_MPI_FLAGS := -lmpi -DMPI -I/apps/software/OpenMPI/1.8.3-iccifort-2015.3.187/include/
 
 # Own object files to link against
-PC_OBJS = PLCPack.o ClikObject.o
-PC_INC = loglike.h ClikPar.h
+PC_OBJS = PLCPack.o ClikObject.o ClikPar.o
+PC_INC = loglike.h
 
 # CLASS object files to link against
 CLASS_SOURCE = input.o background.o thermodynamics.o perturbations.o primordial.o nonlinear.o transfer.o spectra.o lensing.o
@@ -53,8 +53,7 @@ all: pc_multinest pc_multinest_mpi pc_speedtest
 
 $(CLASS_DIR)/cpp/ClassEngine.o: $(CLASS_DIR)/cpp/Engine.o
 
-PLCPack.o: ClikObject.o
-
+PLCPack.o: ClikObject.o ClikPar.o
 
 # Compilation commands
 

@@ -4,7 +4,7 @@
 #include <exception> // for std::exception
 #include <iostream> // for std::cerr
 
-PLCPack::PLCPack() : m_largest_max_l(1) {
+PLCPack::PLCPack() : m_largest_max_l(1), m_clik_par(0) {
 
 }
 
@@ -12,6 +12,8 @@ PLCPack::~PLCPack() {
   for (int i = 0; i < m_clik_objects.size(); ++i) {
     delete m_clik_objects[i];
   }
+
+  delete m_clik_par;
 }
 
 
@@ -33,6 +35,14 @@ void PLCPack::add_clik_object(ClikObject* clik_object) {
 
 int PLCPack::get_largest_max_l() const {
   return m_largest_max_l;
+}
+
+void PLCPack::set_pars(ClikPar* clik_par) {
+  m_clik_par = clik_par;
+}
+
+ClikPar* PLCPack::get_pars() const {
+  return m_clik_par;
 }
 
 void PLCPack::create_all_cl_and_pars(double* Cube,
