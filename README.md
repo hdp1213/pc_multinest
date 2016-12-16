@@ -166,6 +166,22 @@ run
 $ make pc_multinest
 ```
 
+## Running the Program
+`pc_multinest` takes some command line arguments used to specity where to write
+MultiNest output files to. The full format is
+```
+./pc_multinest <directory/to/output/root->
+```
+where the first command line argument specifies the directory to write MultiNest
+chain outputs. It defaults to `output/pc_multinest-`. If you want to run
+multiple instances of `pc_multinest` independently, you can simply change the
+root of the output files to something different for each run, e.g.
+`output/pc_multinest_full_run00-`.
+
+Giving no command line arguments to `pc_multinest` will just use default values
+for each variable that can be changed. Right now, that is only the output
+directory and root file name.
+
 ## Troubleshooting
 
 ### `<library>.so: cannot open shared object file`
@@ -182,3 +198,14 @@ export LD_LIBRARY_PATH=/path/to/lib:$LD_LIBRARY_PATH
 
 This can be put into your `.bashrc` so that it runs every time you open a new
 `bash` session.
+
+### PLC cannot find `clik_lensing.h` during compilation
+This is a bit of a bug with PLC. You can remedy this by copying the
+`clik_lensing.h` file from the `src/` directory into the `inc/` directory.
+Compilation should then work.
+
+### MultiNest complaining about there not being an `output/` directory
+If you run `pc_multinest` only to find that MultiNest crashes the program with
+an error about the `output/` directory, it is because that directory does not
+exist. The problem can be rectified by making the directory and running the
+program again.
