@@ -94,7 +94,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
               << "\tn_s             : "
                   << Cube[ClikPar::n_s] << '\n'
               << "\tln10_10_A_s     : "
-                  << Cube[ClikPar:ln10_10_A_s] << std::endl;
+                  << Cube[ClikPar::ln10_10_A_s] << std::endl;
 
     CLASS_not_failed = false;
   }
