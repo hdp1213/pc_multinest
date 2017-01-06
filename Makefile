@@ -55,6 +55,8 @@ $(CLASS_DIR)/cpp/ClassEngine.o: $(CLASS_DIR)/cpp/Engine.o
 
 PLCPack.o: ClikObject.o ClikPar.o
 
+ClikPar.o: ClassEngine.o
+
 # Compilation commands
 
 %.o: %.cc

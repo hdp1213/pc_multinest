@@ -1,6 +1,8 @@
 #ifndef CLIKPAR_H
 #define CLIKPAR_H
 
+#include "ClassEngine.hh"
+
 class ClikPar {
 
 public:
@@ -40,10 +42,8 @@ public:
 
   int get_free_param_amt() const;
   int get_gaussian_param_amt() const;
-
+  double calculate_extra_priors(double* Cube, ClassEngine* class_engine) const;
   void scale_Cube(double* Cube);
-  double calculate_gaussian_priors(double* Cube) const;
-  double calculate_misc_priors(double* Cube) const;
   
 
 private:

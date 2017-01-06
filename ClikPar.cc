@@ -1,6 +1,8 @@
 #include "ClikPar.h"
 
-#include <math.h>
+#include <math.h> // for pow()
+#include <iostream> // for std::cerr
+#include <exception> // for std::exception
 
 ClikPar::ClikPar() : m_free_param_amt(21) {
   // Initialise defaults
@@ -15,8 +17,8 @@ ClikPar::ClikPar() : m_free_param_amt(21) {
   // Set flat priors. All parameters must have a flat prior
   // LCDM parameters first
   // Comments specify up to what +/- sigma the range covers
-  m_min[omega_b] = 0.021;           m_max[omega_b] = 0.023;
-  // 3-sigma
+  m_min[omega_b] = 0.016;           m_max[omega_b] = 0.028;
+  // lots-sigma
   m_min[omega_cdm] = 0.108;         m_max[omega_cdm] = 0.130;
   // 4-sigma
   m_min[hundredxtheta_s] = 1.0394;  m_max[hundredxtheta_s] = 1.0423;
@@ -48,9 +50,16 @@ ClikPar::ClikPar() : m_free_param_amt(21) {
 
   // Check if derived parameter min and max values are the same
   // If not, throw an error. They should be the same!
-  for (int i = m_free_param_amt; i < TOTAL_PARAMS; ++i) {
-    if (m_min[i] != m_max[i]) {
-      /* throw error */
+  for (int param = m_free_param_amt; param < TOTAL_PARAMS; ++param) {
+    if (m_min[param] != m_max[param]) {
+      std::cerr << "[ERROR]: min and max values are different "
+                << "for parameter #"
+                << param
+                << ", a derived parameter. Consider changing "
+                << "max to min value. Unexpected behaviour "
+                << "will occur."
+                << std::endl;
+      throw std::exception();
     }
   }
 
@@ -100,37 +109,49 @@ int ClikPar::get_gaussian_param_amt() const {
 }
 
 void ClikPar::scale_Cube(double* Cube) {
-  for (int i = 0; i < TOTAL_PARAMS; i++) {
-    if (i < m_free_param_amt) { // free parameter
-      Cube[i] = m_min[i] + (m_max[i] - m_min[i]) * Cube[i];
+  for (int param = 0; param < TOTAL_PARAMS; param++) {
+    if (param < m_free_param_amt) { // free parameter
+      Cube[param] = m_min[param] + (m_max[param] - m_min[param]) * Cube[param];
     }
     else { // derived parameter
-      Cube[i] = m_min[i];
+      Cube[param] = m_min[param];
     }
   }
 }
 
-double ClikPar::calculate_gaussian_priors(double* Cube) const {
+/* Private Methods */
+
+// *** The returned loglike value must always be positive ***
+double ClikPar::calculate_extra_priors(double* Cube, ClassEngine* class_engine) const {
   double loglike = 0.0;
-  for (int i = 0; i < TOTAL_PARAMS; ++i) {
+
+  // Calculate Gaussian priors
+  for (int param = 0; param < TOTAL_PARAMS; ++param) {
     // Only use Gaussian priors for variables that are Gaussian
-    if (m_is_gaussian[i]) {
-      loglike += pow(Cube[i] - m_mean[i], 2.0) / (2.0 * pow(m_stddev[i], 2.0));
+    if (m_is_gaussian[param]) {
+      loglike += pow(Cube[param] - m_mean[param], 2.0) / (2.0 * pow(m_stddev[param], 2.0));
     }
   }
-
-  return loglike;
-}
-
-double ClikPar::calculate_misc_priors(double* Cube) const {
-  double loglike = 0.0;
 
   // Calculate SZ degeneracy prior
   double SZ_val = Cube[ksz_norm] + 1.6 * Cube[A_sz];
-  double SZ_mean = 9.4;
-  double SZ_stddev = 1.4;
+  double SZ_mean = 9.5;
+  double SZ_stddev = 3.0;
 
   loglike += pow(SZ_val - SZ_mean, 2.0) / (2.0 * pow(SZ_stddev, 2.0));
+
+  // Calculate flat [20,100] prior on H0
+  double H0 = class_engine->get_H0();
+  double H0_min = 20.0, H0_max = 100.0;
+
+  double delta = 0.0;
+  if (H0 < H0_min or H0 > H0_max) {
+    delta = 1E90;
+  }
+
+  loglike += delta;
+
+  // Calculate any other priors needed ...
 
   return loglike;
 }
