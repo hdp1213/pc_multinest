@@ -200,12 +200,17 @@ This can be put into your `.bashrc` so that it runs every time you open a new
 `bash` session.
 
 ### PLC cannot find `clik_lensing.h` during compilation
-This is a bit of a bug with PLC. You can remedy this by copying the
+This is a bit of a "bug" with PLC. You can remedy this by copying the
 `clik_lensing.h` file from the `src/` directory into the `inc/` directory.
 Compilation should then work.
 
-### MultiNest complaining about there not being an `output/` directory
+### `forrtl: No such file or directory`
 If you run `pc_multinest` only to find that MultiNest crashes the program with
-an error about the `output/` directory, it is because that directory does not
-exist. The problem can be rectified by making the directory and running the
+an error of the form
+```
+forrtl: No such file or directory
+forrtl: severe (29): file not found, unit 55, file </path/to/file>
+```
+it is because the containing directory for the file in question does not exist.
+The problem can be rectified by making the containing directory and running the
 program again.
