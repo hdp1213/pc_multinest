@@ -1,0 +1,23 @@
+--- /home/a1648400/class_fresh/cpp/ClassEngine.hh	2017-01-09 10:53:14.715177966 +1030
++++ /home/a1648400/class/cpp/ClassEngine.hh	2016-12-30 16:37:38.000000000 +1030
+@@ -111,14 +111,18 @@
+   double get_Hz(double z);
+   double get_Az(double z);
+ 
+-  double getTauReio() const {return th.tau_reio;}
++  inline double getTauReio() const {return th.tau_reio;}
+ 
+   //may need that
+-  inline int numCls() const {return sp.ct_size;};
++  inline int numCls() const {return sp.ct_size;}
+   inline double Tcmb() const {return ba.T_cmb;}
+ 
+   inline int l_max_scalars() const {return _lmax;}
+ 
++  // Bachground variables
++  // Get H0 in km s^-1 Mpc^-1
++  inline double get_H0() const {return ba.H0 * _c_ / 1000.0;}
++
+   //print content of file_content
+   void printFC();
+ 
