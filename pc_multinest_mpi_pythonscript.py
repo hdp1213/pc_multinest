@@ -62,12 +62,8 @@ for num_taskspernode in range(1,17):
                     myfile.write(template.format(**context))
 
            print "created file ", filename
-           #call(["sbatch", filename])
-           #print "submitted    ", filename
+           call(["sbatch", filename])
+           print "submitted    ", filename
 
         else:
                 pass
-
-#call (["squeue", "-u", "a1686947"])
-
-#unknown what modifications to do here - have commented out all loops and kept initialisation that I know works
