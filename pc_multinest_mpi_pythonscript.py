@@ -1,9 +1,9 @@
 # -- script for automation of speed testing --
 
 #variable initialisation
-num_nodes = 2               #number of phoenix nodes
-num_taskspernode = 8        #number of MPI processes (tasks) per node
-num_threadspertask = 4      #number of OpenMP threads (CPUs) per task
+num_nodes = 1               #number of phoenix nodes
+num_taskspernode = 0        #number of MPI processes (tasks) per node
+num_threadspertask = 0      #number of OpenMP threads (CPUs) per task
 
 str(num_nodes)              #convert to string to use in filename
 str(num_taskspernode)
@@ -12,13 +12,12 @@ str(num_threadspertask)
 from subprocess import call
 
 #creates job files with range of parameter values
-#for num_taskspernode in range(1,17):
-    #for num_threadspertask in range(1,17):
-        #if num_taskspernode*num_threadspertask == 32:
+for num_taskspernode in range(1,17):
+    for num_threadspertask in range(1,17):
+        if num_taskspernode*num_threadspertask == 32:
 
-           #^reset this to the appropriate numbers - num_threadspertask should not be changed
            #num_nodes*num_threadspernode = number of processes (eg. mpirun -np 16)
-
+           num_processes = num_nodes*num_taskspernode
            filename = "pc_multinest_mpi_" + str(num_nodes) + '_' + str(num_taskspernode) + '_' + str(num_threadspertask)
            
            template = """#!/bin/bash
@@ -31,7 +30,7 @@ from subprocess import call
 
            export OMP_NUM_THREADS={num_threadspertask}
 
-           #SBATCH --time=1-00:00:00      # time allocation
+           #SBATCH --time=3-00:00:00      # time allocation
 
            #SBATCH --mem=32GB             # memory for all nodes
 
@@ -44,7 +43,7 @@ from subprocess import call
            # Run the job from directory in which sbatch command was run
            cd $SLURM_SUBMIT_DIR
 
-           mpirun -np num_nodes*num_taskspernode ppr:8:node:pe=4 ./pc_multinest/pc_multinest_mpi output/filename
+           mpirun -np {num_processes} ppr:{num_taskspernode}:node ./pc_multinest/pc_multinest_mpi output/{filename}
   
                   # np stands for number of processes (should be num_nodes*num_taskspernode)
                   # ppr stands for processes per resource
@@ -55,6 +54,7 @@ from subprocess import call
            "num_nodes":num_nodes,
            "num_taskspernode":num_taskspernode,
            "num_threadspertask":num_threadspertask,
+           "num_processes":num_processes,
            "filename":filename
            }
            
@@ -65,8 +65,8 @@ from subprocess import call
            #call(["sbatch", filename])
            #print "submitted    ", filename
 
-        #else:
-                #pass
+        else:
+                pass
 
 #call (["squeue", "-u", "a1686947"])
 
