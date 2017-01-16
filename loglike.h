@@ -39,8 +39,6 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   std::vector<unsigned> l_vec;
   std::vector<double> cl_tt, cl_ee, cl_bb, cl_te, nuisance_pars;
   std::vector<std::vector<double> > class_cls;
-  bool CLASS_not_failed = true;
-  bool spectra_not_failed = true;
 
   plc_pack = static_cast<PLCPack*>(context);
 
