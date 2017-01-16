@@ -182,6 +182,33 @@ Giving no command line arguments to `pc_multinest` will just use default values
 for each variable that can be changed. Right now, that is only the output
 directory and root file name.
 
+### Analysing Output
+To analyse the MultiNest output from a successful run, `pc_multinest` makes use
+of the ROOT library and framework. An analysis script is provided in the repo
+under the name `pc_plot.cc`. To run this, make sure the `file_name` variable in
+the file points to the output file for the run you want to analyse.
+
+Output files in MultiNest are those with the form `<run-name>-.txt`. After
+checking the file name is correct, run the script by executing
+```
+$ root.exe -l pc_plot.cc
+```
+
+This command will boot up a ROOT instance, before executing the `pc_plot.cc`
+script inside. If everything has gone well (and you have ROOT in the first
+place), you should see the means and standard deviations of each of the
+parameters MultiNest has scanned over.
+
+#### `root.exe` not existing on Phoenix
+Don't worry, it's most likely because you've forgotten to add the following to
+your `~/.bashrc`:
+```
+module load ROOT/v6.07.06-intel-2015c-Python-2.7.10
+```
+
+This will load an Intel-compiled version of ROOT which will be Just That Tad
+Bit Faster compared to the GCC version.
+
 ## Troubleshooting
 
 ### `<library>.so: cannot open shared object file`
