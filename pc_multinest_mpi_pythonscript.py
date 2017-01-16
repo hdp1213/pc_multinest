@@ -26,7 +26,7 @@ for num_taskspernode in range(1,17):
            #SBATCH -p batch
            #SBATCH -N {num_nodes}                           # number of nodes
            #SBATCH --ntasks-per-node={num_taskspernode}     # MPI tasks per node
-           #SBATCH -c {num_threadspertask}                  # OMP threads (CPUs) per task
+           #SBATCH --cpus-per-task={num_threadspertask}                  # OMP threads (CPUs) per task
 
            export OMP_NUM_THREADS={num_threadspertask}
 
@@ -34,8 +34,9 @@ for num_taskspernode in range(1,17):
 
            #SBATCH --mem=32GB             # memory for all nodes
 
-           #SBATCH -J filename    #job name - set to the same as the output
+           #SBATCH -J {filename}    #job name - set to the same as the output
 
+           #SBATCH --mail-type=BEGIN
            #SBATCH --mail-type=FAIL
            #SBATCH --mail-type=END
            #SBATCH --mail-user=a1686947@student.adelaide.edu.au
@@ -43,7 +44,7 @@ for num_taskspernode in range(1,17):
            # Run the job from directory in which sbatch command was run
            cd $SLURM_SUBMIT_DIR
 
-           mpirun -np {num_processes} ppr:{num_taskspernode}:node ./pc_multinest/pc_multinest_mpi output/{filename}
+           mpirun -np {num_processes} --map-by ppr:{num_taskspernode}:node ./pc_multinest/pc_multinest_mpi output/{filename}
   
                   # np stands for number of processes (should be num_nodes*num_taskspernode)
                   # ppr stands for processes per resource
