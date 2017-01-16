@@ -40,6 +40,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   std::vector<double> cl_tt, cl_ee, cl_bb, cl_te, nuisance_pars;
   std::vector<std::vector<double> > class_cls;
   bool CLASS_not_failed = true;
+  bool spectra_not_failed = true;
 
   plc_pack = static_cast<PLCPack*>(context);
 
@@ -77,6 +78,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   try {
     class_engine = new ClassEngine(class_params);
   }
+  // CLASS has failed, set loglike to zero and return
   catch (std::exception const &e) {
     std::cerr << "[ERROR] CLASS failed, throwing exception "
               << e.what()
@@ -96,47 +98,61 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
               << "\tln10_10_A_s     : "
                   << Cube[ClikPar::ln10_10_A_s] << std::endl;
 
-    CLASS_not_failed = false;
-  }
-
-  if (CLASS_not_failed) {
-    // Create vector of multipoles to calculate Cls for
-    l_vec = plc_pack->get_class_l_vec();
-
-    // Calculate Cls from CLASS
-    try {
-      class_engine->getCls(l_vec, cl_tt, cl_te, cl_ee, cl_bb);
-    }
-    catch (std::exception const &e) {
-      std::cerr << "[ERROR] Spectra extraction unsuccessful, CLASS threw "
-                << e.what()
-                << std::endl;
-      throw e;
-    }
-
-
-    /******************************/
-    /*   Likelihood Calculation   */
-    /******************************/
-
-    // Push all spectra into a single matrix
-    class_cls.push_back(cl_tt);
-    class_cls.push_back(cl_ee);
-    class_cls.push_back(cl_bb);
-    class_cls.push_back(cl_te);
-
-    plc_pack->create_all_cl_and_pars(Cube, class_cls);
-
-    // Compute the log likelihood using PLC
-    lnew = plc_pack->calculate_likelihood();
-
-    // Subtract any other priors for those parameters with them
-    lnew -= plc_pack->get_pars()->calculate_extra_priors(Cube, class_engine);
-  }
-
-  else { // CLASS has failed, set loglike to zero for this point
     lnew = -1E90;
+    delete class_engine;
+    return;
   }
+
+  // Create vector of multipoles to calculate Cls for
+  l_vec = plc_pack->get_class_l_vec();
+
+  // Calculate Cls from CLASS
+  try {
+    class_engine->getCls(l_vec, cl_tt, cl_te, cl_ee, cl_bb);
+  }
+  // Spectra extraction has failed, set loglike to zero
+  catch (std::exception const &e) {
+    std::cerr << "[ERROR] Spectra extraction unsuccessful, CLASS threw "
+              << e.what()
+              << std::endl;
+
+    std::cout << "[INFO] LCDM parameters used at time were:\n"
+              << "\tomega_b         : "
+                  << Cube[ClikPar::omega_b] << '\n'
+              << "\tomega_cdm       : "
+                  << Cube[ClikPar::omega_cdm] << '\n'
+              << "\thundredxtheta_s : "
+                  << Cube[ClikPar::hundredxtheta_s] << '\n'
+              << "\ttau_reio        : "
+                  << Cube[ClikPar::tau_reio] << '\n'
+              << "\tn_s             : "
+                  << Cube[ClikPar::n_s] << '\n'
+              << "\tln10_10_A_s     : "
+                  << Cube[ClikPar::ln10_10_A_s] << std::endl;
+
+    lnew = -1E90;
+    delete class_engine;
+    return;
+  }
+
+
+  /******************************/
+  /*   Likelihood Calculation   */
+  /******************************/
+
+  // Push all spectra into a single matrix
+  class_cls.push_back(cl_tt);
+  class_cls.push_back(cl_ee);
+  class_cls.push_back(cl_bb);
+  class_cls.push_back(cl_te);
+
+  plc_pack->create_all_cl_and_pars(Cube, class_cls);
+
+  // Compute the log likelihood using PLC
+  lnew = plc_pack->calculate_likelihood();
+
+  // Subtract any other priors for those parameters with them
+  lnew -= plc_pack->get_pars()->calculate_extra_priors(Cube, class_engine);
 
   /*
   std::cout << "[plc_class] Calculated log likelihood of "
