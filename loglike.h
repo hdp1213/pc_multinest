@@ -50,13 +50,13 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   par_max[ClikPar::omega_b] = 0.024;
   par_min[ClikPar::omega_cdm] = 0.10;
   par_max[ClikPar::omega_cdm] = 0.13;
-  par_min[ClikPar::hundredxtheta_s] = 0.99;
-  par_max[ClikPar::hundredxtheta_s] = 1.11;
+  par_min[ClikPar::hundredxtheta_s] = 1.1020;
+  par_max[ClikPar::hundredxtheta_s] = 1.1048;
   par_min[ClikPar::tau_reio] = 0.04;
   par_max[ClikPar::tau_reio] = 0.12;
-  par_min[ClikPar::n_s] = 0.90;
-  par_max[ClikPar::n_s] = 1.00;
-  par_min[ClikPar::ln10_10_A_s] = 2.9;
+  par_min[ClikPar::n_s] = 0.80;
+  par_max[ClikPar::n_s] = 1.10;
+  par_min[ClikPar::ln10_10_A_s] = 2.8;
   par_max[ClikPar::ln10_10_A_s] = 3.2;
 
   // Nuisance parameters for PLC
