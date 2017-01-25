@@ -16,19 +16,13 @@ ClikPar::ClikPar() : m_free_param_amt(21) {
 
   // Set flat priors. All parameters must have a flat prior
   // LCDM parameters first
-  // Comments specify up to what +/- sigma the range covers
-  m_min[omega_b] = 0.016;           m_max[omega_b] = 0.028;
-  // lots-sigma
-  m_min[omega_cdm] = 0.108;         m_max[omega_cdm] = 0.130;
-  // 4-sigma
-  m_min[hundredxtheta_s] = 1.0394;  m_max[hundredxtheta_s] = 1.0423;
-  // 3-sigma
-  m_min[tau_reio] = 0.04;           m_max[tau_reio] = 0.116;
-  // 2-sigma
-  m_min[n_s] = 0.94;                m_max[n_s] = 0.99;
-  // 4-sigma
-  m_min[ln10_10_A_s] = 2.981;       m_max[ln10_10_A_s] = 3.197;
-  // 3-sigma
+  // Using full Planck priors
+  m_min[omega_b] = 0.005;           m_max[omega_b] = 0.1;
+  m_min[omega_cdm] = 0.001;         m_max[omega_cdm] = 0.99;
+  m_min[hundredxtheta_s] = 0.5;  m_max[hundredxtheta_s] = 10.0;
+  m_min[tau_reio] = 0.01;           m_max[tau_reio] = 0.8;
+  m_min[n_s] = 0.8;                m_max[n_s] = 1.2;
+  m_min[ln10_10_A_s] = 2.0;       m_max[ln10_10_A_s] = 4.0;
 
   // PLC nuisance parameters second
   m_min[A_cib_217] = 0.0;         m_max[A_cib_217] = 200.0;

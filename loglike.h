@@ -78,6 +78,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   }
   // CLASS has failed, set loglike to zero and return
   catch (std::exception const &e) {
+    //* An error occurred
     std::cerr << "[ERROR] CLASS failed, throwing exception "
               << e.what()
               << std::endl;
@@ -95,6 +96,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
                   << Cube[ClikPar::n_s] << '\n'
               << "\tln10_10_A_s     : "
                   << Cube[ClikPar::ln10_10_A_s] << std::endl;
+    //*/
 
     lnew = -1E90;
     delete class_engine;
@@ -110,6 +112,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   }
   // Spectra extraction has failed, set loglike to zero
   catch (std::exception const &e) {
+    //* An error occurred
     std::cerr << "[ERROR] Spectra extraction unsuccessful, CLASS threw "
               << e.what()
               << std::endl;
@@ -127,6 +130,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
                   << Cube[ClikPar::n_s] << '\n'
               << "\tln10_10_A_s     : "
                   << Cube[ClikPar::ln10_10_A_s] << std::endl;
+    //*/
 
     lnew = -1E90;
     delete class_engine;
