@@ -6,41 +6,41 @@
 
 ClikPar::ClikPar() : m_free_param_amt(21) {
   // Initialise defaults
-  for (int i = 0; i < TOTAL_PARAMS; ++i) {
-    m_is_gaussian[i] = false;
-    m_min[i] = -9999;
-    m_max[i] = -9999;
-    m_mean[i] = -9999;
-    m_stddev[i] = -9999;
+  for (int param = 0; param < TOTAL_PARAMS; ++param) {
+    m_is_gaussian[param] = false;
+    m_min[param] = -9999;
+    m_max[param] = -9999;
+    m_mean[param] = -9999;
+    m_stddev[param] = -9999;
   }
 
   // Set flat priors. All parameters must have a flat prior
   // LCDM parameters first
   // Using full Planck priors
-  m_min[omega_b] = 0.005;           m_max[omega_b] = 0.1;
-  m_min[omega_cdm] = 0.001;         m_max[omega_cdm] = 0.99;
-  m_min[hundredxtheta_s] = 0.5;  m_max[hundredxtheta_s] = 10.0;
-  m_min[tau_reio] = 0.01;           m_max[tau_reio] = 0.8;
-  m_min[n_s] = 0.8;                m_max[n_s] = 1.2;
-  m_min[ln10_10_A_s] = 2.0;       m_max[ln10_10_A_s] = 4.0;
+  m_min[omega_b] = 0.016;          m_max[omega_b] = 0.028;
+  m_min[omega_cdm] = 0.11;         m_max[omega_cdm] = 0.15;
+  m_min[hundredxtheta_s] = 1.039;  m_max[hundredxtheta_s] = 1.043;
+  m_min[tau_reio] = 0.01;          m_max[tau_reio] = 0.15;
+  m_min[n_s] = 0.9;                m_max[n_s] = 1.1;
+  m_min[ln10_10_A_s] = 2.98;       m_max[ln10_10_A_s] = 3.20;
 
   // PLC nuisance parameters second
-  m_min[A_cib_217] = 0.0;         m_max[A_cib_217] = 200.0;
-  m_min[cib_index] = -1.3;        m_max[cib_index] = -1.3;
-  m_min[xi_sz_cib] = 0.0;         m_max[xi_sz_cib] = 1.0;
-  m_min[A_sz] = 0.0;              m_max[A_sz] = 10.0;
-  m_min[ps_A_100_100] = 0.0;      m_max[ps_A_100_100] = 400.0;
-  m_min[ps_A_143_143] = 0.0;      m_max[ps_A_143_143] = 400.0;
-  m_min[ps_A_143_217] = 0.0;      m_max[ps_A_143_217] = 400.0;
-  m_min[ps_A_217_217] = 0.0;      m_max[ps_A_217_217] = 400.0;
-  m_min[ksz_norm] = 0.0;          m_max[ksz_norm] = 10.0;
-  m_min[gal545_A_100] = 0.0;      m_max[gal545_A_100] = 50.0;
-  m_min[gal545_A_143] = 0.0;      m_max[gal545_A_143] = 50.0;
-  m_min[gal545_A_143_217] = 0.0;  m_max[gal545_A_143_217] = 100.0;
-  m_min[gal545_A_217] = 0.0;      m_max[gal545_A_217] = 400.0;
-  m_min[calib_100T] = 0.0;        m_max[calib_100T] = 3.0;
-  m_min[calib_217T] = 0.0;        m_max[calib_217T] = 3.0;
-  m_min[A_planck] = 0.9;          m_max[A_planck] = 1.1;
+  m_min[A_cib_217] = 40.0;         m_max[A_cib_217] = 130.0;
+  m_min[cib_index] = -1.3;         m_max[cib_index] = -1.3;
+  m_min[xi_sz_cib] = 0.0;          m_max[xi_sz_cib] = 1.0;
+  m_min[A_sz] = 2.0;               m_max[A_sz] = 10.0;
+  m_min[ps_A_100_100] = 150.0;     m_max[ps_A_100_100] = 400.0;
+  m_min[ps_A_143_143] = 0.0;       m_max[ps_A_143_143] = 150.0;
+  m_min[ps_A_143_217] = 0.0;       m_max[ps_A_143_217] = 120.0;
+  m_min[ps_A_217_217] = 0.0;       m_max[ps_A_217_217] = 170.0;
+  m_min[ksz_norm] = 0.0;           m_max[ksz_norm] = 10.0;
+  m_min[gal545_A_100] = 0.0;       m_max[gal545_A_100] = 18.0;
+  m_min[gal545_A_143] = 0.0;       m_max[gal545_A_143] = 20.0;
+  m_min[gal545_A_143_217] = 0.0;   m_max[gal545_A_143_217] = 45.0;
+  m_min[gal545_A_217] = 0.0;       m_max[gal545_A_217] = 160.0;
+  m_min[calib_100T] = 0.9;         m_max[calib_100T] = 1.1;
+  m_min[calib_217T] = 0.9;         m_max[calib_217T] = 1.1;
+  m_min[A_planck] = 0.98;          m_max[A_planck] = 1.02;
 
   // Check if derived parameter min and max values are the same
   // If not, throw an error. They should be the same!
@@ -67,8 +67,8 @@ ClikPar::ClikPar() : m_free_param_amt(21) {
   m_is_gaussian[calib_217T] = true;
   m_is_gaussian[A_planck] = true;
 
-  for (int i = 0; i < TOTAL_PARAMS; ++i) {
-    m_gaussian_param_amt += m_is_gaussian[i];
+  for (int param = 0; param < TOTAL_PARAMS; ++param) {
+    m_gaussian_param_amt += m_is_gaussian[param];
   }
 
   // Set Gaussian priors
