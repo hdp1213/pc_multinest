@@ -16,31 +16,32 @@ ClikPar::ClikPar() : m_free_param_amt(21) {
 
   // Set flat priors. All parameters must have a flat prior
   // LCDM parameters first
-  // Using full Planck priors
+  // Using workable priors as a mix between v0.10 and v0.11 priors
+  // Just to make sure on the next run we get the whole bell curve
   m_min[omega_b] = 0.016;          m_max[omega_b] = 0.028;
-  m_min[omega_cdm] = 0.11;         m_max[omega_cdm] = 0.15;
-  m_min[hundredxtheta_s] = 1.039;  m_max[hundredxtheta_s] = 1.043;
+  m_min[omega_cdm] = 0.108;        m_max[omega_cdm] = 0.130;
+  m_min[hundredxtheta_s] = 1.039;  m_max[hundredxtheta_s] = 1.0425;
   m_min[tau_reio] = 0.01;          m_max[tau_reio] = 0.15;
-  m_min[n_s] = 0.9;                m_max[n_s] = 1.1;
+  m_min[n_s] = 0.92;               m_max[n_s] = 1.04;
   m_min[ln10_10_A_s] = 2.98;       m_max[ln10_10_A_s] = 3.20;
 
   // PLC nuisance parameters second
-  m_min[A_cib_217] = 40.0;         m_max[A_cib_217] = 130.0;
+  m_min[A_cib_217] = 0.0;          m_max[A_cib_217] = 200.0;
   m_min[cib_index] = -1.3;         m_max[cib_index] = -1.3;
   m_min[xi_sz_cib] = 0.0;          m_max[xi_sz_cib] = 1.0;
-  m_min[A_sz] = 2.0;               m_max[A_sz] = 10.0;
-  m_min[ps_A_100_100] = 150.0;     m_max[ps_A_100_100] = 400.0;
-  m_min[ps_A_143_143] = 0.0;       m_max[ps_A_143_143] = 150.0;
-  m_min[ps_A_143_217] = 0.0;       m_max[ps_A_143_217] = 120.0;
-  m_min[ps_A_217_217] = 0.0;       m_max[ps_A_217_217] = 170.0;
+  m_min[A_sz] = 0.0;               m_max[A_sz] = 10.0;
+  m_min[ps_A_100_100] = 0.0;       m_max[ps_A_100_100] = 400.0;
+  m_min[ps_A_143_143] = 0.0;       m_max[ps_A_143_143] = 400.0;
+  m_min[ps_A_143_217] = 0.0;       m_max[ps_A_143_217] = 400.0;
+  m_min[ps_A_217_217] = 0.0;       m_max[ps_A_217_217] = 400.0;
   m_min[ksz_norm] = 0.0;           m_max[ksz_norm] = 10.0;
-  m_min[gal545_A_100] = 0.0;       m_max[gal545_A_100] = 18.0;
-  m_min[gal545_A_143] = 0.0;       m_max[gal545_A_143] = 20.0;
-  m_min[gal545_A_143_217] = 0.0;   m_max[gal545_A_143_217] = 45.0;
-  m_min[gal545_A_217] = 0.0;       m_max[gal545_A_217] = 160.0;
-  m_min[calib_100T] = 0.9;         m_max[calib_100T] = 1.1;
-  m_min[calib_217T] = 0.9;         m_max[calib_217T] = 1.1;
-  m_min[A_planck] = 0.98;          m_max[A_planck] = 1.02;
+  m_min[gal545_A_100] = 0.0;       m_max[gal545_A_100] = 50.0;
+  m_min[gal545_A_143] = 0.0;       m_max[gal545_A_143] = 50.0;
+  m_min[gal545_A_143_217] = 0.0;   m_max[gal545_A_143_217] = 100.0;
+  m_min[gal545_A_217] = 0.0;       m_max[gal545_A_217] = 400.0;
+  m_min[calib_100T] = 0.0;         m_max[calib_100T] = 2.0;
+  m_min[calib_217T] = 0.0;         m_max[calib_217T] = 2.0;
+  m_min[A_planck] = 0.9;           m_max[A_planck] = 1.1;
 
   // Check if derived parameter min and max values are the same
   // If not, throw an error. They should be the same!

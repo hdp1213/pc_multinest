@@ -69,7 +69,8 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   class_params.add("ln10^{10}A_s", Cube[ClikPar::ln10_10_A_s]);
 
   // Options to set for spectra output
-  class_params.add("output", "tCl,pCl"); // pCl, lCl for lensed spectra
+  class_params.add("output", "tCl,pCl,lCl"); // pCl, lCl for lensed spectra
+  class_params.add("lensing", true);   //note boolean
   class_params.add("l_max_scalars", max_l);
   class_params.add("format", "camb");
 
