@@ -31,17 +31,21 @@ int main(int argc, char *argv[]) {
 
   // MultiNest variables
   int IS = 0;             // do Nested Importance Sampling?
-  int mmodal = 1;         // do mode separation?
-  int ceff = 0;           // run in constant efficiency mode?
+  int mmodal = 0;         // do mode separation?
+  int ceff = 1;           // run in constant efficiency mode?
+                          // Bad for evidence calculations
   int nlive = 500;        // number of live points
-  double efr = 0.8;       // set the required efficiency
+  double efr = 0.8;       // set the required efficiency. 0.8 for
+                          // parameter estimation, 0.3 for evidence
   double tol = 0.1;       // tol, defines the stopping criteria
+                          // 0.5 should give enough accuracy
   int ndims = 21;         // dimensionality (no. of free parameters)
   int nPar = 22;          // total no. of parameters including free &
                           // derived parameters
-  int nClsPar = 21;       // no. of parameters to do mode separation on
+  int nClsPar = 0;        // no. of parameters to do mode separation on
   int updInt = 1000;      // after how many iterations feedback is
-                          // required & the output files should be updated
+                          // required & the output files should be
+                          // updated
                           // note: posterior files are updated & dumper
                           // routine is called after every updInt*10
                           // iterations
@@ -59,10 +63,10 @@ int main(int argc, char *argv[]) {
   int outfile = 1;        // write output files?
   int initMPI = 1;        // initialize MPI routines?, relevant only if
                           // compiling with MPI
-                          // set it to F if you want your main program to
-                          // handle MPI initialization
-  double logZero = -1E90; // points with loglike < logZero will be ignored
-                          // by MultiNest
+                          // set it to F if you want your main program
+                          // to handle MPI initialization
+  double logZero = -1E90; // points with loglike < logZero will be
+                          // ignored by MultiNest
   int maxiter = 0;        // max no. of iterations, a non-positive value
                           // means infinity. MultiNest will terminate if
                           // either it has done max no. of iterations or
