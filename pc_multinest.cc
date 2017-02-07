@@ -34,10 +34,10 @@ int main(int argc, char *argv[]) {
   int mmodal = 0;         // do mode separation?
   int ceff = 1;           // run in constant efficiency mode?
                           // Bad for evidence calculations
-  int nlive = 500;        // number of live points
+  int nlive = 1000;       // number of live points
   double efr = 0.8;       // set the required efficiency. 0.8 for
                           // parameter estimation, 0.3 for evidence
-  double tol = 0.1;       // tol, defines the stopping criteria
+  double tol = 0.005;     // tol, defines the stopping criteria
                           // 0.5 should give enough accuracy
   int ndims = 21;         // dimensionality (no. of free parameters)
   int nPar = 22;          // total no. of parameters including free &
