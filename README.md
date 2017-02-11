@@ -6,6 +6,13 @@ cosmological models.
 MultiNest has been incorporated to scan parameter space and converge on the
 most likely set of parameters.
 
+## Contents of this README
+- [Dependencies](#dependencies)
+- [Branches](#branches)
+- [Installation](#installation)
+- [Running the Program](#running-the-program)
+- [Troubleshooting](#troubleshooting)
+
 
 ## Dependencies
 Following are dependencies for `pc_multinest`. Dependencies without a
@@ -167,16 +174,17 @@ $ make pc_multinest
 ```
 
 ## Running the Program
-`pc_multinest` takes some command line arguments used to specity where to write
+`pc_multinest` takes some command line arguments used to specify where to write
 MultiNest output files to. The full format is
 ```
-./pc_multinest <directory/to/output/root->
+./pc_multinest directory/to/output/root-
 ```
-where the first command line argument specifies the directory to write MultiNest
-chain outputs. It defaults to `output/pc_multinest-`. If you want to run
-multiple instances of `pc_multinest` independently, you can simply change the
-root of the output files to something different for each run, e.g.
-`output/pc_multinest_full_run00-`.
+
+The first command line argument specifies the directory (`directory/to/output`)
+and root (`root-`) to use for MultiNest output files. It defaults to
+`output/pc_multinest-`. If you want to run multiple instances of `pc_multinest`
+independently, you must change the root of the output files to something
+different for each run, _e.g._ `output/pc_multinest_full_run00-`.
 
 Giving no command line arguments to `pc_multinest` will just use default values
 for each variable that can be changed. Right now, that is only the output
@@ -184,12 +192,13 @@ directory and root file name.
 
 ### Analysing Output
 To analyse the MultiNest output from a successful run, `pc_multinest` makes use
-of the ROOT library and framework. An analysis script is provided in the repo
-under the name `pc_plot.cc`. To run this, make sure the `file_name` variable in
-the file points to the output file for the run you want to analyse.
+of the [ROOT](http://root.cern.ch/) library and framework. An analysis script is
+provided in the repo under the name `pc_plot.cc`. To run this, make sure the
+`file_name` variable in the file points to the output file for the run you want
+to analyse.
 
-Output files in MultiNest are those with the form `<run-name>-.txt`. After
-checking the file name is correct, run the script by executing
+Output files in MultiNest are those with the form `<root>-.txt`. After checking
+the file name in the script is correct, run the script by executing
 ```
 $ root.exe -l pc_plot.cc
 ```
