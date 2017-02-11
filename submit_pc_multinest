@@ -42,7 +42,7 @@ ulimit -s unlimited
 # Run pc_multinest_mpi
 # pe stands for processing elements. Used to bind a number of processing elements to each process
 # Total number of processes np must be N * ntasks-per-node
-mpirun -np {num_total_proc} --map-by ppr:{num_mpi_proc}:node ./pc_multinest_mpi output/{jobname}-
+mpirun -np {num_total_proc} --map-by ppr:{num_mpi_proc}:node ./{executable} output/{jobname}-
 """
 
 def main():
@@ -85,7 +85,7 @@ def speed_test(args):
       # Check that
       if num_mpi_proc*num_omp_proc == NUM_CORES_PER_NODE:
         num_total_proc = args.num_nodes * num_mpi_proc
-        jobname = "pc_multinest_mpi_{0}_{1}_{2}".format(args.num_nodes, num_mpi_proc, num_omp_proc)
+        jobname = "pc_multinest_mpi_{}_{}_{}".format(args.num_nodes, num_mpi_proc, num_omp_proc)
          
         context = {
           "num_nodes"        : args.num_nodes,
@@ -94,7 +94,8 @@ def speed_test(args):
           "num_total_proc"   : num_total_proc,
           "SBATCH_node_list" : args.SBATCH_node_list,
           "jobname"          : jobname,
-          "node_memory"      : args.node_memory
+          "node_memory"      : args.node_memory,
+          "executable"       : args.executable
         }
      
         with open("{}.job".format(jobname), 'w') as job_out:
@@ -104,7 +105,7 @@ def speed_test(args):
             "Created file {}", jobname)
 
         if args.do_submission:
-          call([SUBMIT_CMD, jobname])
+          call([SUBMIT_CMD, "{}.job".format(jobname)])
           print_verbose(1, args.verbosity,
             "Submitted job {}", jobname)
 
@@ -131,7 +132,7 @@ def one_job(args):
 
   if args.do_submission:
     if args.watch_queue:
-      call([SUBMIT_CMD, args.jobname])
+      call([SUBMIT_CMD, "{}.job".format(args.jobname)])
       return call(WATCH_CMD.split())
     else:
       return call([SUBMIT_CMD, args.jobname])
@@ -174,19 +175,19 @@ def make_parser():
     type=str,
     default="pc_multinest_mpi",
     dest="jobname",
-    help="specify job name")
+    help="set job name")
 
   parser.add_argument("-n", "--nodes",
     type=int,
     default=1,
     dest="num_nodes",
-    help="specify number of nodes to use")
+    help="set number of nodes to use")
 
   parser.add_argument("-l", "--node-list",
     action=NodeListAction,
     type=str,
     dest="node_list",
-    help="specify nodes to use")
+    help="select node IDs to use")
 
   parser.add_argument("-m", "--mpi-threads",
     type=int,
@@ -205,6 +206,12 @@ def make_parser():
     default="1GB",
     dest="cpu_memory",
     help="set memory per job")
+
+  parser.add_argument("-x", "--exec",
+    type=str,
+    default="pc_multinest_mpi",
+    dest="executable",
+    help="set non-standard executable name")
 
   parser.add_argument("-s", "--submit",
     action="store_true",

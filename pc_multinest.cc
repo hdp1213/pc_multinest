@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
   double efr = 0.8;       // set the required efficiency. 0.8
                           // for parameter estimation, 0.3 for
                           // evidence
-  double tol = 1E-4;      // tol, defines the stopping criteria
+  double tol = 1E-3;      // tol, defines the stopping criteria
                           // 0.5 should give enough accuracy
   int ndims = 21;         // dimensionality (no. of free
                           // parameters)

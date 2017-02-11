@@ -112,13 +112,18 @@ void ClikPar::initialise_CLASS(int max_l) {
   default_params.add("ln10^{10}A_s", 3.0980);
   default_params.add("n_s", 0.9619);
 
-  // (Constant) values to set
+  // Neutrino values to set
   default_params.add("N_ur", 2.0328);
   default_params.add("N_ncdm", 1);
   default_params.add("m_ncdm", 0.06); // MeV
+  default_params.add("T_ncdm", 0.71611);
 
+  // Perturbation options
+  default_params.add("P_k_max_h/Mpc", 1.);
+  default_params.add("k_pivot", 0.05); // Mpc-1
+  
   // Spectra output options
-  default_params.add("output", "tCl,pCl,lCl");
+  default_params.add("output", "tCl,pCl,lCl,mPk");
   default_params.add("lensing", true);   //note boolean
   default_params.add("l_max_scalars", max_l);
   default_params.add("format", "camb");
@@ -160,11 +165,11 @@ void ClikPar::set_derived_params(double* Cube) {
   Cube[Omega_cdm] = m_class_engine->get_Omega_cdm();
   Cube[Omega_L] = m_class_engine->get_Omega_L();
   Cube[Omega_g] = m_class_engine->get_Omega_g();
-  Cube[Omega_k] = m_class_engine->get_Omega_k();
+  // Cube[Omega_k] = m_class_engine->get_Omega_k();
   Cube[sigma8] = m_class_engine->get_sigma8();
   Cube[age] = m_class_engine->get_age();
   Cube[conf_age] = m_class_engine->get_conf_age();
-  Cube[K] = m_class_engine->get_K();
+  // Cube[K] = m_class_engine->get_K();
 
   // Standard CLASS routines
   Cube[z_drag] = m_class_engine->z_drag();

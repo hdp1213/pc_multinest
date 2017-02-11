@@ -43,11 +43,11 @@ public:
     Omega_cdm,
     Omega_L,
     Omega_g,
-    Omega_k,
+    // Omega_k, // an input parameter!
     sigma8,
     age,
     conf_age,
-    K,
+    // K, // presumably derived from Omega_k
     z_drag,
     rs_drag,
     // Final total number of parameters
