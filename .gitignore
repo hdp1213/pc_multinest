@@ -9,6 +9,7 @@
 pc_multinest
 pc_multinest_mpi
 pc_speedtest
+*.job
 
 # Packages #
 ############

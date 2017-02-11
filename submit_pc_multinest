@@ -1,0 +1,304 @@
+#!/bin/python
+
+# -- script for automation of speed testing --
+# core by Jessica de la Perrelle, stylistic changes by Harry Poulter
+from subprocess import call, check_output, Popen, PIPE
+from warnings import warn
+import argparse
+import sys
+import re
+
+NUM_CORES_PER_NODE = 32
+MEMORY_PER_NODE = "128GB"
+
+SUBMIT_CMD = "sbatch"
+NODE_CMD = "sinfo"
+AWK_CMD = "awk '{if ($5 ~ \"idle\") {print $6}}'"
+WATCH_CMD = "watch -pn 0.5 squeue -u a1648400"
+
+template = \
+"""#!/bin/bash
+
+#SBATCH --export=ALL
+#SBATCH -p batch
+#SBATCH -N {num_nodes}
+{SBATCH_node_list}#SBATCH --ntasks-per-node={num_mpi_proc}
+#SBATCH --cpus-per-task={num_omp_proc}
+#SBATCH --time=3-00:00:00
+#SBATCH --comment="N:{num_nodes} MPI:{num_mpi_proc} OMP:{num_omp_proc}"
+#SBATCH --mem={node_memory}
+#SBATCH -J {jobname}
+#SBATCH --mail-type=BEGIN
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-type=END
+#SBATCH --mail-user=a1648400@adelaide.edu.au
+
+export OMP_NUM_THREADS={num_omp_proc}
+
+cd $SLURM_SUBMIT_DIR
+
+ulimit -s unlimited
+
+# Run pc_multinest_mpi
+# pe stands for processing elements. Used to bind a number of processing elements to each process
+# Total number of processes np must be N * ntasks-per-node
+mpirun -np {num_total_proc} --map-by ppr:{num_mpi_proc}:node ./pc_multinest_mpi output/{jobname}-
+"""
+
+def main():
+  parser = make_parser()
+  args = parser.parse_args()
+
+  # Check node_list argument has requested amount of nodes (if present)
+  try:
+    len_node_list = len(args.node_list.split(','))
+  except AttributeError as e:
+    len_node_list = args.num_nodes
+
+  if len_node_list > args.num_nodes:
+    print_error("node_list contains more nodes ({}) than requested ({})", len_node_list, args.num_nodes)
+    return 1
+  elif len_node_list < args.num_nodes:
+    print_error("node_list contains less nodes ({}) than requested ({})", len_node_list, args.num_nodes)
+    return 1
+
+  # Set nodelist option in bacth file if given
+  if args.node_list is None:
+    args.SBATCH_node_list = ""
+  else:
+    args.SBATCH_node_list = "#SBATCH --nodelist={0}\n".format(args.node_list)
+
+  # Obtain node_memory from cpu_memory
+  args.node_memory = mem_mult(args.cpu_memory, NUM_CORES_PER_NODE)
+
+  if args.speed_test:
+    return speed_test(args)
+
+  else:
+    return one_job(args)
+
+def speed_test(args):
+  """Speed testing different allocations of MPI and OMP resources"""
+  # creates job files with range of parameter values
+  for num_mpi_proc in range(NUM_CORES_PER_NODE+1):
+    for num_omp_proc in range(NUM_CORES_PER_NODE+1):
+      # Check that
+      if num_mpi_proc*num_omp_proc == NUM_CORES_PER_NODE:
+        num_total_proc = args.num_nodes * num_mpi_proc
+        jobname = "pc_multinest_mpi_{0}_{1}_{2}".format(args.num_nodes, num_mpi_proc, num_omp_proc)
+         
+        context = {
+          "num_nodes"        : args.num_nodes,
+          "num_mpi_proc"     : num_mpi_proc,
+          "num_omp_proc"     : num_omp_proc,
+          "num_total_proc"   : num_total_proc,
+          "SBATCH_node_list" : args.SBATCH_node_list,
+          "jobname"          : jobname,
+          "node_memory"      : args.node_memory
+        }
+     
+        with open("{}.job".format(jobname), 'w') as job_out:
+          job_out.write(template.format(**context))
+
+        print_verbose(1, args.verbosity,
+            "Created file {}", jobname)
+
+        if args.do_submission:
+          call([SUBMIT_CMD, jobname])
+          print_verbose(1, args.verbosity,
+            "Submitted job {}", jobname)
+
+    else:
+      pass
+
+  if args.do_submission and args.watch_queue:
+    return call(WATCH_CMD.split())
+
+  else:
+    return 0
+
+
+def one_job(args):
+  """Submits one job with specified parts"""
+  if (args.num_mpi_proc * args.num_omp_proc > NUM_CORES_PER_NODE):
+    raise ValueError("Number of MPI and OMP cores exceed total "
+      "number of cores on node")
+
+  args.num_total_proc = args.num_nodes * args.num_mpi_proc
+
+  with open("{}.job".format(args.jobname), 'w') as job_out:
+    job_out.write(template.format(**vars(args)))
+
+  if args.do_submission:
+    if args.watch_queue:
+      call([SUBMIT_CMD, args.jobname])
+      return call(WATCH_CMD.split())
+    else:
+      return call([SUBMIT_CMD, args.jobname])
+
+  else:
+    return 0
+
+
+def mem_mult(mem, factor):
+  """Multiply memory value by a factor"""
+  mem_dict = {"KB":1, "MB":2, "GB":3, "TB":4}
+  inv_mem_dict = dict((val,key) for (key,val) in mem_dict.items())
+  mem_wrap = 1024 # bytes
+
+  mem_arr = re.findall('\d+|\D+', mem)
+  mem_prefix = mem_arr[1]
+  mem_bytes = long(mem_arr[0]) * mem_wrap**mem_dict[mem_prefix]
+
+  res_mem_bytes = mem_bytes * factor
+  res_mem = res_mem_bytes
+  res_mem_prefix = 0
+
+  while (res_mem > mem_wrap):
+    res_mem /= mem_wrap
+    res_mem_prefix += 1
+
+  return "{}{}".format(res_mem, inv_mem_dict[res_mem_prefix])
+
+
+def make_parser():
+  """Return the parser used to parse input arguments"""
+  parser = argparse.ArgumentParser(
+    description=(
+      "%(prog)s, a job submission script generator for pc_multinest."),
+    epilog=(
+      ""),
+    formatter_class=argparse.RawDescriptionHelpFormatter)
+
+  parser.add_argument("-j", "--job-name",
+    type=str,
+    default="pc_multinest_mpi",
+    dest="jobname",
+    help="specify job name")
+
+  parser.add_argument("-n", "--nodes",
+    type=int,
+    default=1,
+    dest="num_nodes",
+    help="specify number of nodes to use")
+
+  parser.add_argument("-l", "--node-list",
+    action=NodeListAction,
+    type=str,
+    dest="node_list",
+    help="specify nodes to use")
+
+  parser.add_argument("-m", "--mpi-threads",
+    type=int,
+    default=16,
+    dest="num_mpi_proc",
+    help="set number of MPI threads")
+
+  parser.add_argument("-o", "--omp-threads",
+    type=int,
+    default=2,
+    dest="num_omp_proc",
+    help="set number of OMP threads")
+
+  parser.add_argument("-c", "--memory",
+    type=str,
+    default="1GB",
+    dest="cpu_memory",
+    help="set memory per job")
+
+  parser.add_argument("-s", "--submit",
+    action="store_true",
+    dest="do_submission",
+    help="submit script after generation")
+
+  parser.add_argument("-t", "--speed-test",
+    action="store_true",
+    dest="speed_test",
+    help="run speed test")
+
+  parser.add_argument("-w", "--watch",
+    action="store_true",
+    dest="watch_queue",
+    help="watch job queue after submission")
+
+  parser.add_argument("-v", "--verbose",
+    action="count",
+    default=0,
+    dest="verbosity",
+    help="specify level of verbosity")
+
+  parser.add_argument("--version",
+    action="version",
+    version="%(prog)s v1.0-rc0")
+
+  return parser
+
+class NodeListAction(argparse.Action):
+  """Class to process node lists during argument parsing"""
+  def __init__(self, option_strings, dest, nargs=None, **kwargs):
+    if nargs is not None:
+      raise ValueError("nargs not allowed")
+    super(NodeListAction, self).__init__(option_strings, dest, **kwargs)
+
+  def __call__(self, parser, namespace, values, option_string=None):
+    # Check that requested nodes are idle
+    requested_node_list = NodeListAction.expand_node_list(values)
+
+    idle_node_list = check_output([NODE_CMD])
+
+    # Pipe to process awk command
+    pipe = Popen(AWK_CMD, shell=True, stdin=PIPE, stdout=PIPE)
+    pipe.stdin.write(idle_node_list)
+
+    idle_node_list = NodeListAction.expand_node_list(pipe.communicate()[0]).split(',')
+
+    for requested_node in requested_node_list.split(','):
+      if requested_node not in idle_node_list:
+        print_warn("The requested node {!r} is not available right now",requested_node)
+
+    setattr(namespace, self.dest, requested_node_list)
+    
+  @staticmethod
+  def expand_node_list(node_list):
+    expanded_node_list = []
+
+    # Find rack denominations
+    racks = re.findall('r[0-9]+n\[?[0-9,\-]+\]?', node_list)
+
+    for rack in racks:
+      rack_id = re.match('r([0-9]+)n', rack).group(1)
+
+      # Find node denominations
+      nodes = re.search('n\[?([0-9,\-]+)\]?', rack).group(1).split(',')
+
+      for node in nodes:
+        node_id = ''
+        if '-' not in node:
+          node_id = node
+          expanded_node_list.append("r{}n{}".format(rack_id, node_id))
+        else:
+          node_range = map(lambda x: int(x), node.split('-'))
+          for node_id in range(node_range[0], node_range[1]+1):
+            expanded_node_list.append("r{}n{:02}".format(rack_id, node_id))
+
+    return ','.join(expanded_node_list)
+
+
+def print_warn(content, *args):
+  # callerName = sys._getframe(1).f_code.co_name
+  callerName = "{}".format(sys.argv[0].strip("./"))
+  print("{0}: warn: {1}".format(callerName, content.format(*args)))
+
+def print_error(content, *args):
+  # callerName = sys._getframe(1).f_code.co_name
+  callerName = "{}".format(sys.argv[0].strip("./"))
+  print("{0}: error: {1}".format(callerName, content.format(*args)))
+
+def print_verbose(level, verbosity, content, *args):
+  if (verbosity >= level):
+    # callerName = sys._getframe(1).f_code.co_name
+    callerName = "{}".format(sys.argv[0].strip("./"))
+    print("{0}: {1}".format(callerName, content.format(*args)))
+
+if __name__ == '__main__':
+  sys.exit(main())

@@ -31,7 +31,8 @@ public:
 private:
   int incompatible_with_class() const;
 
-  // Fixed max number of spectra that PLC can store in .clik files
+  // Fixed max number of spectra that PLC can store in .clik
+  // files
   static const int CL_AMT = 6;
   
   // PLC bits

@@ -6,9 +6,10 @@
 class ClikPar {
 
 public:
-  ClikPar();
+  ClikPar(int free_param_amt, int fixed_param_amt);
   ~ClikPar();
 
+  // This enum follows Planck ordering (to a degree)
   enum param_t
   {
     // Free parameters (CLASS)
@@ -16,9 +17,10 @@ public:
     omega_cdm,
     hundredxtheta_s,
     tau_reio,
-    n_s,
     ln10_10_A_s,
+    n_s,
     // Free parameters (PLC)
+    A_planck,
     A_cib_217,
     xi_sz_cib,
     A_sz,
@@ -33,17 +35,30 @@ public:
     gal545_A_217,
     calib_100T,
     calib_217T,
-    A_planck,
-    // Derived parameters
-    cib_index, // cib_index = -1.3 is constant
+    // Fixed parameters (PLC)
+    cib_index, // = -1.3
+    // Derived parameters (LCDM)
+    H0,
+    Omega_b,
+    Omega_cdm,
+    Omega_L,
+    Omega_g,
+    Omega_k,
+    sigma8,
+    age,
+    conf_age,
+    K,
+    z_drag,
+    rs_drag,
     // Final total number of parameters
     TOTAL_PARAMS
   };
 
-  int get_free_param_amt() const;
-  int get_gaussian_param_amt() const;
-  double calculate_extra_priors(double* Cube, ClassEngine* class_engine) const;
+  void initialise_CLASS(int max_l);
   void scale_Cube(double* Cube);
+  void set_derived_params(double* Cube);
+  ClassEngine* get_CLASS();
+  double calculate_extra_priors(double* Cube) const;
   
 
 private:
@@ -51,6 +66,9 @@ private:
   double m_min[TOTAL_PARAMS], m_max[TOTAL_PARAMS];
   double m_mean[TOTAL_PARAMS], m_stddev[TOTAL_PARAMS];
   int m_free_param_amt, m_gaussian_param_amt;
+  int m_fixed_param_amt;
+
+  ClassEngine* m_class_engine;
 };
 
 #endif

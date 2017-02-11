@@ -1,11 +1,9 @@
 #include "PLCPack.h"
 
-#include <cstdio> // for stderr
 #include <exception> // for std::exception
-#include <iostream> // for std::cerr
 
 PLCPack::PLCPack() : m_largest_max_l(1), m_clik_par(0) {
-
+  
 }
 
 PLCPack::~PLCPack() {
@@ -33,16 +31,43 @@ void PLCPack::add_clik_object(ClikObject* clik_object) {
   }
 }
 
-int PLCPack::get_largest_max_l() const {
-  return m_largest_max_l;
-}
-
-void PLCPack::set_pars(ClikPar* clik_par) {
+// Should only be called after all clik objects have been added
+void PLCPack::initialise_params(ClikPar* clik_par) {
   m_clik_par = clik_par;
+  m_clik_par->initialise_CLASS(m_largest_max_l);
 }
 
-ClikPar* PLCPack::get_pars() const {
-  return m_clik_par;
+double PLCPack::calculate_extra_priors(double* Cube) const {
+  m_clik_par->calculate_extra_priors(Cube);
+}
+
+void PLCPack::scale_Cube(double* Cube) {
+  m_clik_par->scale_Cube(Cube);
+}
+
+void PLCPack::set_derived_params(double* Cube) {
+  m_clik_par->set_derived_params(Cube);
+}
+
+void PLCPack::run_CLASS(std::vector<double> class_params) {
+  try {
+    m_clik_par->get_CLASS()->updateParValues(class_params);
+  }
+  catch (std::exception const &e) {
+    throw e;
+  }
+}
+
+void PLCPack::get_CLASS_spectra(std::vector<double>& cl_tt,
+      std::vector<double>& cl_te, 
+      std::vector<double>& cl_ee, 
+      std::vector<double>& cl_bb) {
+  try {
+    m_clik_par->get_CLASS()->getCls(m_class_l_vec, cl_tt, cl_te, cl_ee, cl_bb);
+  }
+  catch (std::exception const &e) {
+    throw e;
+  }
 }
 
 void PLCPack::create_all_cl_and_pars(double* Cube,
@@ -60,8 +85,4 @@ double PLCPack::calculate_likelihood() const {
   }
 
   return loglike;
-}
-
-std::vector<unsigned> PLCPack::get_class_l_vec() const {
-  return m_class_l_vec;
 }
