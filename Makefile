@@ -1,9 +1,9 @@
 HOME_DIR := /coepp/cephfs/adl/harryp
+BATCH_DIR := /data/harryp
 
 PLIK_DIR := $(HOME_DIR)/plc-2.0
-CLASS_DIR := $(HOME_DIR)/class
+CLASS_DIR := $(BATCH_DIR)/class
 MULTINEST_DIR := $(HOME_DIR)/MultiNest_v3.10
-BATCH_DIR := /data/harryp
 
 # Flags for the C++ compiler
 CPPC := g++
@@ -84,6 +84,13 @@ pc_speedtest: pc_speedtest.o $(CLASS_CPP_OBJS) $(PC_OBJS)
 
 pc_speedtest.o: pc_speedtest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC)
 	$(CPPC) -c -o pc_speedtest.o pc_speedtest.cc $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
+
+# Solve for derived parameters
+pc_propagate: pc_propagate.o $(CLASS_CPP_OBJS)
+	$(CPPC) -o pc_propagate pc_propagate.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
+
+pc_propagate.o: pc_propagate.cc $(CPP_SRC)
+	$(CPPC) -c -o pc_propagate.o pc_propagate.cc $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 clean:
 	rm -f *.o output/*
