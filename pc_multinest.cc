@@ -73,13 +73,13 @@ int main(int argc, char *argv[]) {
 
 
   // High l likelihood variables
-  char *hi_l_clik_path = "/data/harryp/pc_multinest/plik_dx11dr2_HM_v18_TT.clik/";
+  char *hi_l_clik_path = "/data/harryp/staging/plik_dx11dr2_HM_v18_TT.clik/";
   ClikObject *hi_l_clik = 0;
   std::vector<ClikPar::param_t> hi_l_nuis_enums;
 
   // Low l likelihood variables  
   ClikObject *lo_l_clik = 0;
-  char *lo_l_clik_path = "/data/harryp/pc_multinest/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
+  char *lo_l_clik_path = "/data/harryp/staging/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
   std::vector<ClikPar::param_t> lo_l_nuis_enums;
 
   int param_amts;

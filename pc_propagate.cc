@@ -1,5 +1,8 @@
 #include "ClassEngine.hh"
+
+#ifdef MPI
 #include <mpi.h>
+#endif
 
 #include <cstdio> // for stderr
 
@@ -63,19 +66,20 @@ struct ClikPar {
 int main(int argc, char* argv[])
 {
   // Will need to use MPI
-  int mpi_size, mpi_rank;
+  int mpi_size = 1, mpi_rank = 0;
+
+#ifdef MPI
   MPI_Comm mpi_comm;
   MPI_Status stat;
-  double* test;
 
   MPI_Init(&argc, &argv);
   mpi_comm = MPI_COMM_WORLD;
   MPI_Comm_size(mpi_comm, &mpi_size);
   MPI_Comm_rank(mpi_comm, &mpi_rank);
 
-  // MPI variables
-  const int ROOT_RANK = 0;
+#endif // MPI
 
+  const int ROOT_RANK = 0;
   const int IN_ROWS = 379936; // from wc -l <in_file>
   //    32 or    31 nodes only!
   // 11873 or 12256 of size!
@@ -83,8 +87,8 @@ int main(int argc, char* argv[])
   // const int DERIVED_SIZE = ClikPar::TOTAL_OUT_PARAMS - ClikPar::TOTAL_IN_PARAMS;
 
   
-  const char* phoenix_in = "/data/harryp/phoenix-out/pc_multinest_mpi_full_lensed_precision_6-.txt";
-  const char* derived_out = "/data/harryp/phoenix-out/pc_multinest_mpi_full_derived-.txt";
+  const char* phoenix_in;
+  const char* derived_out;
 
   // Inputting variables
   std::ifstream in;
@@ -116,6 +120,21 @@ int main(int argc, char* argv[])
   int max_l = 2509;
   ClassEngine* class_engine(0);
   std::vector<double>* lcdm_params(0);
+
+  // Read in/out command line arguments
+  if (argc < 1) {
+    phoenix_in = "/data/harryp/phoenix-out/pc_multinest_mpi_full_lensed_precision_6-.txt";
+  }
+  else {
+    phoenix_in = argv[1];
+  }
+
+  if (argc < 2) {
+    derived_out = "/data/harryp/phoenix-out/pc_multinest_full_derived-.txt";
+  }
+  else {
+    derived_out = argv[2];
+  }
 
   // Run checks on divisibility of row number by mpi processes
   if (mpi_rank == ROOT_RANK) {
@@ -150,13 +169,11 @@ int main(int argc, char* argv[])
   // default_params.add("P_k_max_h/Mpc", 1.);
   // default_params.add("k_pivot", 0.05); // Mpc-1
   
-  // default_params.add("output", "tCl,pCl,lCl");
+  default_params.add("output", "tCl");
   // default_params.add("output", "tCl,pCl,lCl,mPk");
   // default_params.add("lensing", true);   //note boolean
   default_params.add("l_max_scalars", max_l);
   // default_params.add("format", "camb");
-
-  std::cout << "I am process " << mpi_rank << " about to initialise CLASS" << std::endl;
 
   try {
     class_engine = new ClassEngine(default_params);
@@ -173,6 +190,8 @@ int main(int argc, char* argv[])
 
   // Only read input if you are root process
   if (mpi_rank == ROOT_RANK) {
+    std::cout << "Starting reading from " << phoenix_in << std::endl;
+
     in_params = new double[IN_SIZE];
 
     // Just read in values to begin with
@@ -218,12 +237,15 @@ int main(int argc, char* argv[])
     }
 
     in.close();
+
+    std::cout << "Finished reading " << phoenix_in << std::endl;
   }
 
   else { // be safe
     in_params = NULL;
   }
 
+#ifdef MPI
   // Where we store the scattered seeds
   working_params = new double[WORK_SIZE];
 
@@ -236,6 +258,9 @@ int main(int argc, char* argv[])
     MPI_DOUBLE,
     ROOT_RANK,
     mpi_comm);
+#else
+  working_params = in_params;
+#endif // MPI
 
   // Where we put all the new goodies
   worked_params = new double[WORKED_SIZE];
@@ -283,6 +308,7 @@ int main(int argc, char* argv[])
     worked_params[base + ClikPar::rs_drag] = class_engine->rs_drag();
   }
 
+#ifdef MPI
   // It is done, thank fuck. Let's gather the results
   if (mpi_rank == ROOT_RANK) {
     out_params = new double[OUT_SIZE];
@@ -299,10 +325,15 @@ int main(int argc, char* argv[])
     MPI_DOUBLE,
     ROOT_RANK,
     mpi_comm);
+#else
+  out_params = worked_params;
+#endif
 
   // Now print all of this fuckery to a file
   // Only write output if you are root process
   if (mpi_rank == ROOT_RANK) {
+    std::cout << "Starting writing to " << derived_out << std::endl;
+
     out.open(derived_out);
 
     for (int i = 0; i < OUT_SIZE; ++i) {
@@ -315,9 +346,13 @@ int main(int argc, char* argv[])
     }
 
     out.close();
+
+    std::cout << "Finished writing to " << derived_out << std::endl;
   }
 
+#ifdef MPI
   MPI_Finalize();
+#endif
 
   return 0;
 }

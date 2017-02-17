@@ -25,8 +25,8 @@ FC_LIBS := -L$(MULTINEST_DIR) -lnest3 -lstdc++
 # Flags for the MPI compilers
 FC_MPI := mpifort
 FC_MPI_FLAGS := -ffree-line-length-none -DMPI
-CPPC_MPI := mpic++
-CPPC_MPI_FLAGS := -DMPI
+CPPC_MPI := g++
+CPPC_MPI_FLAGS := #-DMPI
 
 # Own object files to link against
 PC_OBJS = PLCPack.o ClikObject.o
@@ -95,7 +95,7 @@ pc_propagate: pc_propagate.o $(CLASS_CPP_OBJS)
 	$(CPPC_MPI) $(CPPC_MPI_FLAGS) -o pc_propagate pc_propagate.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(OPT_FLAGS) $(CLASS_INC_FLAGS) $(BATCH_CLASS_FLAGS)
 
 pc_propagate.o: pc_propagate.cc $(CPP_SRC)
-	$(CPPC_MPI) -c -o pc_propagate.o pc_propagate.cc $(OPT_FLAGS) $(CLASS_INC_FLAGS) $(BATCH_CLASS_FLAGS)
+	$(CPPC_MPI) $(CPPC_MPI_FLAGS) -c -o pc_propagate.o pc_propagate.cc $(OPT_FLAGS) $(CLASS_INC_FLAGS) $(BATCH_CLASS_FLAGS)
 
 clean:
 	rm -f *.o output/*
