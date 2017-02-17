@@ -10,9 +10,12 @@ CPPC := g++
 # turn off warnings using -w
 OPT_FLAGS := -O4 -ffast-math -fopenmp -w
 INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include
+CLASS_INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include
 
 BATCH_PLC_FLAGS = -DHAVE_PYEMBED=1 -DHAVE_PYTHON_H=1 -DHAS_LAPACK -DLAPACK_CLIK -m64 -Wl,-rpath,$(BATCH_DIR)/lib -Wl,-rpath,$(PLIK_DIR) -Wl,-rpath,$(CLASS_DIR)
 BATCH_LIB_FLAGS = -llapack -lblas -ldl -lgfortran -lgomp -lclik -lcfitsio -L$(BATCH_DIR)/lib
+BATCH_CLASS_FLAGS = -Wl,-rpath,$(CLASS_DIR)
+BATCH_MPI_FLAGS = -lmpi
 
 # Flags for the Fortran compiler which compiles the .o files into the final binary when adding MultiNest
 FC := gfortran
@@ -22,6 +25,8 @@ FC_LIBS := -L$(MULTINEST_DIR) -lnest3 -lstdc++
 # Flags for the MPI compilers
 FC_MPI := mpifort
 FC_MPI_FLAGS := -ffree-line-length-none -DMPI
+CPPC_MPI := mpic++
+CPPC_MPI_FLAGS := -DMPI
 
 # Own object files to link against
 PC_OBJS = PLCPack.o ClikObject.o
@@ -85,12 +90,12 @@ pc_speedtest: pc_speedtest.o $(CLASS_CPP_OBJS) $(PC_OBJS)
 pc_speedtest.o: pc_speedtest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC)
 	$(CPPC) -c -o pc_speedtest.o pc_speedtest.cc $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
-# Solve for derived parameters
+# Run CLASS quickly to calculate any derived parameters you want
 pc_propagate: pc_propagate.o $(CLASS_CPP_OBJS)
-	$(CPPC) -o pc_propagate pc_propagate.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
+	$(CPPC_MPI) $(CPPC_MPI_FLAGS) -o pc_propagate pc_propagate.o $(CLASS_BUILD_OBJS) $(CLASS_CPP_OBJS) $(OPT_FLAGS) $(CLASS_INC_FLAGS) $(BATCH_CLASS_FLAGS)
 
 pc_propagate.o: pc_propagate.cc $(CPP_SRC)
-	$(CPPC) -c -o pc_propagate.o pc_propagate.cc $(OPT_FLAGS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
+	$(CPPC_MPI) -c -o pc_propagate.o pc_propagate.cc $(OPT_FLAGS) $(CLASS_INC_FLAGS) $(BATCH_CLASS_FLAGS)
 
 clean:
 	rm -f *.o output/*
