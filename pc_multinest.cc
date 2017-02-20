@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
   int mmodal = 0;         // do mode separation?
   int ceff = 1;           // run in constant efficiency mode?
                           // Bad for evidence calculations
-  int nlive = 20000;      // number of live points
+  int nlive = 10000;      // number of live points
   double efr = 0.8;       // set the required efficiency. 0.8
                           // for parameter estimation, 0.3 for
                           // evidence
