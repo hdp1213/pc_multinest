@@ -130,7 +130,10 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   plc_pack->create_all_cl_and_pars(Cube, class_cls);
 
   // Compute the log likelihood using PLC
-  lnew = plc_pack->calculate_likelihood();
+  lnew = plc_pack->calculate_PLC_likelihood();
+
+  // Calculate BAO log likelihood
+  lnew -= plc_pack->calculate_BAO_likelihood();
 
   // Subtract any other priors for those parameters with them
   lnew -= plc_pack->calculate_extra_priors(Cube);

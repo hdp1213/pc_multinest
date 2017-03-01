@@ -77,7 +77,7 @@ void PLCPack::create_all_cl_and_pars(double* Cube,
   }
 }
 
-double PLCPack::calculate_likelihood() const {
+double PLCPack::calculate_PLC_likelihood() const {
   double loglike = 0.0;
 
   for (int i = 0; i < m_clik_objects.size(); ++i) {
@@ -85,4 +85,8 @@ double PLCPack::calculate_likelihood() const {
   }
 
   return loglike;
+}
+
+double PLCPack::calculate_BAO_likelihood() const {
+  return m_clik_par->calculate_BAO_likelihood();
 }

@@ -33,7 +33,9 @@ public:
   void create_all_cl_and_pars(double* Cube,
       std::vector<std::vector<double> >& class_cls);
 
-  double calculate_likelihood() const;
+  // Likelihood functions
+  double calculate_PLC_likelihood() const;
+  double calculate_BAO_likelihood() const;
   
 private:
   int m_largest_max_l;

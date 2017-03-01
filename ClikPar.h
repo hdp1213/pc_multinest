@@ -54,10 +54,14 @@ public:
     TOTAL_PARAMS
   };
 
+  // CLASS functions
   void initialise_CLASS(int max_l);
   void scale_Cube(double* Cube);
   void set_derived_params(double* Cube);
   ClassEngine* get_CLASS();
+
+  // Likelihood functions
+  double calculate_BAO_likelihood() const; // uses CLASS
   double calculate_extra_priors(double* Cube) const;
   
 
@@ -67,6 +71,13 @@ private:
   double m_mean[TOTAL_PARAMS], m_stddev[TOTAL_PARAMS];
   int m_free_param_amt, m_gaussian_param_amt;
   int m_fixed_param_amt;
+
+  // BAO variables
+  double sixDF_z, sixDF_mean, sixDF_stddev;
+  double LOWZ_z, LOWZ_mean, LOWZ_stddev;
+  double CMASS_z, CMASS_mean, CMASS_stddev;
+  double MGS_z, MGS_mean, MGS_stddev;
+  double BAO_FUDGE;
 
   ClassEngine* m_class_engine;
 };

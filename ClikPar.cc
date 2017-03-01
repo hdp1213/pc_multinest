@@ -94,6 +94,29 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
   m_stddev[calib_217T] = 0.002;
   m_mean[A_planck] = 1.0;
   m_stddev[A_planck] = 0.0025;
+
+  // Set BAO values
+  BAO_FUDGE = 1.0275;
+
+  // 6DF gives value of D_v divided by rs_rescale = 1.0268
+  sixDF_z = 0.106;
+  sixDF_mean = 0.327;
+  sixDF_stddev = 0.015;
+
+  // BOSS LOWZ gives value of D_v/rs_fid
+  LOWZ_z = 0.32;
+  LOWZ_mean = 8.47;
+  LOWZ_stddev = 0.17;
+
+  // BOSS CMASS gives value of D_v/rs_fid. Measures anisotropy
+  CMASS_z = 0.57;
+  CMASS_mean = 13.77;
+  CMASS_stddev = 0.13;
+
+  // SDSS DR7 MGS gives value of D_v/rs_fid
+  MGS_z = 0.15;
+  MGS_mean = 4.47;
+  MGS_stddev = 0.16;
 }
 
 ClikPar::~ClikPar() {
@@ -181,6 +204,30 @@ ClassEngine* ClikPar::get_CLASS() {
 }
 
 /* Private Methods */
+
+// *** The returned loglike value must always be positive ***
+// Using values from CosmoMC
+double ClikPar::calculate_BAO_likelihood() const {
+  double loglike = 0.0;
+
+  // Need rs_fid as computed by CLASS, too.
+  // Using fudge factor to match Eisenstein & Hu (1998)
+  double rs_fid = m_class_engine->rs_drag() * BAO_FUDGE;
+
+  // The actual CLASS variables to compare against
+  double sixDF_Dv = m_class_engine->get_Dv(sixDF_z);
+  double LOWZ_Dv_rs = m_class_engine->get_Dv(LOWZ_z)/rs_fid;
+  double CMASS_Dv_rs = m_class_engine->get_Dv(CMASS_z)/rs_fid;
+  double MGS_Dv_rs = m_class_engine->get_Dv(MGS_z)/rs_fid;
+
+  // Compute Gaussian likelihoods
+  loglike += pow(sixDF_Dv - sixDF_mean, 2.0) / (2.0 * pow(sixDF_stddev, 2.0));
+  loglike += pow(LOWZ_Dv_rs - LOWZ_mean, 2.0) / (2.0 * pow(LOWZ_stddev, 2.0));
+  loglike += pow(CMASS_Dv_rs - CMASS_mean, 2.0) / (2.0 * pow(CMASS_stddev, 2.0));
+  loglike += pow(MGS_Dv_rs - MGS_mean, 2.0) / (2.0 * pow(MGS_stddev, 2.0));
+
+  return loglike;
+}
 
 // *** The returned loglike value must always be positive ***
 double ClikPar::calculate_extra_priors(double* Cube) const {
