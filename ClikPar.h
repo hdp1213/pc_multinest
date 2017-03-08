@@ -19,8 +19,10 @@ public:
     tau_reio,
     ln10_10_A_s,
     n_s,
+    annihilation,
     // Free parameters (PLC)
     A_planck,
+    /*
     A_cib_217,
     xi_sz_cib,
     A_sz,
@@ -34,20 +36,19 @@ public:
     gal545_A_143_217,
     gal545_A_217,
     calib_100T,
-    calib_217T,
     // Fixed parameters (PLC)
+    calib_217T,
     cib_index, // = -1.3
+    //*/
     // Derived parameters (LCDM)
     H0,
     Omega_b,
     Omega_cdm,
     Omega_L,
     Omega_g,
-    // Omega_k, // an input parameter!
     sigma8,
     age,
     conf_age,
-    // K, // presumably derived from Omega_k
     z_drag,
     rs_drag,
     // Final total number of parameters

@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
                           // evidence
   double tol = 1E-3;      // tol, defines the stopping criteria
                           // 0.5 should give enough accuracy
-  int ndims = 21;         // dimensionality (no. of free
+  int ndims = 7;          // dimensionality (no. of free
                           // parameters)
   int nPar = ClikPar::TOTAL_PARAMS;
                           // total no. of parameters including
@@ -87,10 +87,10 @@ int main(int argc, char* argv[]) {
                           // additional information user wants
                           // to pass
 
-  int nfixed = 1;         // number of fixed parameters
+  int nfixed = 0;         // number of fixed parameters
 
-  // High l likelihood variables
-  char* hi_l_clik_path = "/home/a1648400/plc_2.0/hi_l/plik/plik_dx11dr2_HM_v18_TT.clik/";
+  // High l lite likelihood variables
+  char* hi_l_clik_path = "/home/a1648400/plc_2.0/hi_l/plik_lite/plik_lite_v18_TT.clik/";
   ClikObject* hi_l_clik(0);
   std::vector<ClikPar::param_t> hi_l_nuis_enums;
 
@@ -123,6 +123,7 @@ int main(int argc, char* argv[]) {
 
   // Push nuisance parameters in order they appear in
   // cl_and_pars
+  /*
   hi_l_nuis_enums.push_back(ClikPar::A_cib_217);
   hi_l_nuis_enums.push_back(ClikPar::cib_index);
   hi_l_nuis_enums.push_back(ClikPar::xi_sz_cib);
@@ -138,6 +139,7 @@ int main(int argc, char* argv[]) {
   hi_l_nuis_enums.push_back(ClikPar::gal545_A_217);
   hi_l_nuis_enums.push_back(ClikPar::calib_100T);
   hi_l_nuis_enums.push_back(ClikPar::calib_217T);
+  //*/
   hi_l_nuis_enums.push_back(ClikPar::A_planck);
 
   hi_l_clik->set_nuisance_param_enums(hi_l_nuis_enums);
@@ -186,7 +188,7 @@ int main(int argc, char* argv[]) {
   plc_pack->initialise_params(clik_par);
 
   context = plc_pack;
-  
+
   // Calling MultiNest
 
   nested::run(IS, mmodal, ceff, nlive, tol, efr, ndims, nPar, nClsPar,

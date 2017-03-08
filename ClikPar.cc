@@ -26,9 +26,11 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
   m_min[tau_reio] = 0.01;          m_max[tau_reio] = 0.15;
   m_min[ln10_10_A_s] = 2.98;       m_max[ln10_10_A_s] = 3.20;
   m_min[n_s] = 0.92;               m_max[n_s] = 1.04;
+  m_min[annihilation] = 0.0;       m_max[annihilation] = 1e-6;
 
   // PLC nuisance parameters second
   m_min[A_planck] = 0.9;           m_max[A_planck] = 1.1;
+  /*
   m_min[A_cib_217] = 0.0;          m_max[A_cib_217] = 200.0;
   m_min[xi_sz_cib] = 0.0;          m_max[xi_sz_cib] = 1.0;
   m_min[A_sz] = 0.0;               m_max[A_sz] = 10.0;
@@ -43,9 +45,10 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
   m_min[gal545_A_217] = 0.0;       m_max[gal545_A_217] = 400.0;
   m_min[calib_100T] = 0.0;         m_max[calib_100T] = 2.0;
   m_min[calib_217T] = 0.0;         m_max[calib_217T] = 2.0;
+  //*/
 
   // Fixed parameters
-  m_min[cib_index] = -1.3;         m_max[cib_index] = -1.3;
+  // m_min[cib_index] = -1.3;         m_max[cib_index] = -1.3;
 
   // There is a difference between a "derived" parameter and
   // a parameter whose value should be fixed.
@@ -65,12 +68,12 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
 
   // Set Gaussian parameters
   // m_is_gaussian[tau_reio] = true;
-  m_is_gaussian[gal545_A_100] = true;
-  m_is_gaussian[gal545_A_143] = true;
-  m_is_gaussian[gal545_A_143_217] = true;
-  m_is_gaussian[gal545_A_217] = true;
-  m_is_gaussian[calib_100T] = true;
-  m_is_gaussian[calib_217T] = true;
+  // m_is_gaussian[gal545_A_100] = true;
+  // m_is_gaussian[gal545_A_143] = true;
+  // m_is_gaussian[gal545_A_143_217] = true;
+  // m_is_gaussian[gal545_A_217] = true;
+  // m_is_gaussian[calib_100T] = true;
+  // m_is_gaussian[calib_217T] = true;
   m_is_gaussian[A_planck] = true;
 
   for (int param = 0; param < TOTAL_PARAMS; ++param) {
@@ -78,6 +81,7 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
   }
 
   // Set Gaussian priors
+  /*
   m_mean[tau_reio] = 0.07;
   m_stddev[tau_reio] = 0.02;
   m_mean[gal545_A_100] = 7.0;
@@ -92,11 +96,13 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
   m_stddev[calib_100T] = 0.001;
   m_mean[calib_217T] = 0.99501;
   m_stddev[calib_217T] = 0.002;
+  //*/
   m_mean[A_planck] = 1.0;
   m_stddev[A_planck] = 0.0025;
 
   // Set BAO values
-  BAO_FUDGE = 1.0275;
+  // BAO_FUDGE = 1.0275; // from Planck 2013
+  BAO_FUDGE = 1.0262; // from SDSS III [arXiv:1312.4877]
 
   // 6DF gives value of D_v divided by rs_rescale = 1.0268
   sixDF_z = 0.106;
@@ -134,6 +140,16 @@ void ClikPar::initialise_CLASS(int max_l) {
   default_params.add("tau_reio", 0.0925);
   default_params.add("ln10^{10}A_s", 3.0980);
   default_params.add("n_s", 0.9619);
+
+  // Annihilating DM
+  default_params.add("annihilation", 0.0);
+  // default_params.add("annihilation_variation", 0.0);
+  // default_params.add("annihilation_z", 1000);
+  // default_params.add("annihilation_zmax", 2500);
+  // default_params.add("annihilation_zmin", 30);
+  // default_params.add("annihilation_f_halo", 20);
+  // default_params.add("annihilation_z_halo", 8);
+  // default_params.add("on_the_spot", true); // invalid name
 
   // Neutrino values to set
   default_params.add("N_ur", 2.0328);
@@ -242,11 +258,13 @@ double ClikPar::calculate_extra_priors(double* Cube) const {
   }
 
   // Calculate SZ degeneracy prior
+  /*
   double SZ_val = Cube[ksz_norm] + 1.6 * Cube[A_sz];
   double SZ_mean = 9.5;
   double SZ_stddev = 3.0;
 
   loglike += pow(SZ_val - SZ_mean, 2.0) / (2.0 * pow(SZ_stddev, 2.0));
+  //*/
 
   // Calculate flat [20,100] prior on H0
   double H0 = m_class_engine->get_H0();
