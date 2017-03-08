@@ -19,7 +19,8 @@ WATCH_CMD = "watch -pn 0.5 squeue -u a1648400"
 template = \
 """#!/bin/bash
 
-#SBATCH --export=ALL
+# #SBATCH --export=ALL
+#SBATCH --get-user-env
 #SBATCH -p batch
 #SBATCH -N {num_nodes}
 {SBATCH_node_list}#SBATCH --ntasks-per-node={num_mpi_proc}
@@ -42,7 +43,8 @@ ulimit -s unlimited
 # Run pc_multinest_mpi
 # pe stands for processing elements. Used to bind a number of processing elements to each process
 # Total number of processes np must be N * ntasks-per-node
-mpirun -np {num_total_proc} --map-by ppr:{num_mpi_proc}:node ./{executable} output/{jobname}-
+MPIRUN=$( which mpirun )
+/usr/bin/env mpirun -np {num_total_proc} --map-by ppr:{num_mpi_proc}:node ./{executable} output/{jobname}-
 """
 
 def main():
@@ -122,8 +124,9 @@ def speed_test(args):
 def one_job(args):
   """Submits one job with specified parts"""
   if (args.num_mpi_proc * args.num_omp_proc > NUM_CORES_PER_NODE):
-    raise ValueError("Number of MPI and OMP cores exceed total "
+    print_error("Number of MPI and OMP cores exceed total "
       "number of cores on node")
+    return 2
 
   args.num_total_proc = args.num_nodes * args.num_mpi_proc
 
@@ -135,7 +138,7 @@ def one_job(args):
       call([SUBMIT_CMD, "{}.job".format(args.jobname)])
       return call(WATCH_CMD.split())
     else:
-      return call([SUBMIT_CMD, args.jobname])
+      return call([SUBMIT_CMD, "{}.job".format(args.jobname)])
 
   else:
     return 0
