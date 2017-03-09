@@ -19,7 +19,6 @@ public:
     tau_reio,
     ln10_10_A_s,
     n_s,
-    annihilation,
     // Free parameters (PLC)
     A_planck,
     /*
@@ -40,6 +39,7 @@ public:
     calib_217T,
     cib_index, // = -1.3
     //*/
+    annihilation,
     // Derived parameters (LCDM)
     H0,
     Omega_b,

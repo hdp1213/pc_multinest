@@ -26,7 +26,7 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
   m_min[tau_reio] = 0.01;          m_max[tau_reio] = 0.15;
   m_min[ln10_10_A_s] = 2.98;       m_max[ln10_10_A_s] = 3.20;
   m_min[n_s] = 0.92;               m_max[n_s] = 1.04;
-  m_min[annihilation] = 0.0;       m_max[annihilation] = 1e-6;
+  m_min[annihilation] = 0.0;       m_max[annihilation] = 0.0;//1e-6;
 
   // PLC nuisance parameters second
   m_min[A_planck] = 0.9;           m_max[A_planck] = 1.1;
