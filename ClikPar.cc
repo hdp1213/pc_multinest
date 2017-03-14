@@ -26,7 +26,7 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
   m_min[tau_reio] = 0.01;          m_max[tau_reio] = 0.15;
   m_min[ln10_10_A_s] = 2.98;       m_max[ln10_10_A_s] = 3.20;
   m_min[n_s] = 0.92;               m_max[n_s] = 1.04;
-  m_min[annihilation] = 0.0;       m_max[annihilation] = 0.0;//1e-6;
+  m_min[annihilation] = 0.0;       m_max[annihilation] = 1e-6;
 
   // PLC nuisance parameters second
   m_min[A_planck] = 0.9;           m_max[A_planck] = 1.1;
@@ -149,7 +149,7 @@ void ClikPar::initialise_CLASS(int max_l) {
   // default_params.add("annihilation_zmin", 30);
   // default_params.add("annihilation_f_halo", 20);
   // default_params.add("annihilation_z_halo", 8);
-  // default_params.add("on_the_spot", true); // invalid name
+  // default_params.add("has_on_the_spot", false);
 
   // Neutrino values to set
   default_params.add("N_ur", 2.0328);
@@ -204,11 +204,9 @@ void ClikPar::set_derived_params(double* Cube) {
   Cube[Omega_cdm] = m_class_engine->get_Omega_cdm();
   Cube[Omega_L] = m_class_engine->get_Omega_L();
   Cube[Omega_g] = m_class_engine->get_Omega_g();
-  // Cube[Omega_k] = m_class_engine->get_Omega_k();
   Cube[sigma8] = m_class_engine->get_sigma8();
   Cube[age] = m_class_engine->get_age();
   Cube[conf_age] = m_class_engine->get_conf_age();
-  // Cube[K] = m_class_engine->get_K();
 
   // Standard CLASS routines
   Cube[z_drag] = m_class_engine->z_drag();

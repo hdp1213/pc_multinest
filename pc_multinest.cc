@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
                           // evidence
   double tol = 1E-3;      // tol, defines the stopping criteria
                           // 0.5 should give enough accuracy
-  int ndims = 7;          // dimensionality (no. of free
+  int ndims = 8;          // dimensionality (no. of free
                           // parameters)
   int nPar = ClikPar::TOTAL_PARAMS;
                           // total no. of parameters including
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
                           // additional information user wants
                           // to pass
 
-  int nfixed = 1;         // number of fixed parameters
+  int nfixed = 0;         // number of fixed parameters
 
   // High l lite likelihood variables
   char* hi_l_clik_path = "/home/a1648400/plc_2.0/hi_l/plik_lite/plik_lite_v18_TT.clik/";
