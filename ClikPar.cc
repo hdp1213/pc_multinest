@@ -30,7 +30,7 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
 
   // PLC nuisance parameters second
   m_min[A_planck] = 0.9;           m_max[A_planck] = 1.1;
-  /*
+  //*
   m_min[A_cib_217] = 0.0;          m_max[A_cib_217] = 200.0;
   m_min[xi_sz_cib] = 0.0;          m_max[xi_sz_cib] = 1.0;
   m_min[A_sz] = 0.0;               m_max[A_sz] = 10.0;
@@ -48,7 +48,7 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
   //*/
 
   // Fixed parameters
-  // m_min[cib_index] = -1.3;         m_max[cib_index] = -1.3;
+  m_min[cib_index] = -1.3;         m_max[cib_index] = -1.3;
 
   // There is a difference between a "derived" parameter and
   // a parameter whose value should be fixed.
@@ -68,12 +68,12 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
 
   // Set Gaussian parameters
   // m_is_gaussian[tau_reio] = true;
-  // m_is_gaussian[gal545_A_100] = true;
-  // m_is_gaussian[gal545_A_143] = true;
-  // m_is_gaussian[gal545_A_143_217] = true;
-  // m_is_gaussian[gal545_A_217] = true;
-  // m_is_gaussian[calib_100T] = true;
-  // m_is_gaussian[calib_217T] = true;
+  m_is_gaussian[gal545_A_100] = true;
+  m_is_gaussian[gal545_A_143] = true;
+  m_is_gaussian[gal545_A_143_217] = true;
+  m_is_gaussian[gal545_A_217] = true;
+  m_is_gaussian[calib_100T] = true;
+  m_is_gaussian[calib_217T] = true;
   m_is_gaussian[A_planck] = true;
 
   for (int param = 0; param < TOTAL_PARAMS; ++param) {
@@ -81,7 +81,7 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
   }
 
   // Set Gaussian priors
-  /*
+  //*
   m_mean[tau_reio] = 0.07;
   m_stddev[tau_reio] = 0.02;
   m_mean[gal545_A_100] = 7.0;

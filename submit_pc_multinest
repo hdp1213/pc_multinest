@@ -68,7 +68,7 @@ def main():
   if args.node_list is None:
     args.SBATCH_node_list = ""
   else:
-    args.SBATCH_node_list = "#SBATCH --nodelist={0}\n".format(args.node_list)
+    args.SBATCH_node_list = "#SBATCH --nodelist={}\n".format(args.node_list)
 
   # Obtain node_memory from cpu_memory
   args.node_memory = mem_mult(args.cpu_memory, NUM_CORES_PER_NODE)
@@ -104,7 +104,7 @@ def speed_test(args):
           job_out.write(template.format(**context))
 
         print_verbose(1, args.verbosity,
-            "Created file {}", jobname)
+            "Created file {}.job", jobname)
 
         if args.do_submission:
           call([SUBMIT_CMD, "{}.job".format(jobname)])
@@ -132,6 +132,9 @@ def one_job(args):
 
   with open("{}.job".format(args.jobname), 'w') as job_out:
     job_out.write(template.format(**vars(args)))
+
+  print_verbose(1, args.verbosity,
+    "Created file {}.job", args.jobname)
 
   if args.do_submission:
     if args.watch_queue:
@@ -206,7 +209,7 @@ def make_parser():
 
   parser.add_argument("-c", "--memory",
     type=str,
-    default="1GB",
+    default="512MB",
     dest="cpu_memory",
     help="set memory per job")
 
@@ -296,19 +299,19 @@ class NodeListAction(argparse.Action):
 
 def print_warn(content, *args):
   # callerName = sys._getframe(1).f_code.co_name
-  callerName = "{}".format(sys.argv[0].strip("./"))
-  print("{0}: warn: {1}".format(callerName, content.format(*args)))
+  callerName = sys.argv[0].strip("./")
+  print("{}: warn: {}".format(callerName, content.format(*args)))
 
 def print_error(content, *args):
   # callerName = sys._getframe(1).f_code.co_name
-  callerName = "{}".format(sys.argv[0].strip("./"))
-  print("{0}: error: {1}".format(callerName, content.format(*args)))
+  callerName = sys.argv[0].strip("./")
+  print("{}: error: {}".format(callerName, content.format(*args)))
 
 def print_verbose(level, verbosity, content, *args):
   if (verbosity >= level):
     # callerName = sys._getframe(1).f_code.co_name
-    callerName = "{}".format(sys.argv[0].strip("./"))
-    print("{0}: {1}".format(callerName, content.format(*args)))
+    callerName = sys.argv[0].strip("./")
+    print("{}: {}".format(callerName, content.format(*args)))
 
 if __name__ == '__main__':
   sys.exit(main())

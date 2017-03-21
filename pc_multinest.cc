@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
                           // evidence
   double tol = 1E-3;      // tol, defines the stopping criteria
                           // 0.5 should give enough accuracy
-  int ndims = 8;          // dimensionality (no. of free
+  int ndims = 22;         // dimensionality (no. of free
                           // parameters)
   int nPar = ClikPar::TOTAL_PARAMS;
                           // total no. of parameters including
@@ -87,16 +87,16 @@ int main(int argc, char* argv[]) {
                           // additional information user wants
                           // to pass
 
-  int nfixed = 0;         // number of fixed parameters
+  int nfixed = 1;         // number of fixed parameters
 
-  // High l lite likelihood variables
-  char* hi_l_clik_path = "/home/a1648400/plc_2.0/hi_l/plik_lite/plik_lite_v18_TT.clik/";
+  // High l full likelihood variables
+  char* hi_l_clik_path = "/fast/users/a1648400/plc_2.0/hi_l/plik/plik_dx11dr2_HM_v18_TT.clik/";
   ClikObject* hi_l_clik(0);
   std::vector<ClikPar::param_t> hi_l_nuis_enums;
 
   // Low l likelihood variables  
+  char* lo_l_clik_path = "/fast/users/a1648400/plc_2.0/low_l/bflike/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
   ClikObject* lo_l_clik(0);
-  char* lo_l_clik_path = "/home/a1648400/plc_2.0/low_l/bflike/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
   std::vector<ClikPar::param_t> lo_l_nuis_enums;
 
   // Clik Pars variable
@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
 
   // Push nuisance parameters in order they appear in
   // cl_and_pars
-  /*
+  //*
   hi_l_nuis_enums.push_back(ClikPar::A_cib_217);
   hi_l_nuis_enums.push_back(ClikPar::cib_index);
   hi_l_nuis_enums.push_back(ClikPar::xi_sz_cib);

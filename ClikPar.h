@@ -21,8 +21,8 @@ public:
     n_s,
     annihilation,
     // Free parameters (PLC)
+    //*
     A_planck,
-    /*
     A_cib_217,
     xi_sz_cib,
     A_sz,
@@ -36,8 +36,8 @@ public:
     gal545_A_143_217,
     gal545_A_217,
     calib_100T,
-    // Fixed parameters (PLC)
     calib_217T,
+    // Fixed parameters (PLC)
     cib_index, // = -1.3
     //*/
     // Derived parameters (LCDM)

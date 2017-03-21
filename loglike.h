@@ -52,7 +52,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   lcdm_params.push_back(Cube[ClikPar::tau_reio]);
   lcdm_params.push_back(Cube[ClikPar::ln10_10_A_s]);
   lcdm_params.push_back(Cube[ClikPar::n_s]); // k_0 = 0.05 Mpc^-1 by default
-  // lcdm_params.push_back(Cube[ClikPar::annihilation]);
+  lcdm_params.push_back(Cube[ClikPar::annihilation]);
 
   try {
     plc_pack->run_CLASS(lcdm_params);
