@@ -283,6 +283,7 @@ class NodeListAction(argparse.Action):
 
       # Find node denominations
       nodes = re.search('n\[?([0-9,\-]+)\]?', rack).group(1).split(',')
+      nodes = [x for x in nodes if x != '']
 
       for node in nodes:
         node_id = ''
