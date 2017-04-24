@@ -52,7 +52,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   lcdm_params.push_back(Cube[ClikPar::tau_reio]);
   lcdm_params.push_back(Cube[ClikPar::ln10_10_A_s]);
   lcdm_params.push_back(Cube[ClikPar::n_s]); // k_0 = 0.05 Mpc^-1 by default
-  lcdm_params.push_back(Cube[ClikPar::annihilation]);
+  lcdm_params.push_back(Cube[ClikPar::pbh_frac]);
 
   try {
     plc_pack->run_CLASS(lcdm_params);
@@ -133,8 +133,10 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   // Compute the log likelihood using PLC
   lnew = plc_pack->calculate_PLC_likelihood();
 
+#ifdef BAO_LIKE
   // Calculate BAO log likelihood
-  // lnew -= plc_pack->calculate_BAO_likelihood();
+  lnew -= plc_pack->calculate_BAO_likelihood();
+#endif
 
   // Subtract any other priors for those parameters with them
   lnew -= plc_pack->calculate_extra_priors(Cube);

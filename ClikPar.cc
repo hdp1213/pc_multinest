@@ -9,7 +9,8 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
   for (int param = 0; param < TOTAL_PARAMS; ++param) {
     m_min[param] = -9999;
     m_max[param] = -9999;
-    m_is_gaussian[param] = false;
+    m_has_gaussian_prior[param] = false;
+    m_is_log10[param] = false;
     m_mean[param] = -9999;
     m_stddev[param] = -9999;
   }
@@ -26,11 +27,14 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
   m_min[tau_reio] = 0.01;          m_max[tau_reio] = 0.15;
   m_min[ln10_10_A_s] = 2.98;       m_max[ln10_10_A_s] = 3.20;
   m_min[n_s] = 0.92;               m_max[n_s] = 1.04;
-  m_min[annihilation] = 0.0;       m_max[annihilation] = 1e-6;
 
-  // PLC nuisance parameters second
+  // Non-standard LCDM parameters
+  m_is_log10[pbh_frac] = true;
+  m_min[pbh_frac] = -7.0;          m_max[pbh_frac] = -2.0;
+
+  // PLC nuisance parameters
   m_min[A_planck] = 0.9;           m_max[A_planck] = 1.1;
-  //*
+#ifndef LITE_HI_L
   m_min[A_cib_217] = 0.0;          m_max[A_cib_217] = 200.0;
   m_min[xi_sz_cib] = 0.0;          m_max[xi_sz_cib] = 1.0;
   m_min[A_sz] = 0.0;               m_max[A_sz] = 10.0;
@@ -45,10 +49,10 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
   m_min[gal545_A_217] = 0.0;       m_max[gal545_A_217] = 400.0;
   m_min[calib_100T] = 0.0;         m_max[calib_100T] = 2.0;
   m_min[calib_217T] = 0.0;         m_max[calib_217T] = 2.0;
-  //*/
 
   // Fixed parameters
   m_min[cib_index] = -1.3;         m_max[cib_index] = -1.3;
+#endif
 
   // There is a difference between a "derived" parameter and
   // a parameter whose value should be fixed.
@@ -66,24 +70,30 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
     }
   }
 
-  // Set Gaussian parameters
-  // m_is_gaussian[tau_reio] = true;
-  m_is_gaussian[gal545_A_100] = true;
-  m_is_gaussian[gal545_A_143] = true;
-  m_is_gaussian[gal545_A_143_217] = true;
-  m_is_gaussian[gal545_A_217] = true;
-  m_is_gaussian[calib_100T] = true;
-  m_is_gaussian[calib_217T] = true;
-  m_is_gaussian[A_planck] = true;
+  // Set parameters with Gaussian priors
+#ifdef GAUSS_TAU
+  m_has_gaussian_prior[tau_reio] = true;
+#endif
+#ifndef LITE_HI_L
+  m_has_gaussian_prior[gal545_A_100] = true;
+  m_has_gaussian_prior[gal545_A_143] = true;
+  m_has_gaussian_prior[gal545_A_143_217] = true;
+  m_has_gaussian_prior[gal545_A_217] = true;
+  m_has_gaussian_prior[calib_100T] = true;
+  m_has_gaussian_prior[calib_217T] = true;
+#endif
+  m_has_gaussian_prior[A_planck] = true;
 
   for (int param = 0; param < TOTAL_PARAMS; ++param) {
-    m_gaussian_param_amt += m_is_gaussian[param];
+    m_gaussian_param_amt += m_has_gaussian_prior[param];
   }
 
   // Set Gaussian priors
-  //*
+#ifdef GAUSS_TAU
   m_mean[tau_reio] = 0.07;
   m_stddev[tau_reio] = 0.02;
+#endif
+#ifndef LITE_HI_L
   m_mean[gal545_A_100] = 7.0;
   m_stddev[gal545_A_100] = 2.0;
   m_mean[gal545_A_143] = 9.0;
@@ -96,10 +106,11 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
   m_stddev[calib_100T] = 0.001;
   m_mean[calib_217T] = 0.99501;
   m_stddev[calib_217T] = 0.002;
-  //*/
+#endif
   m_mean[A_planck] = 1.0;
   m_stddev[A_planck] = 0.0025;
 
+#ifdef BAO_LIKE
   // Set BAO values
   // BAO_FUDGE = 1.0275; // from Planck 2013
   BAO_FUDGE = 1.0262; // from SDSS III [arXiv:1312.4877]
@@ -123,17 +134,20 @@ ClikPar::ClikPar(int free_param_amt, int fixed_param_amt) : m_free_param_amt(fre
   MGS_z = 0.15;
   MGS_mean = 4.47;
   MGS_stddev = 0.16;
+#endif
 }
 
 ClikPar::~ClikPar() {
   delete m_class_engine;
 }
 
-void ClikPar::initialise_CLASS(int max_l) {
-  // Prepare CLASS engine
+// Prepare CLASS engine
+void ClikPar::initialise_CLASS(int max_l, struct pbh_external* pbh_info) {
   ClassParams default_params;
 
-  // MultiNest variables
+  /*** Free parameters ***/
+
+  // LCDM variables
   default_params.add("omega_b", 0.022032);
   default_params.add("omega_cdm", 0.12038);
   default_params.add("100*theta_s", 1.042143);
@@ -141,35 +155,36 @@ void ClikPar::initialise_CLASS(int max_l) {
   default_params.add("ln10^{10}A_s", 3.0980);
   default_params.add("n_s", 0.9619);
 
-  // Annihilating DM
-  default_params.add("annihilation", 0.0);
-  // default_params.add("annihilation_variation", 0.0);
-  // default_params.add("annihilation_z", 1000);
-  // default_params.add("annihilation_zmax", 2500);
-  // default_params.add("annihilation_zmin", 30);
-  // default_params.add("annihilation_f_halo", 20);
-  // default_params.add("annihilation_z_halo", 8);
-  // default_params.add("has_on_the_spot", false);
+  // PBH DM
+  default_params.add("Omega_pbh_ratio", 1.E-7);
 
-  // Neutrino values to set
+  /*** Constant parameters ***/
+
+  // PBH DM
+  default_params.add("pbh_mass_dist", "pbh_delta");
+  default_params.add("pbh_mass_mean", 1.E6);
+  // default_params.add("pbh_mass_width", 1.E1);
+  default_params.add("read pbh splines", false); // very important!!
+
+  // Neutrino values
   default_params.add("N_ur", 2.0328);
   default_params.add("N_ncdm", 1);
   default_params.add("m_ncdm", 0.06); // MeV
   // default_params.add("T_ncdm", 0.71611);
 
-  // Perturbation options
+  // Perturbation options for matter perturbation spectrum mPk
   // default_params.add("P_k_max_h/Mpc", 1.);
   // default_params.add("k_pivot", 0.05); // Mpc-1
   
   // Spectra output options
-  default_params.add("output", "tCl,pCl,lCl");
-  default_params.add("lensing", true);   //note boolean
+  default_params.add("output", "tCl,pCl,lCl"); // mPk
+  default_params.add("lensing", true);
   default_params.add("l_max_scalars", max_l);
   default_params.add("format", "camb");
 
-  // Initialise CLASS engine
+  // Initialise CLASS engine with external PBH info
   try {
-    m_class_engine = new ClassEngine(default_params);
+    m_class_engine = new ClassEngine(default_params, pbh_info);
   }
   catch (std::exception const &e) {
     std::cerr << "[ERROR] CLASS initialisation in ClikPar "
@@ -180,24 +195,33 @@ void ClikPar::initialise_CLASS(int max_l) {
   }
 }
 
+// Wrapped methods for scale_Cube()
+inline double pow10(double x) { return pow(10., x); }
+inline double self(double x) { return x; }
+
+// Set free, fixed and derived parameter values
 void ClikPar::scale_Cube(double* Cube) {
-  // Set free, fixed and derived parameter values
+  double (*func)(double);
+
   for (int param = 0; param < TOTAL_PARAMS; param++) {
+    // Check if parameter priors are in log10 space. If so, set Cube[param] to the power of 10
+    func = m_is_log10[param] ? &pow10 : &self;
+
     if (param < m_free_param_amt) { // free parameter
-      Cube[param] = m_min[param] + (m_max[param] - m_min[param]) * Cube[param];
+      Cube[param] = func(m_min[param] + (m_max[param] - m_min[param]) * Cube[param]);
     }
     else if (param < m_fixed_param_amt) { // fixed parameter
-      Cube[param] = m_min[param];
+      Cube[param] = func(m_min[param]);
     }
     else { // derived parameter
       // Must be set to something in case CLASS fails
-      Cube[param] = m_min[param];
+      Cube[param] = func(m_min[param]);
     }
   }
 }
 
+// Set derived parameter values in Cube
 void ClikPar::set_derived_params(double* Cube) {
-  // Set derived parameter values in Cube
   // Non-standard CLASS routines
   Cube[H0] = m_class_engine->get_H0();
   Cube[Omega_b] = m_class_engine->get_Omega_b();
@@ -219,6 +243,7 @@ ClassEngine* ClikPar::get_CLASS() {
 
 /* Private Methods */
 
+#ifdef BAO_LIKE
 // *** The returned loglike value must always be positive ***
 // Using values from CosmoMC
 double ClikPar::calculate_BAO_likelihood() const {
@@ -242,6 +267,7 @@ double ClikPar::calculate_BAO_likelihood() const {
 
   return loglike;
 }
+#endif
 
 // *** The returned loglike value must always be positive ***
 double ClikPar::calculate_extra_priors(double* Cube) const {
@@ -250,19 +276,19 @@ double ClikPar::calculate_extra_priors(double* Cube) const {
   // Calculate Gaussian priors
   for (int param = 0; param < TOTAL_PARAMS; ++param) {
     // Only use Gaussian priors for variables that are Gaussian
-    if (m_is_gaussian[param]) {
+    if (m_has_gaussian_prior[param]) {
       loglike += pow(Cube[param] - m_mean[param], 2.0) / (2.0 * pow(m_stddev[param], 2.0));
     }
   }
 
   // Calculate SZ degeneracy prior
-  /*
+#ifndef LITE_HI_L
   double SZ_val = Cube[ksz_norm] + 1.6 * Cube[A_sz];
   double SZ_mean = 9.5;
   double SZ_stddev = 3.0;
 
   loglike += pow(SZ_val - SZ_mean, 2.0) / (2.0 * pow(SZ_stddev, 2.0));
-  //*/
+#endif
 
   // Calculate flat [20,100] prior on H0
   double H0 = m_class_engine->get_H0();

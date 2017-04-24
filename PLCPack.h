@@ -5,7 +5,9 @@
 #include "ClassEngine.hh"
 #include "ClikObject.h"
 #include "ClikPar.h"
+
 #include <vector>
+#include <string>
 
 
 class PLCPack {
@@ -16,7 +18,9 @@ public:
 
   // Pack "building" methods
   void add_clik_object(ClikObject* clik_object);
-  void initialise_params(ClikPar* clik_par);
+  void read_pbh_files(std::string pbh_root);
+  void set_clik_params(ClikPar* clik_par);
+  void initialise_CLASS();
 
   // Higher level ClikPar methods
   double calculate_extra_priors(double* Cube) const;
@@ -35,7 +39,9 @@ public:
 
   // Likelihood functions
   double calculate_PLC_likelihood() const;
+#ifdef BAO_LIKE
   double calculate_BAO_likelihood() const;
+#endif
   
 private:
   int m_largest_max_l;
@@ -45,6 +51,14 @@ private:
 
   std::vector<ClikObject*> m_clik_objects;
   ClikPar* m_clik_par;
+
+  // PBH bits
+  struct pbh_external m_pbh_info;
+
+  // PBH methods
+  void read_axes(std::string root);
+  void read_bicubic_bspline(std::string root, const char* channel, struct bspline_2d* spline);
+  void read_1d_array(std::ifstream& file, double** array, int* array_size);
 };
 
 #endif
