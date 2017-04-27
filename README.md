@@ -69,18 +69,16 @@ CLASS can be downloaded (or cloned) from the
 `git` is already present on whichever computing cluster you are operating on,
 to clone simply run
 ```
-$ git clone https://github.com/lesgourg/class_public.git ~/class
+$ git clone https://github.com/hdp1213/class_public.git ~/class
 ```
 which will create a new directory `class/` in the home directory containing the
-CLASS code.
+CLASS code. This particular iteration of the code contains a branch with code
+written to work with `pc_multinest`, specifically as it appears on Phoenix.
 
-Depending on the branch you have checked out, you might need to run a patch on
-CLASS. This can be done by running
+Before compilation, it is necessary to switch to the `phoenix` branch of CLASS:
 ```
-$ patch -p3 ~/class/Makefile < ~/pc_multinest/patches/class.patch
+$ git checkout phoenix
 ```
-from your home directory. This will patch the CLASS `Makefile` so that it uses
-the correct compilers for the computing cluster you are on.
 
 Then navigate to the `class` directory to run
 ```
