@@ -83,12 +83,12 @@ void ClikObject::set_nuisance_param_enums(std::vector<ClikPar::param_t>& nuisanc
 
   // Check if we have done enough initialising
   if (m_nuis_par_enums.size() > m_param_amt) {
-    std::cerr << "[ERROR] More nuisance parameters initialised than needed!"
+    std::cerr << "[ERROR] More nuisance parameters given to ClikObject::set_nuisance_param_enums() than needed!"
               << std::endl;
     throw std::exception();
   }
   else if (m_nuis_par_enums.size() < m_param_amt) {
-    std::cerr << "[ERROR] Not enough nuisance parameters have been initialised!"
+    std::cerr << "[ERROR] Not enough nuisance parameters have been given to ClikObject::set_nuisance_param_enums()!"
               << std::endl;
     throw std::exception();
   }
