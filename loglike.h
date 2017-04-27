@@ -37,22 +37,24 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
 
   plc_pack = static_cast<PLCPack*>(context);
 
-  // Initialise the nuisance parameter priors using results outlined in
-  //  Planck 2015 results. XI. CMB power spectra, ... . p 21,41
+  // Scale the cube using uniform priors defined in ClikPar::ClikPar()
   plc_pack->scale_Cube(Cube);
 
   /******************************/
   /*           CLASS            */
   /******************************/
 
-  // MultiNest parameters to sweep over (be careful here!)
+  // MultiNest parameters used in CLASS
+  // Must be pushed in the same order as initialised in ClikPar::initialise_CLASS()
+  lcdm_params.push_back(Cube[ClikPar::pbh_frac]);
+  /*
   lcdm_params.push_back(Cube[ClikPar::omega_b]);
   lcdm_params.push_back(Cube[ClikPar::omega_cdm]);
   lcdm_params.push_back(Cube[ClikPar::hundredxtheta_s]);
   lcdm_params.push_back(Cube[ClikPar::tau_reio]);
   lcdm_params.push_back(Cube[ClikPar::ln10_10_A_s]);
   lcdm_params.push_back(Cube[ClikPar::n_s]); // k_0 = 0.05 Mpc^-1 by default
-  lcdm_params.push_back(Cube[ClikPar::pbh_frac]);
+  //*/
 
   try {
     plc_pack->run_CLASS(lcdm_params);

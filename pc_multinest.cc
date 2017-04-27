@@ -36,11 +36,11 @@ int main(int argc, char* argv[]) {
   int mmodal = 0;         // do mode separation?
   int ceff = 1;           // run in constant efficiency mode?
                           // Bad for evidence calculations
-  int nlive = 10000;      // number of live points
+  int nlive = 1000;       // number of live points
   double efr = 0.8;       // set the required efficiency. 0.8
                           // for parameter estimation, 0.3 for
                           // evidence
-  double tol = 1E-3;      // tol, defines the stopping criteria
+  double tol = 1E-1;      // tol, defines the stopping criteria
                           // 0.5 should give enough accuracy
   int ndims = ClikPar::FREE_PARAMS;
                           // dimensionality (no. of free
@@ -88,13 +88,11 @@ int main(int argc, char* argv[]) {
                           // additional information user wants
                           // to pass
 
-  int nfixed = 1;         // number of fixed parameters
-
   // High l full likelihood variables
 #ifdef LITE_HI_L
-  char* hi_l_clik_path = "/fast/users/a1648400/plc_2.0/hi_l/plik_lite/plik_lite_v18_TT.clik/";
+  char* hi_l_clik_path = "/fast/users/a1648400/plc_2.0/hi_l/plik_lite/plik_lite_v18_TTTEEE.clik/";
 #else
-  char* hi_l_clik_path = "/fast/users/a1648400/plc_2.0/hi_l/plik/plik_dx11dr2_HM_v18_TT.clik/";
+  char* hi_l_clik_path = "/fast/users/a1648400/plc_2.0/hi_l/plik/plik_dx11dr2_HM_v18_TTTEEE.clik/";
 #endif
   ClikObject* hi_l_clik(0);
   std::vector<ClikPar::param_t> hi_l_nuis_enums;
@@ -105,7 +103,7 @@ int main(int argc, char* argv[]) {
   std::vector<ClikPar::param_t> lo_l_nuis_enums;
 
   // Clik Pars variable
-  ClikPar* clik_par = new ClikPar(ndims, nfixed);
+  ClikPar* clik_par = new ClikPar();
 
   int param_amts;
   parname* param_names;
@@ -131,6 +129,7 @@ int main(int argc, char* argv[]) {
 
   // Push nuisance parameters in the order they appear in cl_and_pars
 #ifndef LITE_HI_L
+// TT & TTTEEE
   hi_l_nuis_enums.push_back(ClikPar::A_cib_217);
   hi_l_nuis_enums.push_back(ClikPar::cib_index);
   hi_l_nuis_enums.push_back(ClikPar::xi_sz_cib);
@@ -144,8 +143,89 @@ int main(int argc, char* argv[]) {
   hi_l_nuis_enums.push_back(ClikPar::gal545_A_143);
   hi_l_nuis_enums.push_back(ClikPar::gal545_A_143_217);
   hi_l_nuis_enums.push_back(ClikPar::gal545_A_217);
+// TTTEEE
+  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_100);
+  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_100_143);
+  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_100_217);
+  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_143);
+  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_143_217);
+  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_217);
+  hi_l_nuis_enums.push_back(ClikPar::galf_EE_index);
+  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_100);
+  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_100_143);
+  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_100_217);
+  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_143);
+  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_143_217);
+  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_217);
+  hi_l_nuis_enums.push_back(ClikPar::galf_TE_index);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0T_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0T_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0T_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0T_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0T_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_1T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_1T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_1T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_1T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_1T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_1T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_1T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_1T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_1T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_1T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_2T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_2T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_2T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_2T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_2T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0E_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0E_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0E_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0E_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0E_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_1E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_1E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_1E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_1E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_1E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_1E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_1E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_1E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_1E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_1E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_2E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_2E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_2E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_2E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_2E_2E);
+// TT & TTTEEE
   hi_l_nuis_enums.push_back(ClikPar::calib_100T);
   hi_l_nuis_enums.push_back(ClikPar::calib_217T);
+// TTTEEE
+  hi_l_nuis_enums.push_back(ClikPar::calib_100P);
+  hi_l_nuis_enums.push_back(ClikPar::calib_143P);
+  hi_l_nuis_enums.push_back(ClikPar::calib_217P);
+  hi_l_nuis_enums.push_back(ClikPar::A_pol);
 #endif
   hi_l_nuis_enums.push_back(ClikPar::A_planck);
 
@@ -195,6 +275,7 @@ int main(int argc, char* argv[]) {
   plc_pack->initialise_CLASS();
 
   context = plc_pack;
+
 
   // Calling MultiNest
 

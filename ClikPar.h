@@ -6,21 +6,15 @@
 class ClikPar {
 
 public:
-  ClikPar(int free_param_amt, int fixed_param_amt);
+  ClikPar();
   ~ClikPar();
 
   // This enum follows Planck ordering (to a degree)
   enum param_t
   {
     // Free parameters (CLASS)
-    omega_b,
-    omega_cdm,
-    hundredxtheta_s,
-    tau_reio,
-    ln10_10_A_s,
-    n_s,
     pbh_frac,
-    // Free parameters (PLC)
+    // Free parameters (PLC TT nuisance)
     A_planck,
 #ifndef LITE_HI_L
     A_cib_217,
@@ -35,13 +29,101 @@ public:
     gal545_A_143,
     gal545_A_143_217,
     gal545_A_217,
+    // Free parameters (PLC TTTEEE nuisance)
+    galf_EE_A_100,
+    galf_EE_A_100_143,
+    galf_EE_A_100_217,
+    galf_EE_A_143,
+    galf_EE_A_143_217,
+    galf_EE_A_217,
+    galf_TE_A_100,
+    galf_TE_A_100_143,
+    galf_TE_A_100_217,
+    galf_TE_A_143,
+    galf_TE_A_143_217,
+    galf_TE_A_217,
     calib_100T,
     calib_217T,
     FREE_PARAMS,
-    // Fixed parameters (PLC)
-    cib_index = FREE_PARAMS, // = -1.3
+    // Fixed parameters (CLASS)
+    omega_b = FREE_PARAMS,
+    omega_cdm,
+    hundredxtheta_s,
+    tau_reio,
+    ln10_10_A_s,
+    n_s,
+    // Fixed parameters (PLC TT nuisance)
+    cib_index,
+    // Fixed parameters (PLC TTTEEE nuisance)
+    galf_EE_index,
+    galf_TE_index,
+    bleak_epsilon_0_0T_0E,
+    bleak_epsilon_1_0T_0E,
+    bleak_epsilon_2_0T_0E,
+    bleak_epsilon_3_0T_0E,
+    bleak_epsilon_4_0T_0E,
+    bleak_epsilon_0_0T_1E,
+    bleak_epsilon_1_0T_1E,
+    bleak_epsilon_2_0T_1E,
+    bleak_epsilon_3_0T_1E,
+    bleak_epsilon_4_0T_1E,
+    bleak_epsilon_0_0T_2E,
+    bleak_epsilon_1_0T_2E,
+    bleak_epsilon_2_0T_2E,
+    bleak_epsilon_3_0T_2E,
+    bleak_epsilon_4_0T_2E,
+    bleak_epsilon_0_1T_1E,
+    bleak_epsilon_1_1T_1E,
+    bleak_epsilon_2_1T_1E,
+    bleak_epsilon_3_1T_1E,
+    bleak_epsilon_4_1T_1E,
+    bleak_epsilon_0_1T_2E,
+    bleak_epsilon_1_1T_2E,
+    bleak_epsilon_2_1T_2E,
+    bleak_epsilon_3_1T_2E,
+    bleak_epsilon_4_1T_2E,
+    bleak_epsilon_0_2T_2E,
+    bleak_epsilon_1_2T_2E,
+    bleak_epsilon_2_2T_2E,
+    bleak_epsilon_3_2T_2E,
+    bleak_epsilon_4_2T_2E,
+    bleak_epsilon_0_0E_0E,
+    bleak_epsilon_1_0E_0E,
+    bleak_epsilon_2_0E_0E,
+    bleak_epsilon_3_0E_0E,
+    bleak_epsilon_4_0E_0E,
+    bleak_epsilon_0_0E_1E,
+    bleak_epsilon_1_0E_1E,
+    bleak_epsilon_2_0E_1E,
+    bleak_epsilon_3_0E_1E,
+    bleak_epsilon_4_0E_1E,
+    bleak_epsilon_0_0E_2E,
+    bleak_epsilon_1_0E_2E,
+    bleak_epsilon_2_0E_2E,
+    bleak_epsilon_3_0E_2E,
+    bleak_epsilon_4_0E_2E,
+    bleak_epsilon_0_1E_1E,
+    bleak_epsilon_1_1E_1E,
+    bleak_epsilon_2_1E_1E,
+    bleak_epsilon_3_1E_1E,
+    bleak_epsilon_4_1E_1E,
+    bleak_epsilon_0_1E_2E,
+    bleak_epsilon_1_1E_2E,
+    bleak_epsilon_2_1E_2E,
+    bleak_epsilon_3_1E_2E,
+    bleak_epsilon_4_1E_2E,
+    bleak_epsilon_0_2E_2E,
+    bleak_epsilon_1_2E_2E,
+    bleak_epsilon_2_2E_2E,
+    bleak_epsilon_3_2E_2E,
+    bleak_epsilon_4_2E_2E,
+    calib_100P,
+    calib_143P,
+    calib_217P,
+    A_pol,
+    FIXED_PARAMS,
     // Derived parameters (LCDM)
-    H0,
+    H0 = FIXED_PARAMS,
 #else // remove all nuisance params for LITE_HI_L except A_planck
     FREE_PARAMS,
     // Derived parameters (LCDM)
@@ -78,8 +160,10 @@ private:
   bool m_is_log10[TOTAL_PARAMS];
   double m_min[TOTAL_PARAMS], m_max[TOTAL_PARAMS];
   double m_mean[TOTAL_PARAMS], m_stddev[TOTAL_PARAMS];
-  int m_free_param_amt, m_gaussian_param_amt;
-  int m_fixed_param_amt;
+
+  // Array of transforming functions
+  typedef double (*trans_t)(double);
+  trans_t m_transform[TOTAL_PARAMS];
 
   // BAO variables
 #ifdef BAO_LIKE
