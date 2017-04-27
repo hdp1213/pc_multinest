@@ -18,8 +18,8 @@
 struct ClikPar {
   enum param_t
   {
-    llike,
     pmass,
+    llike,
     // Free parameters (CLASS)
     omega_b,
     omega_cdm,
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 #endif // MPI
 
   const int ROOT_RANK = 0;
-  const int IN_ROWS = 379936; // from wc -l <in_file>
+  const int IN_ROWS = 992; // from wc -l <in_file>
   //    32 or    31 nodes only!
   // 11873 or 12256 of size!
   // only 86 hours!
@@ -197,7 +197,7 @@ int main(int argc, char* argv[])
     // Just read in values to begin with
     in.open(phoenix_in);
 
-    int line_num = 0;
+    int row = 0;
     while (true) {
       in >> in_vals[ClikPar::pmass]
          >> in_vals[ClikPar::llike]
@@ -230,10 +230,10 @@ int main(int argc, char* argv[])
       // in_params is a 1D vector, but we know that it "wraps" its
       // values every TOTAL_IN_PARAMS values
       for (int i = 0; i < ClikPar::TOTAL_IN_PARAMS; ++i) {
-        in_params[line_num*ClikPar::TOTAL_IN_PARAMS + i] = in_vals[i];
+        in_params[row * ClikPar::TOTAL_IN_PARAMS + i] = in_vals[i];
       }
 
-      line_num++;
+      row++;
     }
 
     in.close();
@@ -267,17 +267,18 @@ int main(int argc, char* argv[])
 
   // Now, need to run CLASS into the fucking ground. Daddy, why
   for (int row = 0; row < WORK_ROWS; ++row) {
-    int base = row * ClikPar::TOTAL_IN_PARAMS;
+    int in_base = row * ClikPar::TOTAL_IN_PARAMS;
+    int out_base = row * ClikPar::TOTAL_OUT_PARAMS;
 
     // Update parameter vector (new one every time!)
     lcdm_params = new std::vector<double>();
 
-    lcdm_params->push_back(working_params[base + ClikPar::omega_b]);
-    lcdm_params->push_back(working_params[base + ClikPar::omega_cdm]);
-    lcdm_params->push_back(working_params[base + ClikPar::hundredxtheta_s]);
-    lcdm_params->push_back(working_params[base + ClikPar::tau_reio]);
-    lcdm_params->push_back(working_params[base + ClikPar::ln10_10_A_s]);
-    lcdm_params->push_back(working_params[base + ClikPar::n_s]); // k_0 = 0.05 Mpc^-1 by default
+    lcdm_params->push_back(working_params[in_base + ClikPar::omega_b]);
+    lcdm_params->push_back(working_params[in_base + ClikPar::omega_cdm]);
+    lcdm_params->push_back(working_params[in_base + ClikPar::hundredxtheta_s]);
+    lcdm_params->push_back(working_params[in_base + ClikPar::tau_reio]);
+    lcdm_params->push_back(working_params[in_base + ClikPar::ln10_10_A_s]);
+    lcdm_params->push_back(working_params[in_base + ClikPar::n_s]); // k_0 = 0.05 Mpc^-1 by default
 
     // Run CLASS for me baby
     try {
@@ -291,21 +292,21 @@ int main(int argc, char* argv[])
 
     // Copy over Known Parameters from working to worked
     for (int i = 0; i < ClikPar::TOTAL_IN_PARAMS; ++i) {
-      worked_params[base + i] = working_params[base + i];
+      worked_params[out_base + i] = working_params[in_base + i];
     }
 
     // Extract goodies
-    worked_params[base + ClikPar::H0] = class_engine->get_H0();
-    worked_params[base + ClikPar::Omega_b] = class_engine->get_Omega_b();
-    worked_params[base + ClikPar::Omega_cdm] = class_engine->get_Omega_cdm();
-    worked_params[base + ClikPar::Omega_L] = class_engine->get_Omega_L();
-    worked_params[base + ClikPar::Omega_g] = class_engine->get_Omega_g();
-    // worked_params[base + ClikPar::sigma8] = class_engine->get_sigma8();
-    worked_params[base + ClikPar::age] = class_engine->get_age();
-    worked_params[base + ClikPar::conf_age] = class_engine->get_conf_age();
+    worked_params[out_base + ClikPar::H0] = class_engine->get_H0();
+    worked_params[out_base + ClikPar::Omega_b] = class_engine->get_Omega_b();
+    worked_params[out_base + ClikPar::Omega_cdm] = class_engine->get_Omega_cdm();
+    worked_params[out_base + ClikPar::Omega_L] = class_engine->get_Omega_L();
+    worked_params[out_base + ClikPar::Omega_g] = class_engine->get_Omega_g();
+    // worked_params[out_base + ClikPar::sigma8] = class_engine->get_sigma8();
+    worked_params[out_base + ClikPar::age] = class_engine->get_age();
+    worked_params[out_base + ClikPar::conf_age] = class_engine->get_conf_age();
 
-    worked_params[base + ClikPar::z_drag] = class_engine->z_drag();
-    worked_params[base + ClikPar::rs_drag] = class_engine->rs_drag();
+    worked_params[out_base + ClikPar::z_drag] = class_engine->z_drag();
+    worked_params[out_base + ClikPar::rs_drag] = class_engine->rs_drag();
   }
 
 #ifdef MPI
