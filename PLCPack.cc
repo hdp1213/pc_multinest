@@ -49,6 +49,10 @@ PLCPack::~PLCPack() {
   delete m_pbh_info.heat.xknots;
   delete m_pbh_info.heat.yknots;
   delete m_pbh_info.heat.coeffs;
+
+  // Deallocate axes
+  delete m_pbh_info.z_deps;
+  delete m_pbh_info.masses;
 }
 
 
@@ -181,7 +185,7 @@ void PLCPack::read_bicubic_bspline(std::string root, const char* channel, struct
 
   spline->degree = deg;
 
-  // Begin reading in file
+  // Begin reading in file. Apparently no error is thrown if the file doesn't exist
   std::ifstream spline_file(spline_filename.str().c_str());
   
   if (spline_file.is_open()) {

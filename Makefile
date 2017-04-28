@@ -9,12 +9,12 @@ CFITSIO_DIR := $(BATCH_DIR)/cfitsio
 # Flags for the C++ compiler
 CPPC := g++
 # turn off warnings using -w
-OPT_FLAGS := -O4 -ffast-math -march=native -fopenmp -w -fPIC
+OPT_FLAGS := -Ofast -ffast-math -march=native -fopenmp -w -fPIC
 INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include -I$(CFITSIO_DIR)/include
 CLASS_INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include
 
 BATCH_PLC_FLAGS = -DHAVE_PYEMBED=1 -DHAVE_PYTHON_H=1 -DHAS_LAPACK -DLAPACK_CLIK -m64 -Wl,-rpath,$(BATCH_DIR)/lib -Wl,-rpath,$(PLIK_DIR) -Wl,-rpath,$(CLASS_DIR)
-BATCH_LIB_FLAGS = -L$(CFITSIO_DIR)/lib -llapack -lblas -ldl -lgfortran -lgomp -lclik -lcfitsio -L$(BATCH_DIR)/lib
+BATCH_LIB_FLAGS = -L$(CFITSIO_DIR)/lib -L$(PLIK_DIR)/lib -llapack -lblas -ldl -lgfortran -lgomp -lclik -lcfitsio
 BATCH_CLASS_FLAGS = -Wl,-rpath,$(CLASS_DIR)
 
 PC_MULTINEST_DEFS = #-g -D DBUG -D BAO_LIKE
@@ -26,7 +26,7 @@ FC_LIBS := -L$(MULTINEST_DIR)/lib -lnest3 -lstdc++
 
 # Flags for the MPI compilers
 FC_MPI := mpifort
-FC_MPI_FLAGS := -nofor-main -ffree-line-length-none -DMPI
+FC_MPI_FLAGS := -ffree-line-length-none -DMPI
 
 CPPC_MPI := g++
 CPPC_MPI_FLAGS := #-DMPI

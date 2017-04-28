@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
   PLCPack* plc_pack(0);
 
   // PBH variable
-  std::string pbh_file_root = "/fast/users/a1648400/pbh_bsplines/";
+  std::string pbh_file_root = "/data/harryp/class/pbh/pbh_bspline_";
 
   // Use the first command line argument as a non-default
   // output root
