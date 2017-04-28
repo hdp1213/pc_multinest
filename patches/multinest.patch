@@ -1,0 +1,67 @@
+--- /home/a1648400/MultiNest_v3.10/Makefile	2015-07-18 02:08:19.000000000 +0930
++++ /home/a1648400/MultiNest_v3.10_new/Makefile	2016-12-07 22:10:03.804410729 +1030
+@@ -4,15 +4,20 @@
+ #FFLAGS += -O3 -DMPI
+ #CFLAGS += -O3 -DMPI
+ 
+-FC = gfortran
+-CC = gcc
+-CXX = g++
+-FFLAGS += -ffree-line-length-none -O3 #-DMPI
+-CFLAGS += -O3 #-DMPI
++FC = ifort -lmpi -fPIC
++CC = icc -lmpi -fPIC
++CXX = icpc -lmpi -fPIC
++FFLAGS += -Ofast -DMPI -I/apps/software/OpenMPI/1.8.3-iccifort-2015.3.187/include/
++CFLAGS += -Ofast -DMPI -I/apps/software/OpenMPI/1.8.3-iccifort-2015.3.187/include/
++
++LINKER = -Wl,-z,defs
++
++# LAPACKLIB = -llapack -lf77blas -latlas
++LAPACKLIB = -L/apps/software/ifort/2015.3.187/lib/intel64 -L/apps/software/ifort/2015.3.187/mkl/lib/intel64 -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -ldl
++# -lm
++# LAPACKLIB = -L$(MKLROOT)/lib/intel64 -L$(MKLROOT)/lib/mic -lmkl_scalapack_ilp64 -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core -lmkl_blacs_intelmpi_ilp64 -liomp5 -lpthread -lm -ldl
+ 
+-LAPACKLIB = -llapack
+-
+-NESTLIBDIR = ./
++NESTLIBDIR = ./lib
+ 
+ export FC CC CXX FFLAGS CFLAGS LAPACKLIB
+ 
+@@ -23,18 +28,21 @@
+ NSOBJECTS = utils.o utils1.o priors.o kmeans_clstr.o xmeans_clstr.o posterior.o nested.o
+ 
+ %.o: %.f90
+-	$(FC) $(FFLAGS) -c -o $@ $^ 
++	$(FC) $(FFLAGS) $(LINKER) $(LAPACKLIB) -c -o $@ $^ 
+ 
+ %.o: %.F90
+-	$(FC) $(FFLAGS) -c -o $@ $^ 
++	$(FC) $(FFLAGS) $(LINKER) $(LAPACKLIB) -c -o $@ $^ 
+ 
+-default: libnest3.a
++default: $(NESTLIBDIR) libnest3.so
+ 
+ all: libnest3.a obj_detect eggbox eggboxC eggboxC++ gaussian gauss_shell \
+ rosenbrock himmelblau ackley
++
++$(NESTLIBDIR):
++	mkdir $(NESTLIBDIR)
+  
+-libnest3.so: $(NSOBJECTS) 
+-	$(LINKLIB) -o $(LIBS) $@ $^ 
++libnest3.so: $(NSOBJECTS)
++	$(LINKLIB) $(LAPACKLIB) -o $(NESTLIBDIR)/$@ $^ 
+  
+ libnest3.a: $(NSOBJECTS) 
+ 	$(AR) $@ $^ 
+@@ -67,7 +75,7 @@
+ 	make -C example_eggbox_C++
+ 
+ clean: 
+-	-rm $(NESTLIBDIR)/libnest3.*  *.o *.mod
++	-rm -rf $(NESTLIBDIR)/  *.o *.mod
+ 	
+ cleanall: clean_exec clean clean_obj_detect clean_gaussian clean_gauss_shell clean_eggbox \
+ clean_example_eggbox_C clean_example_eggbox_C++ clean_rosenbrock clean_himmelblau \

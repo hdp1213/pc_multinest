@@ -1,6 +1,6 @@
-#include "ClassEngine.hh"
 #include "PLCPack.h"
 #include "ClikObject.h"
+#include "ClikPar.h"
 #include "multinest.h"
 
 #include <cstdio> // for stderr
@@ -11,84 +11,126 @@
 #include <algorithm>
 #include <stdexcept>
 #include <math.h>
+#include <iomanip> // for std::setprecision()
 
 #include "loglike.h"
-#include "ClikPar.h"
 
-void convert_Dl_to_Cl(std::vector<double> *dl_vec);
 void dumper(int &nSamples, int &nlive, int &nPar, double **physLive, double **posterior, double **paramConstr, double &maxLogLike, double &logZ, double &INSlogZ, double &logZerr, void *context);
 
 /*
-  Uses CLASS (wherever that will be with GAMBIT) to produce spectra
-  which are used in the log likelihood using PLC to derive the log likelihood. Then MultiNest does the rest.
+  Uses CLASS (wherever that will be with GAMBIT) to produce
+  spectra which are used in the log likelihood using PLC to
+  derive the log likelihood. Then MultiNest does the rest.
 
-  5/10/16 - tested plc_class against Multinest for no free params.
-            Shows identical agreement against plc_class for identical
-            nuisance parameter input and CLASS initial conditions.
+  5/10/16 - tested plc_class against Multinest for no free
+            params.
+            Shows identical agreement against plc_class for
+            identical nuisance parameter input and CLASS
+            initial conditions.
             Cannot find out how to use *context, though.
 */
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
 
   // MultiNest variables
   int IS = 0;             // do Nested Importance Sampling?
-  int mmodal = 1;         // do mode separation?
-  int ceff = 0;           // run in constant efficiency mode?
-  int nlive = 500;        // number of live points
-  double efr = 0.8;       // set the required efficiency
-  double tol = 0.1;       // tol, defines the stopping criteria
-  int ndims = 6;          // dimensionality (no. of free parameters)
-  int nPar = 22;          // total no. of parameters including free &
-                          // derived parameters
-  int nClsPar = 6;        // no. of parameters to do mode separation on
-  int updInt = 1000;      // after how many iterations feedback is
-                          // required & the output files should be updated
-                          // note: posterior files are updated & dumper
-                          // routine is called after every updInt*10
-                          // iterations
-  double Ztol = -1E90;    // all the modes with logZ < Ztol are ignored
-  int maxModes = 100;     // expected max no. of modes (used only for
-                          // memory allocation)
-  int pWrap[ndims];       // which parameters to have periodic boundary
-                          // conditions?
+  int mmodal = 0;         // do mode separation?
+  int ceff = 1;           // run in constant efficiency mode?
+                          // Bad for evidence calculations
+  int nlive = 1000;       // number of live points
+  double efr = 0.8;       // set the required efficiency. 0.8
+                          // for parameter estimation, 0.3 for
+                          // evidence
+  double tol = 1E-1;      // tol, defines the stopping criteria
+                          // 0.5 should give enough accuracy
+  int ndims = ClikPar::FREE_PARAMS;
+                          // dimensionality (no. of free
+                          // parameters)
+  int nPar = ClikPar::TOTAL_PARAMS;
+                          // total no. of parameters including
+                          // free & derived parameters
+  int nClsPar = 0;        // no. of parameters to do mode
+                          // separation on
+  int updInt = 1000;      // after how many iterations feedback
+                          // is required & the output files
+                          // should be updated
+                          // note: posterior files are updated
+                          // & dumper routine is called after
+                          // every updInt*10 iterations
+  double Ztol = -1E90;    // all the modes with logZ < Ztol are
+                          // ignored
+  int maxModes = 100;     // expected max no. of modes (used
+                          // only for memory allocation)
+  int pWrap[ndims];       // which parameters to have periodic
+                          // boundary conditions?
   for(int i = 0; i < ndims; i++) pWrap[i] = 0;
-  char root[100] = "output/pc_multinest_bflike_lambda_cdm_-";      // root for output files
-  int seed = -1;          // random no. generator seed, if < 0 then take
-                          // the seed from system clock
+  char* root;             // root for output files
+  int seed = -1;          // random no. generator seed, if < 0
+                          // then take the seed from system
+                          // clock
   int fb = 1;             // need feedback on standard output?
   int resume = 1;         // resume from a previous job?
   int outfile = 1;        // write output files?
-  int initMPI = 1;        // initialize MPI routines?, relevant only if
-                          // compiling with MPI
-                          // set it to F if you want your main program to
-                          // handle MPI initialization
-  double logZero = -1E90; // points with loglike < logZero will be ignored
-                          // by MultiNest
-  int maxiter = 0;        // max no. of iterations, a non-positive value
-                          // means infinity. MultiNest will terminate if
-                          // either it has done max no. of iterations or
-                          // convergence criterion (defined through tol)
+  int initMPI = 1;        // initialize MPI routines?, relevant
+                          // only if compiling with MPI
+                          // set it to F if you want your main
+                          // program to handle MPI
+                          // initialization
+  double logZero = -1E90; // points with loglike < logZero will
+                          // be ignored by MultiNest
+  int maxiter = 0;        // max no. of iterations, a
+                          // non-positive value means infinity.
+                          // MultiNest will terminate if
+                          // either it has done max no. of
+                          // iterations or convergence
+                          // criterion (defined through tol)
                           // has been satisfied
-  void *context = 0;      // not required by MultiNest, any additional
-                          // information user wants to pass
 
+  void* context = 0;      // not required by MultiNest, any
+                          // additional information user wants
+                          // to pass
 
-  // High l likelihood variables
-  char *hi_l_clik_path = "/data/harryp/staging/plik_dx11dr2_HM_v18_TT.clik/";
-  ClikObject *hi_l_clik = 0;
+  // High l full likelihood variables
+#ifdef LITE_HI_L
+  char* hi_l_clik_path = "/data/harryp/staging/plik_lite_v18_TTTEEE.clik/";
+#else
+  char* hi_l_clik_path = "/data/harryp/staging/plik_dx11dr2_HM_v18_TTTEEE.clik/";
+#endif
+  ClikObject* hi_l_clik(0);
   std::vector<ClikPar::param_t> hi_l_nuis_enums;
 
   // Low l likelihood variables  
-  ClikObject *lo_l_clik = 0;
-  char *lo_l_clik_path = "/data/harryp/staging/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
+  char* lo_l_clik_path = "/data/harryp/staging/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
+  ClikObject* lo_l_clik(0);
   std::vector<ClikPar::param_t> lo_l_nuis_enums;
 
+  // Clik Pars variable
+  ClikPar* clik_par = new ClikPar();
+
   int param_amts;
-  parname *param_names;
-  PLCPack *plc_pack = 0;
+  parname* param_names;
+  PLCPack* plc_pack(0);
+
+  // PBH variable
+  std::string pbh_file_root = "/fast/users/a1648400/pbh_bsplines/";
+
+  // Use the first command line argument as a non-default
+  // output root
+  // That is, if an argument is even specified
+  if (argc == 2) {
+    root = argv[1];
+  }
+  else {
+    root = "output/pc_multinest_-";
+  }
+
+  std::cout << "Printing results to " << root << std::endl;
 
   // Create new clik object for high l likelihood
   hi_l_clik = new ClikObject(hi_l_clik_path);
 
+  // Push nuisance parameters in the order they appear in cl_and_pars
+#ifndef LITE_HI_L
+// TT & TTTEEE
   hi_l_nuis_enums.push_back(ClikPar::A_cib_217);
   hi_l_nuis_enums.push_back(ClikPar::cib_index);
   hi_l_nuis_enums.push_back(ClikPar::xi_sz_cib);
@@ -102,8 +144,90 @@ int main(int argc, char *argv[]) {
   hi_l_nuis_enums.push_back(ClikPar::gal545_A_143);
   hi_l_nuis_enums.push_back(ClikPar::gal545_A_143_217);
   hi_l_nuis_enums.push_back(ClikPar::gal545_A_217);
+// TTTEEE
+  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_100);
+  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_100_143);
+  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_100_217);
+  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_143);
+  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_143_217);
+  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_217);
+  hi_l_nuis_enums.push_back(ClikPar::galf_EE_index);
+  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_100);
+  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_100_143);
+  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_100_217);
+  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_143);
+  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_143_217);
+  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_217);
+  hi_l_nuis_enums.push_back(ClikPar::galf_TE_index);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0T_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0T_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0T_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0T_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0T_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_1T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_1T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_1T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_1T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_1T_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_1T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_1T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_1T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_1T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_1T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_2T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_2T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_2T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_2T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_2T_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0E_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0E_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0E_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0E_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0E_0E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_1E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_1E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_1E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_1E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_1E_1E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_1E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_1E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_1E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_1E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_1E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_2E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_2E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_2E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_2E_2E);
+  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_2E_2E);
+// TT & TTTEEE
   hi_l_nuis_enums.push_back(ClikPar::calib_100T);
   hi_l_nuis_enums.push_back(ClikPar::calib_217T);
+// TTTEEE
+  hi_l_nuis_enums.push_back(ClikPar::calib_100P);
+  hi_l_nuis_enums.push_back(ClikPar::calib_143P);
+  hi_l_nuis_enums.push_back(ClikPar::calib_217P);
+  hi_l_nuis_enums.push_back(ClikPar::A_pol);
+#endif
   hi_l_nuis_enums.push_back(ClikPar::A_planck);
 
   hi_l_clik->set_nuisance_param_enums(hi_l_nuis_enums);
@@ -145,15 +269,21 @@ int main(int argc, char *argv[]) {
   plc_pack = new PLCPack();
   plc_pack->add_clik_object(hi_l_clik);
   plc_pack->add_clik_object(lo_l_clik);
+  plc_pack->set_clik_params(clik_par);
+  plc_pack->read_pbh_files(pbh_file_root);
+
+  // Initialise CLASS before runing MultiNest
+  plc_pack->initialise_CLASS();
 
   context = plc_pack;
-  
+
+
   // Calling MultiNest
 
   nested::run(IS, mmodal, ceff, nlive, tol, efr, ndims, nPar, nClsPar,
               maxModes, updInt, Ztol, root, seed, pWrap, fb,
-              resume, outfile, initMPI, logZero, maxiter, LogLike, dumper,
-              context);
+              resume, outfile, initMPI, logZero, maxiter, LogLike,
+              dumper, context);
 
   delete plc_pack;
 
@@ -162,19 +292,6 @@ int main(int argc, char *argv[]) {
 
 
 /*** Secondary Functions ***/
-
-// Converts Dl=l(l+1)Cl/2pi to Cl again
-// Not really needed as of now (23/9/16)
-void convert_Dl_to_Cl(std::vector<double> *dl_vec) {
-  int i;
-  double l;
-
-  for (i = 0; i < dl_vec->size(); ++i) {
-    l = double(i) + 2.0;
-    // dl_vec->at(i) = dl_vec->at(i)*l*(l+1)/(2.0*M_PI); // one for 
-    // dl_vec->at(i) = dl_vec->at(i)*2.0*M_PI/(l*(l+1)); // the other
-  }
-}
 
 // The dumper routine will be called every updInt*10 iterations
 // MultiNest doesn not need to the user to do anything. User can use the arguments in whichever way he/she wants
@@ -220,74 +337,3 @@ void dumper(int &nSamples, int &nlive, int &nPar, double **physLive, double **po
     for( j = 0; j < nlive; j++ )
       pLivePts[j][i] = physLive[0][i * nlive + j];
 }
-
-/*
-nested::run(int IS, int mmodal, int ceff, int nlive, double tol,
-            double efr, int ndims, int nPar, int nClsPar,
-            int maxModes, int updInt, double Ztol, char root[100],
-            int seed, int pWrap[ndims], int fb, int resume,
-            int outfile, int initMPI, double logZero, int maxiter,
-            LogLike, dumper, void *context);
-
-int IS = 0;             // do Nested Importance Sampling?
-
-int mmodal = 1;         // do mode separation?
-
-int ceff = 0;           // run in constant efficiency mode?
-
-int nlive = 1000;       // number of live points
-
-double efr = 0.8;       // set the required efficiency
-
-double tol = 0.5;       // tol, defines the stopping criteria
-
-int ndims = 2;          // dimensionality (no. of free parameters)
-
-int nPar = 2;           // total no. of parameters including free & derived parameters
-
-int nClsPar = 2;        // no. of parameters to do mode separation on
-
-int updInt = 1000;      // after how many iterations feedback is required
-                           & the output files should be updated
-                        // note: posterior files are updated & dumper
-                           routine is called after every updInt*10 iterations
-
-double Ztol = -1E90;    // all the modes with logZ < Ztol are ignored
-
-int maxModes = 100;     // expected max no. of modes (used only for
-                           memory allocation)
-
-int pWrap[ndims];       // which parameters to have periodic boundary
-                           conditions?
-for(int i = 0; i < ndims; i++) pWrap[i] = 0;
-
-char root[100] = "chains/eggboxCC-";      // root for output files
-
-int seed = -1;          // random no. generator seed, if < 0 then take
-                           the seed from system clock
-
-int fb = 1;             // need feedback on standard output?
-
-int resume = 1;         // resume from a previous job?
-
-int outfile = 1;        // write output files?
-
-int initMPI = 1;        // initialize MPI routines?, relevant only if
-                           compiling with MPI
-                        // set it to F if you want your main program to
-                           handle MPI initialization
-
-double logZero = -1E90; // points with loglike < logZero will be ignored
-                           by MultiNest
-
-int maxiter = 0;        // max no. of iterations, a non-positive value
-                           means infinity. MultiNest will terminate if
-                           either it 
-                        // has done max no. of iterations or convergence
-                           criterion (defined through tol) has been
-                           satisfied
-
-void *context = 0;      // not required by MultiNest, any additional
-                           information user wants to pass
-
-*/
