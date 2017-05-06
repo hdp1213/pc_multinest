@@ -36,47 +36,48 @@ ClikPar::ClikPar() : m_class_engine(0) {
   m_min[pbh_frac] = -7.0;          m_max[pbh_frac] = -2.0;
 
   // Nuisance parameters (PLC TT & TTTEEE)
+  // Using thinner bounds from base_plikTTTEEE_lowTEB results
   m_min[A_planck] = 0.9;           m_max[A_planck] = 1.1;
 #ifndef LITE_HI_L
-  m_min[A_cib_217] = 0.0;          m_max[A_cib_217] = 200.0;
+  m_min[A_cib_217] = 40.0;         m_max[A_cib_217] = 90.0;
   m_min[xi_sz_cib] = 0.0;          m_max[xi_sz_cib] = 1.0;
   m_min[A_sz] = 0.0;               m_max[A_sz] = 10.0;
-  m_min[ps_A_100_100] = 0.0;       m_max[ps_A_100_100] = 400.0;
-  m_min[ps_A_143_143] = 0.0;       m_max[ps_A_143_143] = 400.0;
-  m_min[ps_A_143_217] = 0.0;       m_max[ps_A_143_217] = 400.0;
-  m_min[ps_A_217_217] = 0.0;       m_max[ps_A_217_217] = 400.0;
+  m_min[ps_A_100_100] = 150.0;     m_max[ps_A_100_100] = 370.0;
+  m_min[ps_A_143_143] = 15.0;      m_max[ps_A_143_143] = 75.0;
+  m_min[ps_A_143_217] = 0.0;       m_max[ps_A_143_217] = 80.0;
+  m_min[ps_A_217_217] = 50.0;      m_max[ps_A_217_217] = 140.0;
   m_min[ksz_norm] = 0.0;           m_max[ksz_norm] = 10.0;
-  m_min[gal545_A_100] = 0.0;       m_max[gal545_A_100] = 50.0;
-  m_min[gal545_A_143] = 0.0;       m_max[gal545_A_143] = 50.0;
-  m_min[gal545_A_143_217] = 0.0;   m_max[gal545_A_143_217] = 100.0;
-  m_min[gal545_A_217] = 0.0;       m_max[gal545_A_217] = 400.0;
+  m_min[gal545_A_100] = 0.0;       m_max[gal545_A_100] = 20.0;
+  m_min[gal545_A_143] = 0.0;       m_max[gal545_A_143] = 20.0;
+  m_min[gal545_A_143_217] = 0.0;   m_max[gal545_A_143_217] = 40.0;
+  m_min[gal545_A_217] = 50.0;       m_max[gal545_A_217] = 110.0;
   m_min[calib_100T] = 0.0;         m_max[calib_100T] = 2.0;
   m_min[calib_217T] = 0.0;         m_max[calib_217T] = 2.0;
 
   // Nuisance parameters (PLC TTTEEE)
-  // Roughly 5-sigma boundaries around mean
-  m_min[galf_EE_A_100] = 0.0;
-  m_max[galf_EE_A_100] = 0.2;
-  m_min[galf_EE_A_100_143] = 0.0;
-  m_max[galf_EE_A_100_143] = 0.15;
-  m_min[galf_EE_A_100_217] = 0.0;
-  m_max[galf_EE_A_100_217] = 0.25;
-  m_min[galf_EE_A_143] = 0.0;
-  m_max[galf_EE_A_143] = 0.2;
+  // Using approximate bounds on base_plikTTTEEE_lowTEB results
+  m_min[galf_EE_A_100] = 0.04;
+  m_max[galf_EE_A_100] = 0.12;
+  m_min[galf_EE_A_100_143] = 0.01;
+  m_max[galf_EE_A_100_143] = 0.09;
+  m_min[galf_EE_A_100_217] = 0.00;
+  m_max[galf_EE_A_100_217] = 0.26;
+  m_min[galf_EE_A_143] = 0.060;
+  m_max[galf_EE_A_143] = 0.150;
   m_min[galf_EE_A_143_217] = 0.0;
-  m_max[galf_EE_A_143_217] = 0.5;
-  m_min[galf_EE_A_217] = 0.0;
-  m_max[galf_EE_A_217] = 1.44;
-  m_min[galf_TE_A_100] = 0.0;
-  m_max[galf_TE_A_100] = 0.35;
-  m_min[galf_TE_A_100_143] = 0.0;
-  m_max[galf_TE_A_100_143] = 0.3;
+  m_max[galf_EE_A_143_217] = 0.6;
+  m_min[galf_EE_A_217] = 0.00;
+  m_max[galf_EE_A_217] = 1.50;
+  m_min[galf_TE_A_100] = 0.00;
+  m_max[galf_TE_A_100] = 0.40;
+  m_min[galf_TE_A_100_143] = 0.00;
+  m_max[galf_TE_A_100_143] = 0.30;
   m_min[galf_TE_A_100_217] = 0.0;
-  m_max[galf_TE_A_100_217] = 0.75;
+  m_max[galf_TE_A_100_217] = 0.8;
   m_min[galf_TE_A_143] = 0.0;
-  m_max[galf_TE_A_143] = 0.6;
-  m_min[galf_TE_A_143_217] = 0.51;
-  m_max[galf_TE_A_143_217] = 0.69;
+  m_max[galf_TE_A_143] = 0.5;
+  m_min[galf_TE_A_143_217] = 0.00;
+  m_max[galf_TE_A_143_217] = 0.75;
   m_min[galf_TE_A_217] = 0.0;
   m_max[galf_TE_A_217] = 4.5;
 
