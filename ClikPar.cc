@@ -33,7 +33,7 @@ ClikPar::ClikPar() : m_class_engine(0) {
 
   // Non-standard LCDM parameters
   m_is_log10[pbh_frac] = true;
-  m_min[pbh_frac] = -7.0;          m_max[pbh_frac] = -2.0;
+  m_min[pbh_frac] = -12.0;          m_max[pbh_frac] = -2.0;
 
   // Nuisance parameters (PLC TT & TTTEEE)
   // Using thinner bounds from base_plikTTTEEE_lowTEB results
