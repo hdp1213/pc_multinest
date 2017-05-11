@@ -14,8 +14,9 @@ public:
   {
     // Free parameters (CLASS)
     pbh_frac,
-    // Free parameters (PLC TT nuisance)
-    A_planck,
+    FREE_PARAMS,
+    // Fixed parameters (PLC TT nuisance)
+    A_planck = FREE_PARAMS,
 #ifndef LITE_HI_L
     A_cib_217,
     xi_sz_cib,
@@ -29,7 +30,7 @@ public:
     gal545_A_143,
     gal545_A_143_217,
     gal545_A_217,
-    // Free parameters (PLC TTTEEE nuisance)
+    // Fixed parameters (PLC TTTEEE nuisance)
     galf_EE_A_100,
     galf_EE_A_100_143,
     galf_EE_A_100_217,
@@ -44,9 +45,8 @@ public:
     galf_TE_A_217,
     calib_100T,
     calib_217T,
-    FREE_PARAMS,
     // Fixed parameters (CLASS)
-    omega_b = FREE_PARAMS,
+    omega_b,
     omega_cdm,
     hundredxtheta_s,
     tau_reio,
