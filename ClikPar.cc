@@ -36,50 +36,50 @@ ClikPar::ClikPar() : m_class_engine(0) {
   m_min[pbh_frac] = 0.0;          m_max[pbh_frac] = 1.0;
 
   // Nuisance parameters (PLC TT & TTTEEE)
-  // Fixing to TTTEEE+lowP best fit values (2015)
-  m_min[A_planck] = 1.00029;       m_max[A_planck] = 1.00029;
+  // Using thinner bounds from base_plikTTTEEE_lowTEB results
+  m_min[A_planck] = 0.9;           m_max[A_planck] = 1.1;
 #ifndef LITE_HI_L
-  m_min[A_cib_217] = 66.4;         m_max[A_cib_217] = 66.4;
-  m_min[xi_sz_cib] = 0.13;         m_max[xi_sz_cib] = 0.13;
-  m_min[A_sz] = 7.17;              m_max[A_sz] = 7.17;
-  m_min[ps_A_100_100] = 255.0;     m_max[ps_A_100_100] = 255.0;
-  m_min[ps_A_143_143] = 40.1;      m_max[ps_A_143_143] = 40.1;
-  m_min[ps_A_143_217] = 36.4;      m_max[ps_A_143_217] = 36.4;
-  m_min[ps_A_217_217] = 98.7;      m_max[ps_A_217_217] = 98.7;
-  m_min[ksz_norm] = 0.0;           m_max[ksz_norm] = 0.0;
-  m_min[gal545_A_100] = 7.34;      m_max[gal545_A_100] = 7.34;
-  m_min[gal545_A_143] = 8.97;      m_max[gal545_A_143] = 8.97;
-  m_min[gal545_A_143_217] = 17.56; m_max[gal545_A_143_217] = 17.56;
-  m_min[gal545_A_217] = 81.9;      m_max[gal545_A_217] = 81.9;
-  m_min[calib_100T] = 0.99818;     m_max[calib_100T] = 0.99818;
-  m_min[calib_217T] = 0.99598;     m_max[calib_217T] = 0.99598;
+  m_min[A_cib_217] = 30.0;         m_max[A_cib_217] = 100.0;
+  m_min[xi_sz_cib] = 0.0;          m_max[xi_sz_cib] = 1.0;
+  m_min[A_sz] = 0.0;               m_max[A_sz] = 10.0;
+  m_min[ps_A_100_100] = 140.0;     m_max[ps_A_100_100] = 370.0;
+  m_min[ps_A_143_143] = 10.0;      m_max[ps_A_143_143] = 80.0;
+  m_min[ps_A_143_217] = 0.0;       m_max[ps_A_143_217] = 80.0;
+  m_min[ps_A_217_217] = 50.0;      m_max[ps_A_217_217] = 140.0;
+  m_min[ksz_norm] = 0.0;           m_max[ksz_norm] = 10.0;
+  m_min[gal545_A_100] = 0.0;       m_max[gal545_A_100] = 20.0;
+  m_min[gal545_A_143] = 0.0;       m_max[gal545_A_143] = 20.0;
+  m_min[gal545_A_143_217] = 0.0;   m_max[gal545_A_143_217] = 40.0;
+  m_min[gal545_A_217] = 50.0;       m_max[gal545_A_217] = 110.0;
+  m_min[calib_100T] = 0.0;         m_max[calib_100T] = 2.0;
+  m_min[calib_217T] = 0.0;         m_max[calib_217T] = 2.0;
 
   // Nuisance parameters (PLC TTTEEE)
-  // Fixing to TTTEEE+lowP best fit values (2015)
-  m_min[galf_EE_A_100] = 0.0813;
-  m_max[galf_EE_A_100] = 0.0813;
-  m_min[galf_EE_A_100_143] = 0.0488;
-  m_max[galf_EE_A_100_143] = 0.0488;
-  m_min[galf_EE_A_100_217] = 0.0995;
-  m_max[galf_EE_A_100_217] = 0.0995;
-  m_min[galf_EE_A_143] = 0.1002;
-  m_max[galf_EE_A_143] = 0.1002;
-  m_min[galf_EE_A_143_217] = 0.2236;
-  m_max[galf_EE_A_143_217] = 0.2236;
-  m_min[galf_EE_A_217] = 0.645;
-  m_max[galf_EE_A_217] = 0.645;
-  m_min[galf_TE_A_100] = 0.1417;
-  m_max[galf_TE_A_100] = 0.1417;
-  m_min[galf_TE_A_100_143] = 0.1321;
-  m_max[galf_TE_A_100_143] = 0.1321;
-  m_min[galf_TE_A_100_217] = 0.307;
-  m_max[galf_TE_A_100_217] = 0.307;
-  m_min[galf_TE_A_143] = 0.155;
-  m_max[galf_TE_A_143] = 0.155;
-  m_min[galf_TE_A_143_217] = 0.338;
-  m_max[galf_TE_A_143_217] = 0.338;
-  m_min[galf_TE_A_217] = 1.667;
-  m_max[galf_TE_A_217] = 1.667;
+  // Using approximate bounds on base_plikTTTEEE_lowTEB results
+  m_min[galf_EE_A_100] = 0.04;
+  m_max[galf_EE_A_100] = 0.12;
+  m_min[galf_EE_A_100_143] = 0.01;
+  m_max[galf_EE_A_100_143] = 0.09;
+  m_min[galf_EE_A_100_217] = 0.00;
+  m_max[galf_EE_A_100_217] = 0.26;
+  m_min[galf_EE_A_143] = 0.060;
+  m_max[galf_EE_A_143] = 0.150;
+  m_min[galf_EE_A_143_217] = 0.0;
+  m_max[galf_EE_A_143_217] = 0.6;
+  m_min[galf_EE_A_217] = 0.00;
+  m_max[galf_EE_A_217] = 1.50;
+  m_min[galf_TE_A_100] = 0.00;
+  m_max[galf_TE_A_100] = 0.40;
+  m_min[galf_TE_A_100_143] = 0.00;
+  m_max[galf_TE_A_100_143] = 0.30;
+  m_min[galf_TE_A_100_217] = 0.0;
+  m_max[galf_TE_A_100_217] = 0.8;
+  m_min[galf_TE_A_143] = 0.0;
+  m_max[galf_TE_A_143] = 0.5;
+  m_min[galf_TE_A_143_217] = 0.0;
+  m_max[galf_TE_A_143_217] = 1.0;
+  m_min[galf_TE_A_217] = 0.0;
+  m_max[galf_TE_A_217] = 4.5;
 
   // Fixed parameters (PLC TT & TTTEEE)
   m_min[cib_index] = -1.3;
@@ -499,7 +499,6 @@ double ClikPar::calculate_extra_priors(double* Cube) const {
   }
 
   // Calculate SZ degeneracy prior
-  // This will be a constant value when ksz_norm and A_sz are fixed
 #ifndef LITE_HI_L
   double SZ_val = Cube[ksz_norm] + 1.6 * Cube[A_sz];
   double SZ_mean = 9.5;
