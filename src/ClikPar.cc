@@ -19,208 +19,21 @@ ClikPar::ClikPar() : m_class_engine(0) {
     m_stddev[param] = -9999;
   }
 
-  /***************************/
-  /*  UNIFORM PRIOR SETTING  */
-  /***************************/
+// Define flat priors
+#include "TTTEEE+lowP_pbh_fixedLCDM-flat.cc"
 
-  // Fix LCDM parameters to TTTEEE+lowP best fit values (2015)
-  m_min[omega_b] = 0.022252;          m_max[omega_b] = 0.022252;
-  m_min[omega_cdm] = 0.11987;         m_max[omega_cdm] = 0.11987;
-  m_min[hundredxtheta_s] = 1.040778;  m_max[hundredxtheta_s] = 1.040778;
-  m_min[tau_reio] = 0.0789;           m_max[tau_reio] = 0.0789;
-  m_min[ln10_10_A_s] = 3.0929;        m_max[ln10_10_A_s] = 3.0929;
-  m_min[n_s] = 0.96475;               m_max[n_s] = 0.96475;
-
-  // Non-standard LCDM parameters
-  // m_is_log10[pbh_frac] = true;
-  m_min[pbh_frac] = 0.0;          m_max[pbh_frac] = 1.0;
-
-  // Nuisance parameters (PLC TT & TTTEEE)
-  // Using thinner bounds from base_plikTTTEEE_lowTEB results
-  m_min[A_planck] = 0.9;           m_max[A_planck] = 1.1;
-#ifndef LITE_HI_L
-  m_min[A_cib_217] = 30.0;         m_max[A_cib_217] = 100.0;
-  m_min[xi_sz_cib] = 0.0;          m_max[xi_sz_cib] = 1.0;
-  m_min[A_sz] = 0.0;               m_max[A_sz] = 10.0;
-  m_min[ps_A_100_100] = 140.0;     m_max[ps_A_100_100] = 370.0;
-  m_min[ps_A_143_143] = 10.0;      m_max[ps_A_143_143] = 80.0;
-  m_min[ps_A_143_217] = 0.0;       m_max[ps_A_143_217] = 80.0;
-  m_min[ps_A_217_217] = 50.0;      m_max[ps_A_217_217] = 140.0;
-  m_min[ksz_norm] = 0.0;           m_max[ksz_norm] = 10.0;
-  m_min[gal545_A_100] = 0.0;       m_max[gal545_A_100] = 20.0;
-  m_min[gal545_A_143] = 0.0;       m_max[gal545_A_143] = 20.0;
-  m_min[gal545_A_143_217] = 0.0;   m_max[gal545_A_143_217] = 40.0;
-  m_min[gal545_A_217] = 50.0;       m_max[gal545_A_217] = 110.0;
-  m_min[calib_100T] = 0.0;         m_max[calib_100T] = 2.0;
-  m_min[calib_217T] = 0.0;         m_max[calib_217T] = 2.0;
-
-  // Nuisance parameters (PLC TTTEEE)
-  // Using approximate bounds on base_plikTTTEEE_lowTEB results
-  m_min[galf_EE_A_100] = 0.04;
-  m_max[galf_EE_A_100] = 0.12;
-  m_min[galf_EE_A_100_143] = 0.01;
-  m_max[galf_EE_A_100_143] = 0.09;
-  m_min[galf_EE_A_100_217] = 0.00;
-  m_max[galf_EE_A_100_217] = 0.26;
-  m_min[galf_EE_A_143] = 0.060;
-  m_max[galf_EE_A_143] = 0.150;
-  m_min[galf_EE_A_143_217] = 0.0;
-  m_max[galf_EE_A_143_217] = 0.6;
-  m_min[galf_EE_A_217] = 0.00;
-  m_max[galf_EE_A_217] = 1.50;
-  m_min[galf_TE_A_100] = 0.00;
-  m_max[galf_TE_A_100] = 0.40;
-  m_min[galf_TE_A_100_143] = 0.00;
-  m_max[galf_TE_A_100_143] = 0.30;
-  m_min[galf_TE_A_100_217] = 0.0;
-  m_max[galf_TE_A_100_217] = 0.8;
-  m_min[galf_TE_A_143] = 0.0;
-  m_max[galf_TE_A_143] = 0.5;
-  m_min[galf_TE_A_143_217] = 0.0;
-  m_max[galf_TE_A_143_217] = 1.0;
-  m_min[galf_TE_A_217] = 0.0;
-  m_max[galf_TE_A_217] = 4.5;
-
-  // Fixed parameters (PLC TT & TTTEEE)
-  m_min[cib_index] = -1.3;
-  m_max[cib_index] = -1.3;
-  // Fixed parameters (PLC TTTEEE)
-  m_min[galf_EE_index] = -2.4;
-  m_max[galf_EE_index] = -2.4;
-  m_min[galf_TE_index] = -2.4;
-  m_max[galf_TE_index] = -2.4;
-  m_min[bleak_epsilon_0_0T_0E] = 0.0;
-  m_max[bleak_epsilon_0_0T_0E] = 0.0;
-  m_min[bleak_epsilon_1_0T_0E] = 0.0;
-  m_max[bleak_epsilon_1_0T_0E] = 0.0;
-  m_min[bleak_epsilon_2_0T_0E] = 0.0;
-  m_max[bleak_epsilon_2_0T_0E] = 0.0;
-  m_min[bleak_epsilon_3_0T_0E] = 0.0;
-  m_max[bleak_epsilon_3_0T_0E] = 0.0;
-  m_min[bleak_epsilon_4_0T_0E] = 0.0;
-  m_max[bleak_epsilon_4_0T_0E] = 0.0;
-  m_min[bleak_epsilon_0_0T_1E] = 0.0;
-  m_max[bleak_epsilon_0_0T_1E] = 0.0;
-  m_min[bleak_epsilon_1_0T_1E] = 0.0;
-  m_max[bleak_epsilon_1_0T_1E] = 0.0;
-  m_min[bleak_epsilon_2_0T_1E] = 0.0;
-  m_max[bleak_epsilon_2_0T_1E] = 0.0;
-  m_min[bleak_epsilon_3_0T_1E] = 0.0;
-  m_max[bleak_epsilon_3_0T_1E] = 0.0;
-  m_min[bleak_epsilon_4_0T_1E] = 0.0;
-  m_max[bleak_epsilon_4_0T_1E] = 0.0;
-  m_min[bleak_epsilon_0_0T_2E] = 0.0;
-  m_max[bleak_epsilon_0_0T_2E] = 0.0;
-  m_min[bleak_epsilon_1_0T_2E] = 0.0;
-  m_max[bleak_epsilon_1_0T_2E] = 0.0;
-  m_min[bleak_epsilon_2_0T_2E] = 0.0;
-  m_max[bleak_epsilon_2_0T_2E] = 0.0;
-  m_min[bleak_epsilon_3_0T_2E] = 0.0;
-  m_max[bleak_epsilon_3_0T_2E] = 0.0;
-  m_min[bleak_epsilon_4_0T_2E] = 0.0;
-  m_max[bleak_epsilon_4_0T_2E] = 0.0;
-  m_min[bleak_epsilon_0_1T_1E] = 0.0;
-  m_max[bleak_epsilon_0_1T_1E] = 0.0;
-  m_min[bleak_epsilon_1_1T_1E] = 0.0;
-  m_max[bleak_epsilon_1_1T_1E] = 0.0;
-  m_min[bleak_epsilon_2_1T_1E] = 0.0;
-  m_max[bleak_epsilon_2_1T_1E] = 0.0;
-  m_min[bleak_epsilon_3_1T_1E] = 0.0;
-  m_max[bleak_epsilon_3_1T_1E] = 0.0;
-  m_min[bleak_epsilon_4_1T_1E] = 0.0;
-  m_max[bleak_epsilon_4_1T_1E] = 0.0;
-  m_min[bleak_epsilon_0_1T_2E] = 0.0;
-  m_max[bleak_epsilon_0_1T_2E] = 0.0;
-  m_min[bleak_epsilon_1_1T_2E] = 0.0;
-  m_max[bleak_epsilon_1_1T_2E] = 0.0;
-  m_min[bleak_epsilon_2_1T_2E] = 0.0;
-  m_max[bleak_epsilon_2_1T_2E] = 0.0;
-  m_min[bleak_epsilon_3_1T_2E] = 0.0;
-  m_max[bleak_epsilon_3_1T_2E] = 0.0;
-  m_min[bleak_epsilon_4_1T_2E] = 0.0;
-  m_max[bleak_epsilon_4_1T_2E] = 0.0;
-  m_min[bleak_epsilon_0_2T_2E] = 0.0;
-  m_max[bleak_epsilon_0_2T_2E] = 0.0;
-  m_min[bleak_epsilon_1_2T_2E] = 0.0;
-  m_max[bleak_epsilon_1_2T_2E] = 0.0;
-  m_min[bleak_epsilon_2_2T_2E] = 0.0;
-  m_max[bleak_epsilon_2_2T_2E] = 0.0;
-  m_min[bleak_epsilon_3_2T_2E] = 0.0;
-  m_max[bleak_epsilon_3_2T_2E] = 0.0;
-  m_min[bleak_epsilon_4_2T_2E] = 0.0;
-  m_max[bleak_epsilon_4_2T_2E] = 0.0;
-  m_min[bleak_epsilon_0_0E_0E] = 0.0;
-  m_max[bleak_epsilon_0_0E_0E] = 0.0;
-  m_min[bleak_epsilon_1_0E_0E] = 0.0;
-  m_max[bleak_epsilon_1_0E_0E] = 0.0;
-  m_min[bleak_epsilon_2_0E_0E] = 0.0;
-  m_max[bleak_epsilon_2_0E_0E] = 0.0;
-  m_min[bleak_epsilon_3_0E_0E] = 0.0;
-  m_max[bleak_epsilon_3_0E_0E] = 0.0;
-  m_min[bleak_epsilon_4_0E_0E] = 0.0;
-  m_max[bleak_epsilon_4_0E_0E] = 0.0;
-  m_min[bleak_epsilon_0_0E_1E] = 0.0;
-  m_max[bleak_epsilon_0_0E_1E] = 0.0;
-  m_min[bleak_epsilon_1_0E_1E] = 0.0;
-  m_max[bleak_epsilon_1_0E_1E] = 0.0;
-  m_min[bleak_epsilon_2_0E_1E] = 0.0;
-  m_max[bleak_epsilon_2_0E_1E] = 0.0;
-  m_min[bleak_epsilon_3_0E_1E] = 0.0;
-  m_max[bleak_epsilon_3_0E_1E] = 0.0;
-  m_min[bleak_epsilon_4_0E_1E] = 0.0;
-  m_max[bleak_epsilon_4_0E_1E] = 0.0;
-  m_min[bleak_epsilon_0_0E_2E] = 0.0;
-  m_max[bleak_epsilon_0_0E_2E] = 0.0;
-  m_min[bleak_epsilon_1_0E_2E] = 0.0;
-  m_max[bleak_epsilon_1_0E_2E] = 0.0;
-  m_min[bleak_epsilon_2_0E_2E] = 0.0;
-  m_max[bleak_epsilon_2_0E_2E] = 0.0;
-  m_min[bleak_epsilon_3_0E_2E] = 0.0;
-  m_max[bleak_epsilon_3_0E_2E] = 0.0;
-  m_min[bleak_epsilon_4_0E_2E] = 0.0;
-  m_max[bleak_epsilon_4_0E_2E] = 0.0;
-  m_min[bleak_epsilon_0_1E_1E] = 0.0;
-  m_max[bleak_epsilon_0_1E_1E] = 0.0;
-  m_min[bleak_epsilon_1_1E_1E] = 0.0;
-  m_max[bleak_epsilon_1_1E_1E] = 0.0;
-  m_min[bleak_epsilon_2_1E_1E] = 0.0;
-  m_max[bleak_epsilon_2_1E_1E] = 0.0;
-  m_min[bleak_epsilon_3_1E_1E] = 0.0;
-  m_max[bleak_epsilon_3_1E_1E] = 0.0;
-  m_min[bleak_epsilon_4_1E_1E] = 0.0;
-  m_max[bleak_epsilon_4_1E_1E] = 0.0;
-  m_min[bleak_epsilon_0_1E_2E] = 0.0;
-  m_max[bleak_epsilon_0_1E_2E] = 0.0;
-  m_min[bleak_epsilon_1_1E_2E] = 0.0;
-  m_max[bleak_epsilon_1_1E_2E] = 0.0;
-  m_min[bleak_epsilon_2_1E_2E] = 0.0;
-  m_max[bleak_epsilon_2_1E_2E] = 0.0;
-  m_min[bleak_epsilon_3_1E_2E] = 0.0;
-  m_max[bleak_epsilon_3_1E_2E] = 0.0;
-  m_min[bleak_epsilon_4_1E_2E] = 0.0;
-  m_max[bleak_epsilon_4_1E_2E] = 0.0;
-  m_min[bleak_epsilon_0_2E_2E] = 0.0;
-  m_max[bleak_epsilon_0_2E_2E] = 0.0;
-  m_min[bleak_epsilon_1_2E_2E] = 0.0;
-  m_max[bleak_epsilon_1_2E_2E] = 0.0;
-  m_min[bleak_epsilon_2_2E_2E] = 0.0;
-  m_max[bleak_epsilon_2_2E_2E] = 0.0;
-  m_min[bleak_epsilon_3_2E_2E] = 0.0;
-  m_max[bleak_epsilon_3_2E_2E] = 0.0;
-  m_min[bleak_epsilon_4_2E_2E] = 0.0;
-  m_max[bleak_epsilon_4_2E_2E] = 0.0;
-  m_min[calib_100P] = 1.0;
-  m_max[calib_100P] = 1.0;
-  m_min[calib_143P] = 1.0;
-  m_max[calib_143P] = 1.0;
-  m_min[calib_217P] = 1.0;
-  m_max[calib_217P] = 1.0;
-  m_min[A_pol] = 1.0;
-  m_max[A_pol] = 1.0;
-#endif
-
-  // There is a difference between a "derived" parameter and
-  // a parameter whose value should be fixed.
+  // Do checks on min and max values for free parameters
+  for (int param = 0; param < FREE_PARAMS; ++param) {
+    if (m_min[param] == m_max[param]) {
+      std::cerr << "[ERROR]: min and max values are identical "
+                << "for parameter #"
+                << param
+                << ", a free parameter. Have you got the "
+                << "correct flat priors for this parameter?"
+                << std::endl;
+      throw std::exception();
+    }
+  }
 
   // Do checks on min and max values for fixed parameters
   for (int param = FREE_PARAMS; param < FIXED_PARAMS; ++param) {
@@ -242,86 +55,8 @@ ClikPar::ClikPar() : m_class_engine(0) {
     m_transform[param] = m_is_log10[param] ? &pow10 : &self;
   }
 
-  /****************************/
-  /*  GAUSSIAN PRIOR SETTING  */
-  /****************************/
-
-#ifdef GAUSS_TAU
-  m_has_gaussian_prior[tau_reio] = true;
-#endif
-#ifndef LITE_HI_L
-  // Nuisance parameters (PLC TT & TTTEEE)
-  m_has_gaussian_prior[gal545_A_100] = true;
-  m_has_gaussian_prior[gal545_A_143] = true;
-  m_has_gaussian_prior[gal545_A_143_217] = true;
-  m_has_gaussian_prior[gal545_A_217] = true;
-  m_has_gaussian_prior[calib_100T] = true;
-  m_has_gaussian_prior[calib_217T] = true;
-
-  // Nuisance parameters (PLC TTTEEE)
-  m_has_gaussian_prior[galf_EE_A_100] = true;
-  m_has_gaussian_prior[galf_EE_A_100_143] = true;
-  m_has_gaussian_prior[galf_EE_A_100_217] = true;
-  m_has_gaussian_prior[galf_EE_A_143] = true;
-  m_has_gaussian_prior[galf_EE_A_143_217] = true;
-  m_has_gaussian_prior[galf_EE_A_217] = true;
-  m_has_gaussian_prior[galf_TE_A_100] = true;
-  m_has_gaussian_prior[galf_TE_A_100_143] = true;
-  m_has_gaussian_prior[galf_TE_A_100_217] = true;
-  m_has_gaussian_prior[galf_TE_A_143] = true;
-  m_has_gaussian_prior[galf_TE_A_143_217] = true;
-  m_has_gaussian_prior[galf_TE_A_217] = true;
-#endif
-  m_has_gaussian_prior[A_planck] = true;
-
-  // Set Gaussian priors
-#ifdef GAUSS_TAU
-  m_mean[tau_reio] = 0.07;
-  m_stddev[tau_reio] = 0.02;
-#endif
-#ifndef LITE_HI_L
-  // Nuisance parameters (PLC TT & TTTEEE)
-  m_mean[gal545_A_100] = 7.0;
-  m_stddev[gal545_A_100] = 2.0;
-  m_mean[gal545_A_143] = 9.0;
-  m_stddev[gal545_A_143] = 2.0;
-  m_mean[gal545_A_143_217] = 21.0;
-  m_stddev[gal545_A_143_217] = 8.5;
-  m_mean[gal545_A_217] = 80.0;
-  m_stddev[gal545_A_217] = 20.0;
-  m_mean[calib_100T] = 0.9990004;
-  m_stddev[calib_100T] = 0.001;
-  m_mean[calib_217T] = 0.99501;
-  m_stddev[calib_217T] = 0.002;
-
-  // Nuisance parameters (PLC TTTEEE)
-  m_mean[galf_EE_A_100] = 0.060;
-  m_stddev[galf_EE_A_100] = 0.012;
-  m_mean[galf_EE_A_100_143] = 0.050;
-  m_stddev[galf_EE_A_100_143] = 0.015;
-  m_mean[galf_EE_A_100_217] = 0.110;
-  m_stddev[galf_EE_A_100_217] = 0.033;
-  m_mean[galf_EE_A_143] = 0.10;
-  m_stddev[galf_EE_A_143] = 0.02;
-  m_mean[galf_EE_A_143_217] = 0.240;
-  m_stddev[galf_EE_A_143_217] = 0.048;
-  m_mean[galf_EE_A_217] = 0.72;
-  m_stddev[galf_EE_A_217] = 0.14;
-  m_mean[galf_TE_A_100] = 0.140;
-  m_stddev[galf_TE_A_100] = 0.042;
-  m_mean[galf_TE_A_100_143] = 0.120;
-  m_stddev[galf_TE_A_100_143] = 0.036;
-  m_mean[galf_TE_A_100_217] = 0.30;
-  m_stddev[galf_TE_A_100_217] = 0.09;
-  m_mean[galf_TE_A_143] = 0.240;
-  m_stddev[galf_TE_A_143] = 0.072;
-  m_mean[galf_TE_A_143_217] = 0.60;
-  m_stddev[galf_TE_A_143_217] = 0.18;
-  m_mean[galf_TE_A_217] = 1.80;
-  m_stddev[galf_TE_A_217] = 0.54;
-#endif
-  m_mean[A_planck] = 1.0;
-  m_stddev[A_planck] = 0.0025;
+// Define Gaussian priors
+#include "TTTEEE+lowP_pbh_fixedLCDM-gauss.cc"
 
   /****************************/
   /*  FINISH PARAMETER ALLOC  */
@@ -373,7 +108,7 @@ void ClikPar::initialise_CLASS(int max_l, struct pbh_external* pbh_info) {
   // PBH DM
   default_params.add("Omega_pbh_ratio", 1.E-7);
 
-  /*** CONSTANT PARAMETERS ***/
+  /*** FREE/FIXED PARAMETERS ***/
 
   // LCDM variables set to best-fit TTTEEE+lowP (2015)
   default_params.add("omega_b", 0.022252);

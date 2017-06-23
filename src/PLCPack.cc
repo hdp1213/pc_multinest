@@ -38,21 +38,21 @@ PLCPack::~PLCPack() {
   delete m_clik_par;
 
   // Deallocate b-spline memory
-  delete m_pbh_info.hion.xknots;
-  delete m_pbh_info.hion.yknots;
-  delete m_pbh_info.hion.coeffs;
+  delete[] m_pbh_info.hion.xknots;
+  delete[] m_pbh_info.hion.yknots;
+  delete[] m_pbh_info.hion.coeffs;
 
-  delete m_pbh_info.excite.xknots;
-  delete m_pbh_info.excite.yknots;
-  delete m_pbh_info.excite.coeffs;
+  delete[] m_pbh_info.excite.xknots;
+  delete[] m_pbh_info.excite.yknots;
+  delete[] m_pbh_info.excite.coeffs;
 
-  delete m_pbh_info.heat.xknots;
-  delete m_pbh_info.heat.yknots;
-  delete m_pbh_info.heat.coeffs;
+  delete[] m_pbh_info.heat.xknots;
+  delete[] m_pbh_info.heat.yknots;
+  delete[] m_pbh_info.heat.coeffs;
 
   // Deallocate axes
-  delete m_pbh_info.z_deps;
-  delete m_pbh_info.masses;
+  delete[] m_pbh_info.z_deps;
+  delete[] m_pbh_info.masses;
 }
 
 
@@ -97,7 +97,7 @@ void PLCPack::read_pbh_files(std::string pbh_root) {
 }
 
 double PLCPack::calculate_extra_priors(double* Cube) const {
-  m_clik_par->calculate_extra_priors(Cube);
+  return m_clik_par->calculate_extra_priors(Cube);
 }
 
 void PLCPack::scale_Cube(double* Cube) {
@@ -108,25 +108,17 @@ void PLCPack::set_derived_params(double* Cube) {
   m_clik_par->set_derived_params(Cube);
 }
 
+// Throws std::exception on failure
 void PLCPack::run_CLASS(std::vector<double> class_params) {
-  try {
-    m_clik_par->get_CLASS()->updateParValues(class_params);
-  }
-  catch (std::exception const &e) {
-    throw e;
-  }
+  m_clik_par->get_CLASS()->updateParValues(class_params);
 }
 
+// Throws std::exception on failure
 void PLCPack::get_CLASS_spectra(std::vector<double>& cl_tt,
       std::vector<double>& cl_te, 
       std::vector<double>& cl_ee, 
       std::vector<double>& cl_bb) {
-  try {
-    m_clik_par->get_CLASS()->getCls(m_class_l_vec, cl_tt, cl_te, cl_ee, cl_bb);
-  }
-  catch (std::exception const &e) {
-    throw e;
-  }
+  m_clik_par->get_CLASS()->getCls(m_class_l_vec, cl_tt, cl_te, cl_ee, cl_bb);
 }
 
 void PLCPack::create_all_cl_and_pars(double* Cube,

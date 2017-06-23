@@ -66,7 +66,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
     std::cerr << "[ERROR] CLASS failed, throwing exception "
               << e.what()
               << std::endl;
-    //*
+    /*
     std::cout << "[INFO] LCDM parameters used at time were:\n"
               << "\tomega_b         : "
                   << Cube[ClikPar::omega_b] << '\n'
@@ -96,7 +96,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
     std::cerr << "[ERROR] Spectra extraction unsuccessful, CLASS threw "
               << e.what()
               << std::endl;
-    //*
+    /*
     std::cout << "[INFO] LCDM parameters used at time were:\n"
               << "\tomega_b         : "
                   << Cube[ClikPar::omega_b] << '\n'

@@ -14,7 +14,7 @@ WORK_DIR := $(PC_MULTINEST_DIR)/build
 CPPC := icc
 # turn off warnings using -w
 OPT_FLAGS := -O0 -qopenmp -fPIC# -march=native
-INC_FLAGS := -I$(PC_MULTINEST_DIR)/include -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include -I$(CFITSIO_DIR)/include
+INC_FLAGS := -I$(PC_MULTINEST_DIR)/include -I$(PC_MULTINEST_DIR)/params -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include -I$(CFITSIO_DIR)/include
 
 BATCH_PLC_FLAGS = -DHAVE_PYEMBED=1 -DHAVE_PYTHON_H=1 -DHAS_LAPACK -DLAPACK_CLIK -DNOHEALPIX -DCLIK_LENSING -D'CLIKSVNVERSION="6dc2a8cf3965 MAKEFILE"' -DCAMSPEC_V1
 BATCH_LIB_FLAGS = -L$(CFITSIO_DIR)/lib -L$(PLIK_DIR)/lib -L$(CLASS_DIR) -ldl -lintlc -limf -lsvml -liomp5 -lifport -lifcoremt -lpthread -lcfitsio -lclik -lclik_mkl -lclass
