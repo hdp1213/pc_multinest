@@ -91,15 +91,15 @@ int main(int argc, char* argv[]) {
 
   // High l full likelihood variables
 #ifdef LITE_HI_L
-  char* hi_l_clik_path = "/data/harryp/staging/plik_lite_v18_TTTEEE.clik/";
+  char* hi_l_clik_path = "/home/harry/plc_2.0/hi_l/plik_lite/plik_lite_v18_TTTEEE.clik/";
 #else
-  char* hi_l_clik_path = "/data/harryp/staging/plik_dx11dr2_HM_v18_TTTEEE.clik/";
+  char* hi_l_clik_path = "/home/harry/plc_2.0/hi_l/plik/plik_dx11dr2_HM_v18_TTTEEE.clik/";
 #endif
   ClikObject* hi_l_clik(0);
   std::vector<ClikPar::param_t> hi_l_nuis_enums;
 
   // Low l likelihood variables  
-  char* lo_l_clik_path = "/data/harryp/staging/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
+  char* lo_l_clik_path = "/home/harry/plc_2.0/low_l/bflike/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
   ClikObject* lo_l_clik(0);
   std::vector<ClikPar::param_t> lo_l_nuis_enums;
 
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
   PLCPack* plc_pack(0);
 
   // PBH variable
-  std::string pbh_file_root = "/data/harryp/class/pbh/pbh_bspline_";
+  std::string pbh_file_root = "/home/harry/class/pbh/pbh_bspline_";
 
   // Use the first command line argument as a non-default
   // output root

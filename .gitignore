@@ -1,7 +1,6 @@
 # Compiled source #
 ###################
 *.com
-*.class
 *.dll
 *.exe
 *.o
@@ -40,3 +39,9 @@ pc_propagate
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# My own ones #
+###############
+build/*
+output/*
+valgrind/*
