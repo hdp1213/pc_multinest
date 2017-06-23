@@ -25,10 +25,13 @@ public:
 #ifdef BAO_LIKE
   double calculate_BAO_likelihood() const; // uses CLASS
 #endif
-  double calculate_extra_priors(double* Cube) const;
+  double calculate_extra_likelihoods(double* Cube) const;
 
-  double* get_lower_bounds() const;
-  double* get_upper_bounds() const;
+  double calculate_flat_prior() const;
+
+  // Not const because non-const m_min and m_max
+  double* get_lower_bounds();
+  double* get_upper_bounds();
 
 
 private:

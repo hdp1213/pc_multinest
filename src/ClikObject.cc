@@ -33,7 +33,7 @@ ClikObject::ClikObject(char* clik_path) : m_clik_path(clik_path) {
   m_max_l = m_cl_max_ls[0];
 
   // Get number of nuisance parameters
-  m_param_amt = clik_get_extra_parameter_names(m_clik_id, &m_param_names, m_err);
+  m_nuis_param_amt = clik_get_extra_parameter_names(m_clik_id, &m_nuis_param_names, m_err);
   quitOnError(*m_err, __LINE__, stderr);
 
   // Determine size of cls_and_pars (cap) array
@@ -43,14 +43,14 @@ ClikObject::ClikObject(char* clik_path) : m_clik_path(clik_path) {
       m_cap_size += m_cl_max_ls[i] + 1; // +1 for l=0 case
     }
   }
-  m_cap_size += m_param_amt;
+  m_cap_size += m_nuis_param_amt;
 
   m_cl_and_pars = new double[m_cap_size];
 }
 
 ClikObject::~ClikObject() {
   clik_cleanup(&m_clik_id);
-  delete[] m_param_names;
+  delete[] m_nuis_param_names;
   delete[] m_cl_and_pars;
 }
 
@@ -66,14 +66,6 @@ int* ClikObject::get_cl_flags() {
   return m_cl_flags;
 }
 
-int ClikObject::get_param_amt() const {
-  return m_param_amt;
-}
-
-parname* ClikObject::get_param_names() const {
-  return m_param_names;
-}
-
 // void ClikObject::set_cl_and_pars(double* cl_and_pars) {
 //   m_cl_and_pars = cl_and_pars;
 // }
@@ -82,12 +74,12 @@ void ClikObject::set_nuisance_param_enums(std::vector<ClikPar::param_t>& nuisanc
   m_nuis_par_enums = nuisance_params;
 
   // Check if we have done enough initialising
-  if (m_nuis_par_enums.size() > m_param_amt) {
+  if (m_nuis_par_enums.size() > m_nuis_param_amt) {
     std::cerr << "[ERROR] More nuisance parameters given to ClikObject::set_nuisance_param_enums() than needed!"
               << std::endl;
     throw std::exception();
   }
-  else if (m_nuis_par_enums.size() < m_param_amt) {
+  else if (m_nuis_par_enums.size() < m_nuis_param_amt) {
     std::cerr << "[ERROR] Not enough nuisance parameters have been given to ClikObject::set_nuisance_param_enums()!"
               << std::endl;
     throw std::exception();
@@ -117,8 +109,8 @@ void ClikObject::create_cl_and_pars(double* Cube,
   }
 
   // Then add nuisance parameters
-  // Already know m_param_amt == m_nuis_par_enums.size()
-  for (int i = 0; i < m_param_amt; ++i) {
+  // Already know m_nuis_param_amt == m_nuis_par_enums.size()
+  for (int i = 0; i < m_nuis_param_amt; ++i) {
     ClikPar::param_t nuisance_param = m_nuis_par_enums[i];
     m_cl_and_pars[cap_ind] = Cube[nuisance_param];
     cap_ind++;
@@ -132,6 +124,21 @@ double ClikObject::get_likelihood() const {
   quitOnError(*m_err, __LINE__, stderr);
 
   return loglike;
+}
+
+std::ostream& operator<<(std::ostream& os, const ClikObject& clik_object) {
+  os << "This .clik file requires "
+     << clik_object.m_nuis_param_amt
+     << " nuisance parameters to be marginalised over:\n";
+
+  for (int i = 0; i < clik_object.m_nuis_param_amt; ++i) {
+    os << '\t'
+       << clik_object.m_nuis_param_names[i]
+       << std::endl;
+  }
+  os << std::endl;
+
+  return os;
 }
 
 // Returns various error codes if the validation is unsuccessful

@@ -106,8 +106,6 @@ int main(int argc, char* argv[]) {
   // Clik Pars variable
   ClikPar* clik_par = new ClikPar();
 
-  int param_amts;
-  parname* param_names;
   PLCPack* plc_pack(0);
 
   // PBH variable
@@ -233,17 +231,7 @@ int main(int argc, char* argv[]) {
   hi_l_clik->set_nuisance_param_enums(hi_l_nuis_enums);
 
   // Print out nuisance parameter names for the world to see
-  param_amts = hi_l_clik->get_param_amt();
-  param_names = hi_l_clik->get_param_names();
-
-  std::cout << "The high-l .clik file requires "
-            << param_amts
-            << " nuisance parameters to be marginalised over:\n";
-  for (int i = 0; i < param_amts; ++i) {
-    std::cout << '\t' << param_names[i] << std::endl;
-  }
-  std::cout << std::endl;
-
+  std::cout << *hi_l_clik;
 
   // Create new clik object for low l likelihood
   lo_l_clik = new ClikObject(lo_l_clik_path);
@@ -253,16 +241,7 @@ int main(int argc, char* argv[]) {
   lo_l_clik->set_nuisance_param_enums(lo_l_nuis_enums);
 
   // Print out nuisance parameter names for the world to see
-  param_amts = lo_l_clik->get_param_amt();
-  param_names = lo_l_clik->get_param_names();
-
-  std::cout << "The low-l .clik file requires "
-            << param_amts
-            << " nuisance parameters to be marginalised over:\n";
-  for (int i = 0; i < param_amts; ++i) {
-    std::cout << '\t' << param_names[i] << std::endl;
-  }
-  std::cout << std::endl;
+  std::cout << *lo_l_clik;
 
 
   // Package it all together

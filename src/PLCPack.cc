@@ -26,7 +26,7 @@ void print_bicubic_bspline(struct bspline_2d* spline) {
   std::cout << std::endl;
 }
 
-PLCPack::PLCPack() : m_largest_max_l(1), m_clik_par(0) {
+PLCPack::PLCPack() : m_largest_max_l(1), m_clik_par(NULL) {
   
 }
 
@@ -96,8 +96,8 @@ void PLCPack::read_pbh_files(std::string pbh_root) {
   read_bicubic_bspline(pbh_root, "heat.dat", &(m_pbh_info.heat));
 }
 
-double PLCPack::calculate_extra_priors(double* Cube) const {
-  return m_clik_par->calculate_extra_priors(Cube);
+double PLCPack::calculate_extra_likelihoods(double* Cube) const {
+  return m_clik_par->calculate_extra_likelihoods(Cube);
 }
 
 void PLCPack::scale_Cube(double* Cube) {
@@ -106,6 +106,10 @@ void PLCPack::scale_Cube(double* Cube) {
 
 void PLCPack::set_derived_params(double* Cube) {
   m_clik_par->set_derived_params(Cube);
+}
+
+double PLCPack::calculate_prior() const {
+  return m_clik_par->calculate_flat_prior();
 }
 
 // Throws std::exception on failure

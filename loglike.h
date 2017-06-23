@@ -142,7 +142,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
 #endif
 
   // Subtract any other priors for those parameters with them
-  lnew -= plc_pack->calculate_extra_priors(Cube);
+  lnew -= plc_pack->calculate_extra_likelihoods(Cube);
 
   /*
   std::cout << "[plc_class] Calculated log likelihood of "

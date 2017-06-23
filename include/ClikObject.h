@@ -17,8 +17,6 @@ public:
   int get_max_l() const;
   int get_cap_size() const;
   int* get_cl_flags();
-  int get_param_amt() const;
-  parname* get_param_names() const;
 
   // void set_cl_and_pars(double* cl_and_pars);
   void set_nuisance_param_enums(std::vector<ClikPar::param_t>& nuisance_params);
@@ -26,6 +24,8 @@ public:
         std::vector<std::vector<double> >& class_cls);
 
   double get_likelihood() const;
+
+  friend std::ostream& operator<<(std::ostream& os, const ClikObject& clik_object);
 
 
 private:
@@ -47,8 +47,8 @@ private:
   int m_cap_size; // Size of cl_and_pars array
   int m_cl_max_ls[CL_AMT];
   int m_cl_flags[CL_AMT];
-  int m_param_amt;
-  parname* m_param_names;
+  int m_nuis_param_amt;
+  parname* m_nuis_param_names;
   double* m_cl_and_pars;
 
   std::vector<ClikPar::param_t> m_nuis_par_enums;

@@ -22,10 +22,11 @@ public:
   void set_clik_params(ClikPar* clik_par);
   void initialise_CLASS();
 
-  // Higher level ClikPar methods
-  double calculate_extra_priors(double* Cube) const;
+  // Wrapper methods for ClikPar object
+  double calculate_extra_likelihoods(double* Cube) const;
   void scale_Cube(double* Cube);
   void set_derived_params(double* Cube);
+  double calculate_prior() const;
   
   // Higher level ClassEngine methods (through ClikPar)
   void run_CLASS(std::vector<double> class_params);

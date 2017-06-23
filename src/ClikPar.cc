@@ -175,6 +175,7 @@ void ClikPar::scale_Cube(double* Cube) {
 }
 
 // Set derived parameter values in Cube
+// Should be called before any likelihood functions are
 void ClikPar::set_derived_params(double* Cube) {
   // Non-standard CLASS routines
   Cube[H0] = m_class_engine->get_H0();
@@ -212,24 +213,24 @@ double ClikPar::calculate_BAO_likelihood() const {
   double MGS_Dv_rs = m_class_engine->get_Dv(MGS_z)/rs_fid;
 
   // Compute Gaussian likelihoods
-  loglike += pow(sixDF_Dv - sixDF_mean, 2.0) / (2.0 * pow(sixDF_stddev, 2.0));
-  loglike += pow(LOWZ_Dv_rs - LOWZ_mean, 2.0) / (2.0 * pow(LOWZ_stddev, 2.0));
-  loglike += pow(CMASS_Dv_rs - CMASS_mean, 2.0) / (2.0 * pow(CMASS_stddev, 2.0));
-  loglike += pow(MGS_Dv_rs - MGS_mean, 2.0) / (2.0 * pow(MGS_stddev, 2.0));
+  loglike += pow((sixDF_Dv - sixDF_mean)/sixDF_stddev, 2.0) / 2.0;
+  loglike += pow((LOWZ_Dv_rs - LOWZ_mean)/LOWZ_stddev, 2.0) / 2.0;
+  loglike += pow((CMASS_Dv_rs - CMASS_mean)/CMASS_stddev, 2.0) / 2.0;
+  loglike += pow((MGS_Dv_rs - MGS_mean)/MGS_stddev, 2.0) / 2.0;
 
   return loglike;
 }
 #endif
 
 // *** The returned loglike value must always be positive ***
-double ClikPar::calculate_extra_priors(double* Cube) const {
+double ClikPar::calculate_extra_likelihoods(double* Cube) const {
   double loglike = 0.0;
 
   // Calculate Gaussian priors
   for (int param = 0; param < TOTAL_PARAMS; ++param) {
     // Only use Gaussian priors for variables that are Gaussian
     if (m_has_gaussian_prior[param]) {
-      loglike += pow(Cube[param] - m_mean[param], 2.0) / (2.0 * pow(m_stddev[param], 2.0));
+      loglike += pow((Cube[param] - m_mean[param])/m_stddev[param], 2.0) / 2.0;
     }
   }
 
@@ -239,21 +240,36 @@ double ClikPar::calculate_extra_priors(double* Cube) const {
   double SZ_mean = 9.5;
   double SZ_stddev = 3.0;
 
-  loglike += pow(SZ_val - SZ_mean, 2.0) / (2.0 * pow(SZ_stddev, 2.0));
+  loglike += pow((SZ_val - SZ_mean)/SZ_stddev, 2.0) / 2.0;
 #endif
 
   // Calculate flat [20,100] prior on H0
-  double H0 = m_class_engine->get_H0();
   double H0_min = 20.0, H0_max = 100.0;
 
-  double delta = 0.0;
-  if (H0 < H0_min or H0 > H0_max) {
-    delta = 1E90;
+  if (Cube[H0] < H0_min or Cube[H0] > H0_max) {
+    return 1E90;
   }
-
-  loglike += delta;
 
   // Calculate any other priors needed ...
 
   return loglike;
+}
+
+double ClikPar::calculate_flat_prior() const {
+  double res = 1.0;
+
+  // Loop over free parameters (fixed parameters do not contribute)
+  for (int param = 0; param < FREE_PARAMS; ++param) {
+    res *= (m_max[param] - m_min[param]);
+  }
+
+  return 1.0/res;
+}
+
+double* ClikPar::get_lower_bounds() {
+  return m_min;
+}
+
+double* ClikPar::get_upper_bounds() {
+  return m_max;
 }
