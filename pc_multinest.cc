@@ -90,16 +90,20 @@ int main(int argc, char* argv[]) {
                           // to pass
 
   // High l full likelihood variables
+  char hi_l_clik_path[255];
+  strcpy(hi_l_clik_path, PLIK_HI_L_FILE_DIR);
 #ifdef LITE_HI_L
-  char* hi_l_clik_path = "/home/harry/plc_2.0/hi_l/plik_lite/plik_lite_v18_TTTEEE.clik/";
+  strcat(hi_l_clik_path, "/plik_lite_v18_TTTEEE.clik/");
 #else
-  char* hi_l_clik_path = "/home/harry/plc_2.0/hi_l/plik/plik_dx11dr2_HM_v18_TTTEEE.clik/";
+  strcat(hi_l_clik_path, "/plik_dx11dr2_HM_v18_TTTEEE.clik/");
 #endif
   ClikObject* hi_l_clik(0);
   std::vector<ClikPar::param_t> hi_l_nuis_enums;
 
   // Low l likelihood variables  
-  char* lo_l_clik_path = "/home/harry/plc_2.0/low_l/bflike/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
+  char lo_l_clik_path[255];
+  strcpy(lo_l_clik_path, PLIK_LOW_L_FILE_DIR);
+  strcat(lo_l_clik_path, "/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/");
   ClikObject* lo_l_clik(0);
   std::vector<ClikPar::param_t> lo_l_nuis_enums;
 
@@ -109,7 +113,7 @@ int main(int argc, char* argv[]) {
   PLCPack* plc_pack(0);
 
   // PBH variable
-  std::string pbh_file_root = "/home/harry/class/pbh/pbh_bspline_";
+  std::string pbh_file_root = std::string(CLASS_PBH_FILE_DIR) + "/pbh_bspline_";
 
   // Use the first command line argument as a non-default
   // output root
@@ -122,6 +126,8 @@ int main(int argc, char* argv[]) {
   }
 
   std::cout << "Printing results to " << root << std::endl;
+
+  std::cout << "Opening " << hi_l_clik_path << std::endl;
 
   // Create new clik object for high l likelihood
   hi_l_clik = new ClikObject(hi_l_clik_path);
@@ -232,6 +238,8 @@ int main(int argc, char* argv[]) {
 
   // Print out nuisance parameter names for the world to see
   std::cout << *hi_l_clik;
+
+  std::cout << "Opening " << lo_l_clik_path << std::endl;
 
   // Create new clik object for low l likelihood
   lo_l_clik = new ClikObject(lo_l_clik_path);

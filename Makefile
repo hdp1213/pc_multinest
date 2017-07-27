@@ -1,6 +1,11 @@
 # Locations of external dependencies
 ROOT_DIR := /home/harry
 
+# PLIK_HI_L_FILE_DIR := $(ROOT_DIR)/plc_2.0/hi_l/plik
+PLIK_HI_L_FILE_DIR := $(ROOT_DIR)/plc_2.0/hi_l/plik_lite
+PLIK_LOW_L_FILE_DIR := $(ROOT_DIR)/plc_2.0/low_l/bflike
+CLASS_PBH_FILE_DIR := $(ROOT_DIR)/class/pbh
+
 PLIK_DIR := $(ROOT_DIR)/plc-2.0
 CLASS_DIR := $(ROOT_DIR)/class
 MULTINEST_DIR := $(ROOT_DIR)/MultiNest_v3.10
@@ -13,7 +18,7 @@ WORK_DIR := $(PC_MULTINEST_DIR)/build
 # Flags for the C++ compiler
 CPPC := icc
 # turn off warnings using -w
-OPT_FLAGS := -O0 -qopenmp -fPIC# -march=native
+OPT_FLAGS := -O3 -qopenmp -fPIC# -march=native
 INC_FLAGS := -I$(PC_MULTINEST_DIR)/include -I$(PC_MULTINEST_DIR)/params -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include -I$(CFITSIO_DIR)/include
 
 BATCH_PLC_FLAGS = -DHAVE_PYEMBED=1 -DHAVE_PYTHON_H=1 -DHAS_LAPACK -DLAPACK_CLIK -DNOHEALPIX -DCLIK_LENSING -D'CLIKSVNVERSION="6dc2a8cf3965 MAKEFILE"' -DCAMSPEC_V1
@@ -23,7 +28,7 @@ BATCH_LIB_FLAGS = -L$(CFITSIO_DIR)/lib -L$(PLIK_DIR)/lib -L$(CLASS_DIR) -ldl -li
 CLASS_INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include
 BATCH_CLASS_FLAGS = -Wl,-rpath,$(CLASS_DIR)
 
-PC_MULTINEST_DEFS = -Wall -g -D LITE_HI_L #-D DBUG #-D BAO_LIKE
+PC_MULTINEST_DEFS = -Wall -D LITE_HI_L #-D DBUG #-D BAO_LIKE
 
 # Flags for the Fortran compiler which compiles the .o files into the final binary when adding MultiNest
 FC := ifort
@@ -48,6 +53,8 @@ CLASS_CPP = ClassEngine.o Engine.o
 
 
 ########################################################################
+
+PC_MULTINEST_FILES = -D'PLIK_HI_L_FILE_DIR="$(PLIK_HI_L_FILE_DIR)"' -D'PLIK_LOW_L_FILE_DIR="$(PLIK_LOW_L_FILE_DIR)"' -D'CLASS_PBH_FILE_DIR="$(CLASS_PBH_FILE_DIR)"'
 
 CLASS_CPP_OBJS = $(addprefix $(CLASS_DIR)/cpp/, $(CLASS_CPP))
 
@@ -79,7 +86,7 @@ ClikPar.o: ClassEngine.o
 # Compilation commands
 
 %.o: %.cc .base
-	cd $(WORK_DIR); $(CPPC) -c -o $*.o $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS)
+	cd $(WORK_DIR); $(CPPC) -c -o $*.o $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS)
 
 # MultiNest-compatible program 
 # Must link with gfortran!!!
@@ -88,7 +95,7 @@ pc_multinest: pc_multinest.o $(CLASS_CPP_OBJS) $(PC_OBJS)
 	rm -rf output/*
 
 pc_multinest.o: ../pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC) .base
-	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
+	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 # MultiNest-compatible program compiled with MPI
 pc_multinest_mpi: pc_multinest_mpi.o $(CLASS_CPP_OBJS) $(PC_OBJS)
@@ -96,7 +103,7 @@ pc_multinest_mpi: pc_multinest_mpi.o $(CLASS_CPP_OBJS) $(PC_OBJS)
 	rm -rf output/*
 
 pc_multinest_mpi.o: ../pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC) .base
-	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
+	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 # Speedtest program
 pc_speedtest: pc_speedtest.o $(PC_OBJS)
@@ -104,7 +111,7 @@ pc_speedtest: pc_speedtest.o $(PC_OBJS)
 	rm -rf output/*
 
 pc_speedtest.o: ../pc_speedtest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC) .base
-	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
+	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 # Run CLASS quickly to calculate any derived parameters you want
 pc_propagate: pc_propagate.o $(CLASS_CPP_OBJS)
@@ -117,19 +124,19 @@ test_param: test_param.o Param.o
 	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^))
 
 test_param.o: ../tests/test_param.cc .base
-	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(PC_MULTINEST_DEFS) -I$(PC_MULTINEST_DIR)/include
+	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) -I$(PC_MULTINEST_DIR)/include
 
 test_classparam: test_classparam.o $(CLASS_CPP_OBJS) $(PC_OBJS)
 	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 test_classparam.o: ../tests/test_classparam.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC) .base
-	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
+	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 test_class: test_class.o $(CLASS_CPP_OBJS) $(PC_OBJS)
 	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 test_class.o: ../tests/test_class.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC) .base
-	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
+	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 clean:
 	rm -rf build/* output/*
