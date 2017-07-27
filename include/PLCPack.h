@@ -23,9 +23,9 @@ public:
   void initialise_CLASS();
 
   // Wrapper methods for ClikPar object
-  double calculate_extra_likelihoods(double* Cube) const;
-  void scale_Cube(double* Cube);
-  void set_derived_params(double* Cube);
+  double calculate_extra_likelihoods(double* in_params) const;
+  void scale_params(double* in_params);
+  void set_derived_params(double* all_params);
   double calculate_prior() const;
   
   // Higher level ClassEngine methods (through ClikPar)

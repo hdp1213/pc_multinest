@@ -39,7 +39,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   plc_pack = static_cast<PLCPack*>(context);
 
   // Scale the cube using uniform priors defined in ClikPar::ClikPar()
-  plc_pack->scale_Cube(Cube);
+  plc_pack->scale_params(Cube);
 
   /******************************/
   /*           CLASS            */
@@ -47,8 +47,8 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
 
   // MultiNest parameters used in CLASS
   // Must be pushed in the same order as initialised in ClikPar::initialise_CLASS()
-  lcdm_params.push_back(Cube[ClikPar::pbh_frac]);
-  /*
+  // lcdm_params.push_back(Cube[ClikPar::pbh_frac]);
+  //*
   lcdm_params.push_back(Cube[ClikPar::omega_b]);
   lcdm_params.push_back(Cube[ClikPar::omega_cdm]);
   lcdm_params.push_back(Cube[ClikPar::hundredxtheta_s]);

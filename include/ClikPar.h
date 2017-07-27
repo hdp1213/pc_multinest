@@ -11,14 +11,14 @@ public:
   ~ClikPar();
 
 // Include commands for various parameter sets
-#include "TTTEEE+lowP_pbh_fixedLCDM.h"
+// #include "TTTEEE+lowP_pbh_fixedLCDM.h"
 // #include "TTTEEE+lowP_pbh.h"
-// #include "TTTEEE+lowP.h"
+#include "TTTEEE+lowP.h"
 
   // CLASS functions
   void initialise_CLASS(int max_l, struct pbh_external* pbh_info);
-  void scale_Cube(double* Cube);
-  void set_derived_params(double* Cube);
+  void scale_params(double* in_params);
+  void set_derived_params(double* all_params);
   ClassEngine* get_CLASS();
 
   // Likelihood functions

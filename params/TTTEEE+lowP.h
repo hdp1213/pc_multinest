@@ -110,13 +110,12 @@ enum param_t {
   calib_217P,
   A_pol,
   FIXED_PARAMS,
-  // Derived parameters (LCDM)
-  H0 = FIXED_PARAMS,
 #else // remove all nuisance params for LITE_HI_L except A_planck
   FREE_PARAMS,
-  // Derived parameters (LCDM)
-  H0 = FREE_PARAMS,
+  FIXED_PARAMS = FREE_PARAMS,
 #endif
+  // Derived parameters (LCDM)
+  H0 = FIXED_PARAMS,
   Omega_b,
   Omega_cdm,
   Omega_L,

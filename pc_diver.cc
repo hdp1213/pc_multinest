@@ -245,10 +245,10 @@ int main(int argc, char** argv)
   // Read in parameters and set Diver settings
   clik_par = new ClikPar();
 
-  settings.nPar = clik_par->get_free_param_amt();
+  settings.nPar = ClikPar::FREE_PARAMS;
   settings.lowerbounds = clik_par->get_lowerbounds();
   settings.upperbounds = clik_par->get_upperbounds();
-  settings.nDerived = clik_par->get_derived_param_amt();
+  settings.nDerived = (ClikPar::TOTAL_PARAMS - ClikPar::FIXED_PARAMS);
   settings.NP = 10*settings.nPar;
 
 

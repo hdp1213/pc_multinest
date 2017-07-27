@@ -23,7 +23,7 @@ BATCH_LIB_FLAGS = -L$(CFITSIO_DIR)/lib -L$(PLIK_DIR)/lib -L$(CLASS_DIR) -ldl -li
 CLASS_INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include
 BATCH_CLASS_FLAGS = -Wl,-rpath,$(CLASS_DIR)
 
-PC_MULTINEST_DEFS = -Wall -g #-D DBUG #-D BAO_LIKE
+PC_MULTINEST_DEFS = -Wall -g -D LITE_HI_L #-D DBUG #-D BAO_LIKE
 
 # Flags for the Fortran compiler which compiles the .o files into the final binary when adding MultiNest
 FC := ifort

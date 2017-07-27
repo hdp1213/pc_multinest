@@ -20,7 +20,8 @@ ClikPar::ClikPar() : m_class_engine(0) {
   }
 
 // Define flat priors
-#include "TTTEEE+lowP_pbh_fixedLCDM-flat.cc"
+// #include "TTTEEE+lowP_pbh_fixedLCDM-flat.cc"
+#include "TTTEEE+lowP-flat.cc"
 
   // Do checks on min and max values for free parameters
   for (int param = 0; param < FREE_PARAMS; ++param) {
@@ -56,7 +57,8 @@ ClikPar::ClikPar() : m_class_engine(0) {
   }
 
 // Define Gaussian priors
-#include "TTTEEE+lowP_pbh_fixedLCDM-gauss.cc"
+// #include "TTTEEE+lowP_pbh_fixedLCDM-gauss.cc"
+#include "TTTEEE+lowP-gauss.cc"
 
   /****************************/
   /*  FINISH PARAMETER ALLOC  */
@@ -106,7 +108,7 @@ void ClikPar::initialise_CLASS(int max_l, struct pbh_external* pbh_info) {
   /*** FREE PARAMETERS ***/
 
   // PBH DM
-  default_params.add("Omega_pbh_ratio", 1.E-7);
+  // default_params.add("Omega_pbh_ratio", 1.E-7);
 
   /*** FREE/FIXED PARAMETERS ***/
 
@@ -119,10 +121,14 @@ void ClikPar::initialise_CLASS(int max_l, struct pbh_external* pbh_info) {
   default_params.add("n_s", 0.96475);
 
   // PBH DM
+  default_params.add("pbh_mass_dist", "pbh_none");
+  default_params.add("read pbh splines", false);
+  /*
   default_params.add("pbh_mass_dist", "pbh_delta");
   default_params.add("pbh_mass_mean", 1.E6);
   // default_params.add("pbh_mass_width", 1.E1);
   default_params.add("read pbh splines", false); // very important!!
+  */
 
   // Neutrino values
   default_params.add("N_ur", 2.0328);
@@ -154,7 +160,7 @@ void ClikPar::initialise_CLASS(int max_l, struct pbh_external* pbh_info) {
 }
 
 // Set free, fixed and derived parameter values
-void ClikPar::scale_Cube(double* Cube) {
+void ClikPar::scale_params(double* in_params) {
   // Function to transform variable appropriately
   double (*func)(double);
 
@@ -162,34 +168,34 @@ void ClikPar::scale_Cube(double* Cube) {
     func = m_transform[param];
 
     if (param < FREE_PARAMS) { // free parameter
-      Cube[param] = func(m_min[param] + (m_max[param] - m_min[param]) * Cube[param]);
+      in_params[param] = func(m_min[param] + (m_max[param] - m_min[param]) * in_params[param]);
     }
     else if (param < FIXED_PARAMS) { // fixed parameter
-      Cube[param] = func(m_min[param]);
+      in_params[param] = func(m_min[param]);
     }
     else { // derived parameter
       // Must be set to something in case CLASS fails
-      Cube[param] = func(m_min[param]);
+      in_params[param] = -9999.0;
     }
   }
 }
 
-// Set derived parameter values in Cube
+// Set derived parameter values in all_params
 // Should be called before any likelihood functions are
-void ClikPar::set_derived_params(double* Cube) {
+void ClikPar::set_derived_params(double* all_params) {
   // Non-standard CLASS routines
-  Cube[H0] = m_class_engine->get_H0();
-  Cube[Omega_b] = m_class_engine->get_Omega_b();
-  Cube[Omega_cdm] = m_class_engine->get_Omega_cdm();
-  Cube[Omega_L] = m_class_engine->get_Omega_L();
-  Cube[Omega_g] = m_class_engine->get_Omega_g();
-  Cube[sigma8] = m_class_engine->get_sigma8();
-  Cube[age] = m_class_engine->get_age();
-  Cube[conf_age] = m_class_engine->get_conf_age();
+  all_params[H0] = m_class_engine->get_H0();
+  all_params[Omega_b] = m_class_engine->get_Omega_b();
+  all_params[Omega_cdm] = m_class_engine->get_Omega_cdm();
+  all_params[Omega_L] = m_class_engine->get_Omega_L();
+  all_params[Omega_g] = m_class_engine->get_Omega_g();
+  all_params[sigma8] = m_class_engine->get_sigma8();
+  all_params[age] = m_class_engine->get_age();
+  all_params[conf_age] = m_class_engine->get_conf_age();
 
   // Standard CLASS routines
-  Cube[z_drag] = m_class_engine->z_drag();
-  Cube[rs_drag] = m_class_engine->rs_drag();
+  all_params[z_drag] = m_class_engine->z_drag();
+  all_params[rs_drag] = m_class_engine->rs_drag();
 }
 
 ClassEngine* ClikPar::get_CLASS() {
@@ -223,20 +229,20 @@ double ClikPar::calculate_BAO_likelihood() const {
 #endif
 
 // *** The returned loglike value must always be positive ***
-double ClikPar::calculate_extra_likelihoods(double* Cube) const {
+double ClikPar::calculate_extra_likelihoods(double* in_params) const {
   double loglike = 0.0;
 
   // Calculate Gaussian priors
   for (int param = 0; param < TOTAL_PARAMS; ++param) {
     // Only use Gaussian priors for variables that are Gaussian
     if (m_has_gaussian_prior[param]) {
-      loglike += pow((Cube[param] - m_mean[param])/m_stddev[param], 2.0) / 2.0;
+      loglike += pow((in_params[param] - m_mean[param])/m_stddev[param], 2.0) / 2.0;
     }
   }
 
   // Calculate SZ degeneracy prior
 #ifndef LITE_HI_L
-  double SZ_val = Cube[ksz_norm] + 1.6 * Cube[A_sz];
+  double SZ_val = in_params[ksz_norm] + 1.6 * in_params[A_sz];
   double SZ_mean = 9.5;
   double SZ_stddev = 3.0;
 
@@ -246,7 +252,7 @@ double ClikPar::calculate_extra_likelihoods(double* Cube) const {
   // Calculate flat [20,100] prior on H0
   double H0_min = 20.0, H0_max = 100.0;
 
-  if (Cube[H0] < H0_min or Cube[H0] > H0_max) {
+  if (in_params[H0] < H0_min or in_params[H0] > H0_max) {
     return 1E90;
   }
 

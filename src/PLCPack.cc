@@ -96,16 +96,16 @@ void PLCPack::read_pbh_files(std::string pbh_root) {
   read_bicubic_bspline(pbh_root, "heat.dat", &(m_pbh_info.heat));
 }
 
-double PLCPack::calculate_extra_likelihoods(double* Cube) const {
-  return m_clik_par->calculate_extra_likelihoods(Cube);
+double PLCPack::calculate_extra_likelihoods(double* in_params) const {
+  return m_clik_par->calculate_extra_likelihoods(in_params);
 }
 
-void PLCPack::scale_Cube(double* Cube) {
-  m_clik_par->scale_Cube(Cube);
+void PLCPack::scale_params(double* in_params) {
+  m_clik_par->scale_params(in_params);
 }
 
-void PLCPack::set_derived_params(double* Cube) {
-  m_clik_par->set_derived_params(Cube);
+void PLCPack::set_derived_params(double* all_params) {
+  m_clik_par->set_derived_params(all_params);
 }
 
 double PLCPack::calculate_prior() const {
