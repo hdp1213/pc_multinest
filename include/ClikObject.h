@@ -15,12 +15,11 @@ public:
   ~ClikObject();
 
   int get_max_l() const;
-  int get_cap_size() const;
-  int* get_cl_flags();
 
   // void set_cl_and_pars(double* cl_and_pars);
   void set_nuisance_param_enums(std::vector<ClikPar::param_t>& nuisance_params);
-  void create_cl_and_pars(double* Cube,
+  void create_cl_and_pars(double* free_params,
+        double* fixed_params,
         std::vector<std::vector<double> >& class_cls);
 
   double get_likelihood() const;
@@ -51,7 +50,8 @@ private:
   parname* m_nuis_param_names;
   double* m_cl_and_pars;
 
-  std::vector<ClikPar::param_t> m_nuis_par_enums;
+  std::vector<int> m_nuis_pars;
+  std::vector<bool> m_nuis_par_is_free;
 
 };
 

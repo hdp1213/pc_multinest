@@ -58,35 +58,44 @@ int ClikObject::get_max_l() const {
   return m_max_l;
 }
 
-int ClikObject::get_cap_size() const {
-  return m_cap_size;
-}
-
-int* ClikObject::get_cl_flags() {
-  return m_cl_flags;
-}
-
-// void ClikObject::set_cl_and_pars(double* cl_and_pars) {
-//   m_cl_and_pars = cl_and_pars;
-// }
-
 void ClikObject::set_nuisance_param_enums(std::vector<ClikPar::param_t>& nuisance_params) {
-  m_nuis_par_enums = nuisance_params;
-
   // Check if we have done enough initialising
-  if (m_nuis_par_enums.size() > m_nuis_param_amt) {
-    std::cerr << "[ERROR] More nuisance parameters given to ClikObject::set_nuisance_param_enums() than needed!"
+  if (nuisance_params.size() > m_nuis_param_amt) {
+    std::cerr << "[ERROR] More nuisance parameters given to "
+              << "ClikObject::set_nuisance_param_enums() than needed!"
               << std::endl;
     throw std::exception();
   }
-  else if (m_nuis_par_enums.size() < m_nuis_param_amt) {
-    std::cerr << "[ERROR] Not enough nuisance parameters have been given to ClikObject::set_nuisance_param_enums()!"
+  else if (nuisance_params.size() < m_nuis_param_amt) {
+    std::cerr << "[ERROR] Not enough nuisance parameters have been "
+              << "given to ClikObject::set_nuisance_param_enums()!"
               << std::endl;
     throw std::exception();
+  }
+
+  // Allocate enums into free or fixed vectors
+  for (std::vector<ClikPar::param_t>::iterator param_it = nuisance_params.begin(); param_it != nuisance_params.end(); ++param_it) {
+    if (*param_it < ClikPar::UP_TO_FREE_PARAMS) {
+      m_nuis_pars.push_back(static_cast<int>(*param_it));
+      m_nuis_par_is_free.push_back(true);
+    }
+
+    else if (*param_it < ClikPar::UP_TO_FIXED_PARAMS) {
+      m_nuis_pars.push_back(static_cast<int>(*param_it - ClikPar::UP_TO_FIXED_PARAMS));
+      m_nuis_par_is_free.push_back(false);
+    }
+
+    else {
+      std::cerr << "[ERROR] Cannot give a derived nuisance parameter "
+                << "to ClikObject::set_nuisance_param_enums()!"
+                << std::endl;
+      throw std::exception();
+    }
   }
 }
 
-void ClikObject::create_cl_and_pars(double* Cube,
+void ClikObject::create_cl_and_pars(double* free_params,
+      double* fixed_params,
       std::vector<std::vector<double> >& class_cls) {
   // Add spectra from CLASS
   int cap_ind = 0;
@@ -108,11 +117,20 @@ void ClikObject::create_cl_and_pars(double* Cube,
     }
   }
 
-  // Then add nuisance parameters
-  // Already know m_nuis_param_amt == m_nuis_par_enums.size()
-  for (int i = 0; i < m_nuis_param_amt; ++i) {
-    ClikPar::param_t nuisance_param = m_nuis_par_enums[i];
-    m_cl_and_pars[cap_ind] = Cube[nuisance_param];
+  // Then add nuisance parameters at the end
+  // Nuisance parameters need to be stored in the same order they appear
+  //  in the set_nuisance_param_enums() input vector
+  for (unsigned i = 0; i < m_nuis_pars.size(); ++i) {
+    int param = m_nuis_pars[i];
+
+    if (m_nuis_par_is_free[i]) {
+      m_cl_and_pars[cap_ind] = free_params[param];
+    }
+
+    else {
+      m_cl_and_pars[cap_ind] = fixed_params[param];
+    }
+
     cap_ind++;
   }
 }

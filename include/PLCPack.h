@@ -24,18 +24,18 @@ public:
 
   // Wrapper methods for ClikPar object
   double calculate_extra_likelihoods(double* in_params) const;
-  void scale_params(double* in_params);
+  void scale_free_params(double* in_params);
   void set_derived_params(double* all_params);
   double calculate_prior() const;
-  
-  // Higher level ClassEngine methods (through ClikPar)
-  void run_CLASS(std::vector<double> class_params);
-  void get_CLASS_spectra(std::vector<double>& cltt, 
-      std::vector<double>& clte, 
-      std::vector<double>& clee, 
-      std::vector<double>& clbb);
 
-  void create_all_cl_and_pars(double* Cube,
+  // CLASS wrapper methods for ClikPar object
+  void run_CLASS(double* free_params);
+  void get_CLASS_spectra(std::vector<double>& cl_tt,
+      std::vector<double>& cl_te,
+      std::vector<double>& cl_ee,
+      std::vector<double>& cl_bb);
+
+  void create_all_cl_and_pars(double* free_params,
       std::vector<std::vector<double> >& class_cls);
 
   // Likelihood functions

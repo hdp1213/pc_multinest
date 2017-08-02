@@ -1,3 +1,5 @@
+#ifndef PARAM_SET
+#define PARAM_SET 0
 // This enum follows Planck ordering (to a degree)
 enum param_t {
   // Free parameters (CLASS)
@@ -22,17 +24,18 @@ enum param_t {
   gal545_A_143,
   gal545_A_143_217,
   gal545_A_217,
-  FREE_PARAMS,
-  // Fixed parameters (PLC TT nuisance)
-  cib_index = FREE_PARAMS,
-  FIXED_PARAMS,
-  // Derived parameters (LCDM)
-  H0 = FIXED_PARAMS,
-#else // remove all nuisance params for LITE_HI_L except A_planck
-  FREE_PARAMS,
-  // Derived parameters (LCDM)
-  H0 = FREE_PARAMS,
 #endif
+  UP_TO_FREE_PARAMS,
+#ifndef LITE_HI_L
+  // Fixed parameters (PLC TT nuisance)
+  cib_index = UP_TO_FREE_PARAMS,
+  UP_TO_FIXED_PARAMS,
+#else // remove all nuisance params for LITE_HI_L except A_planck
+  // Derived parameters (LCDM)
+  UP_TO_FIXED_PARAMS = UP_TO_FREE_PARAMS,
+#endif
+  // Derived parameters (LCDM)
+  H0 = UP_TO_FIXED_PARAMS,
   Omega_b,
   Omega_cdm,
   Omega_L,
@@ -43,5 +46,10 @@ enum param_t {
   z_drag,
   rs_drag,
   // Final total number of parameters
-  TOTAL_PARAMS
+  TOTAL_PARAM_AMT,
+  // Summary constants
+  FREE_PARAM_AMT = UP_TO_FREE_PARAMS,
+  FIXED_PARAM_AMT = UP_TO_FIXED_PARAMS - UP_TO_FREE_PARAMS,
+  DERIVED_PARAM_AMT = TOTAL_PARAM_AMT - UP_TO_FIXED_PARAMS
 };
+#endif

@@ -31,7 +31,7 @@ PLCPack::PLCPack() : m_largest_max_l(1), m_clik_par(NULL) {
 }
 
 PLCPack::~PLCPack() {
-  for (int i = 0; i < m_clik_objects.size(); ++i) {
+  for (unsigned i = 0; i < m_clik_objects.size(); ++i) {
     delete m_clik_objects[i];
   }
 
@@ -100,8 +100,8 @@ double PLCPack::calculate_extra_likelihoods(double* in_params) const {
   return m_clik_par->calculate_extra_likelihoods(in_params);
 }
 
-void PLCPack::scale_params(double* in_params) {
-  m_clik_par->scale_params(in_params);
+void PLCPack::scale_free_params(double* in_params) {
+  m_clik_par->scale_free_params(in_params);
 }
 
 void PLCPack::set_derived_params(double* all_params) {
@@ -113,8 +113,8 @@ double PLCPack::calculate_prior() const {
 }
 
 // Throws std::exception on failure
-void PLCPack::run_CLASS(std::vector<double> class_params) {
-  m_clik_par->get_CLASS()->updateParValues(class_params);
+void PLCPack::run_CLASS(double* free_params) {
+  m_clik_par->run_CLASS(free_params);
 }
 
 // Throws std::exception on failure
@@ -122,20 +122,20 @@ void PLCPack::get_CLASS_spectra(std::vector<double>& cl_tt,
       std::vector<double>& cl_te, 
       std::vector<double>& cl_ee, 
       std::vector<double>& cl_bb) {
-  m_clik_par->get_CLASS()->getCls(m_class_l_vec, cl_tt, cl_te, cl_ee, cl_bb);
+  m_clik_par->get_CLASS_spectra(m_class_l_vec, cl_tt, cl_te, cl_ee, cl_bb);
 }
 
-void PLCPack::create_all_cl_and_pars(double* Cube,
+void PLCPack::create_all_cl_and_pars(double* free_params,
       std::vector<std::vector<double> >& class_cls) {
-  for (int i = 0; i < m_clik_objects.size(); ++i) {
-    m_clik_objects[i]->create_cl_and_pars(Cube, class_cls);
+  for (unsigned i = 0; i < m_clik_objects.size(); ++i) {
+    m_clik_objects[i]->create_cl_and_pars(free_params, m_clik_par->get_fixed_params(), class_cls);
   }
 }
 
 double PLCPack::calculate_PLC_likelihood() const {
   double loglike = 0.0;
 
-  for (int i = 0; i < m_clik_objects.size(); ++i) {
+  for (unsigned i = 0; i < m_clik_objects.size(); ++i) {
     loglike += m_clik_objects[i]->get_likelihood();
   }
 

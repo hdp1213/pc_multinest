@@ -1,6 +1,8 @@
 #ifndef LOGLIKE_H
 #define LOGLIKE_H
 
+// void pc_loglike(double *input_params, int &n_params)
+
 /***********************/
 /*      MultiNest      */
 /***********************/
@@ -39,26 +41,14 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   plc_pack = static_cast<PLCPack*>(context);
 
   // Scale the cube using uniform priors defined in ClikPar::ClikPar()
-  plc_pack->scale_params(Cube);
+  plc_pack->scale_free_params(Cube);
 
   /******************************/
   /*           CLASS            */
   /******************************/
 
-  // MultiNest parameters used in CLASS
-  // Must be pushed in the same order as initialised in ClikPar::initialise_CLASS()
-  // lcdm_params.push_back(Cube[ClikPar::pbh_frac]);
-  //*
-  lcdm_params.push_back(Cube[ClikPar::omega_b]);
-  lcdm_params.push_back(Cube[ClikPar::omega_cdm]);
-  lcdm_params.push_back(Cube[ClikPar::hundredxtheta_s]);
-  lcdm_params.push_back(Cube[ClikPar::tau_reio]);
-  lcdm_params.push_back(Cube[ClikPar::ln10_10_A_s]);
-  lcdm_params.push_back(Cube[ClikPar::n_s]); // k_0 = 0.05 Mpc^-1 by default
-  //*/
-
   try {
-    plc_pack->run_CLASS(lcdm_params);
+    plc_pack->run_CLASS(Cube);
   }
   // CLASS has failed, set loglike to zero and return
   catch (std::exception const &e) {

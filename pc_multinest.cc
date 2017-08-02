@@ -36,16 +36,16 @@ int main(int argc, char* argv[]) {
   int mmodal = 0;         // do mode separation?
   int ceff = 1;           // run in constant efficiency mode?
                           // Bad for evidence calculations
-  int nlive = 1000;       // number of live points
+  int nlive = 500;        // number of live points
   double efr = 0.8;       // set the required efficiency. 0.8
                           // for parameter estimation, 0.3 for
                           // evidence
   double tol = 1E-1;      // tol, defines the stopping criteria
                           // 0.5 should give enough accuracy
-  int ndims = ClikPar::FREE_PARAMS;
+  int ndims = ClikPar::FREE_PARAM_AMT;
                           // dimensionality (no. of free
                           // parameters)
-  int nPar = ClikPar::TOTAL_PARAMS;
+  int nPar = ClikPar::TOTAL_PARAM_AMT;
                           // total no. of parameters including
                           // free & derived parameters
   int nClsPar = 0;        // no. of parameters to do mode
@@ -309,18 +309,18 @@ void dumper(int &nSamples, int &nlive, int &nPar, double **physLive, double **po
   // the posterior distribution
   // postdist will have nPar parameters in the first nPar columns & loglike value & the posterior probability in the last two columns
   
-  int i, j;
+  // int i, j;
   
-  double postdist[nSamples][nPar + 2];
-  for( i = 0; i < nPar + 2; i++ )
-    for( j = 0; j < nSamples; j++ )
-      postdist[j][i] = posterior[0][i * nSamples + j];
+  // double postdist[nSamples][nPar + 2];
+  // for( i = 0; i < nPar + 2; i++ )
+  //   for( j = 0; j < nSamples; j++ )
+  //     postdist[j][i] = posterior[0][i * nSamples + j];
   
-  // last set of live points
-  // pLivePts will have nPar parameters in the first nPar columns & loglike value in the last column
+  // // last set of live points
+  // // pLivePts will have nPar parameters in the first nPar columns & loglike value in the last column
   
-  double pLivePts[nlive][nPar + 1];
-  for( i = 0; i < nPar + 1; i++ )
-    for( j = 0; j < nlive; j++ )
-      pLivePts[j][i] = physLive[0][i * nlive + j];
+  // double pLivePts[nlive][nPar + 1];
+  // for( i = 0; i < nPar + 1; i++ )
+  //   for( j = 0; j < nlive; j++ )
+  //     pLivePts[j][i] = physLive[0][i * nlive + j];
 }

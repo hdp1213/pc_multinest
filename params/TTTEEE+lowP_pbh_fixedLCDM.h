@@ -34,9 +34,11 @@ enum param_t {
   galf_TE_A_217,
   calib_100T,
   calib_217T,
-  FREE_PARAMS,
+#endif
+  UP_TO_FREE_PARAMS,
+#ifndef LITE_HI_L
   // Fixed parameters (CLASS)
-  omega_b = FREE_PARAMS,
+  omega_b = UP_TO_FREE_PARAMS,
   omega_cdm,
   hundredxtheta_s,
   tau_reio,
@@ -111,14 +113,12 @@ enum param_t {
   calib_143P,
   calib_217P,
   A_pol,
-  FIXED_PARAMS,
-  // Derived parameters (LCDM)
-  H0 = FIXED_PARAMS,
+  UP_TO_FIXED_PARAMS,
 #else // remove all nuisance params for LITE_HI_L except A_planck
-  FREE_PARAMS,
-  // Derived parameters (LCDM)
-  H0 = FREE_PARAMS,
+  UP_TO_FIXED_PARAMS = UP_TO_FREE_PARAMS,
 #endif
+  // Derived parameters (LCDM)
+  H0 = UP_TO_FIXED_PARAMS,
   Omega_b,
   Omega_cdm,
   Omega_L,
@@ -129,6 +129,10 @@ enum param_t {
   z_drag,
   rs_drag,
   // Final total number of parameters
-  TOTAL_PARAMS
+  TOTAL_PARAM_AMT,
+  // Summary constants
+  FREE_PARAM_AMT = UP_TO_FREE_PARAMS,
+  FIXED_PARAM_AMT = UP_TO_FIXED_PARAMS - UP_TO_FREE_PARAMS,
+  DERIVED_PARAM_AMT = TOTAL_PARAM_AMT - UP_TO_FIXED_PARAMS
 };
 #endif

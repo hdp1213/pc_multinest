@@ -4,19 +4,26 @@
 #include <iostream> // for std::cerr
 #include <exception> // for std::exception
 
-// Wrapped methods for scale_Cube()
+// Wrapped methods for scale_free_params()
 inline double pow10(double x) { return pow(10., x); }
 inline double self(double x) { return x; }
 
 ClikPar::ClikPar() : m_class_engine(0) {
   // Initialise defaults
-  for (int param = 0; param < TOTAL_PARAMS; ++param) {
-    m_min[param] = -9999;
-    m_max[param] = -9999;
+  for (int param = 0; param < TOTAL_PARAM_AMT; ++param) {
     m_has_gaussian_prior[param] = false;
     m_is_log10[param] = false;
-    m_mean[param] = -9999;
-    m_stddev[param] = -9999;
+    m_mean[param] = -9999.0;
+    m_stddev[param] = -9999.0;
+  }
+
+  for (int param = 0; param < FREE_PARAM_AMT; ++param) {
+    m_min[param] = -9999.0;
+    m_max[param] = -9999.0;
+  }
+
+  for (int param = 0; param < FIXED_PARAM_AMT; ++param) {
+    m_value[param] = -9999.0;
   }
 
 // Define flat priors
@@ -24,8 +31,18 @@ ClikPar::ClikPar() : m_class_engine(0) {
 #include "TTTEEE+lowP-flat.cc"
 
   // Do checks on min and max values for free parameters
-  for (int param = 0; param < FREE_PARAMS; ++param) {
-    if (m_min[param] == m_max[param]) {
+  for (int param = 0; param < FREE_PARAM_AMT; ++param) {
+    if (m_min[param] > m_max[param]) {
+      std::cerr << "[ERROR]: min value larger than max value "
+                << "for parameter #"
+                << param
+                << ", a free parameter. Have you got the "
+                << "correct flat priors for this parameter?"
+                << std::endl;
+      throw std::exception();
+    }
+
+    else if (m_min[param] == m_max[param]) {
       std::cerr << "[ERROR]: min and max values are identical "
                 << "for parameter #"
                 << param
@@ -36,23 +53,9 @@ ClikPar::ClikPar() : m_class_engine(0) {
     }
   }
 
-  // Do checks on min and max values for fixed parameters
-  for (int param = FREE_PARAMS; param < FIXED_PARAMS; ++param) {
-    if (m_min[param] != m_max[param]) {
-      std::cerr << "[ERROR]: min and max values are different "
-                << "for parameter #"
-                << param
-                << ", a fixed parameter. Consider changing "
-                << "max to min value. Unexpected behaviour "
-                << "will occur."
-                << std::endl;
-      throw std::exception();
-    }
-  }
-
   // Check if parameter priors are in log10 space.
   // If so, set transformation function to the power of 10 such that Cube[param] is set to the correct value
-  for (int param = 0; param < TOTAL_PARAMS; ++param) {
+  for (int param = 0; param < TOTAL_PARAM_AMT; ++param) {
     m_transform[param] = m_is_log10[param] ? &pow10 : &self;
   }
 
@@ -64,10 +67,11 @@ ClikPar::ClikPar() : m_class_engine(0) {
   /*  FINISH PARAMETER ALLOC  */
   /****************************/
 
-  std::cout << "Out of " << TOTAL_PARAMS << " total parameters, we have:\n\t"
-            << FREE_PARAMS << " free parameters,\n\t"
-            << (FIXED_PARAMS - FREE_PARAMS) << " fixed parameters, and\n\t"
-            << (TOTAL_PARAMS - FIXED_PARAMS) << " derived parameters."
+  std::cout << "Out of " << TOTAL_PARAM_AMT << " total parameters, "
+            << "we have:\n\t"
+            << FREE_PARAM_AMT << " free parameters,\n\t"
+            << FIXED_PARAM_AMT << " fixed parameters, and\n\t"
+            << DERIVED_PARAM_AMT << " derived parameters."
             << std::endl;
 
 #ifdef BAO_LIKE
@@ -159,24 +163,39 @@ void ClikPar::initialise_CLASS(int max_l, struct pbh_external* pbh_info) {
   }
 }
 
+// MultiNest parameters used in CLASS
+// Must be pushed in the same order as initialised in initialise_CLASS()
+void ClikPar::run_CLASS(double* free_params) {
+  std::vector<double> class_params;
+
+  // class_params.push_back(get_par(pbh_frac, free_params));
+  class_params.push_back(get_par(omega_b, free_params));
+  class_params.push_back(get_par(omega_cdm, free_params));
+  class_params.push_back(get_par(hundredxtheta_s, free_params));
+  class_params.push_back(get_par(tau_reio, free_params));
+  class_params.push_back(get_par(ln10_10_A_s, free_params));
+  class_params.push_back(get_par(n_s, free_params)); // k_0 = 0.05 Mpc^-1 by default
+
+  m_class_engine->updateParValues(class_params);
+}
+
+void ClikPar::get_CLASS_spectra(std::vector<unsigned>& cl_ls,
+      std::vector<double>& cl_tt,
+      std::vector<double>& cl_te,
+      std::vector<double>& cl_ee,
+      std::vector<double>& cl_bb) {
+  m_class_engine->getCls(cl_ls, cl_tt, cl_te, cl_ee, cl_bb);
+}
+
 // Set free, fixed and derived parameter values
-void ClikPar::scale_params(double* in_params) {
+void ClikPar::scale_free_params(double* free_params) {
   // Function to transform variable appropriately
   double (*func)(double);
 
-  for (int param = 0; param < TOTAL_PARAMS; param++) {
+  for (int param = 0; param < FREE_PARAM_AMT; param++) {
     func = m_transform[param];
 
-    if (param < FREE_PARAMS) { // free parameter
-      in_params[param] = func(m_min[param] + (m_max[param] - m_min[param]) * in_params[param]);
-    }
-    else if (param < FIXED_PARAMS) { // fixed parameter
-      in_params[param] = func(m_min[param]);
-    }
-    else { // derived parameter
-      // Must be set to something in case CLASS fails
-      in_params[param] = -9999.0;
-    }
+    free_params[param] = func(m_min[param] + (m_max[param] - m_min[param]) * free_params[param]);
   }
 }
 
@@ -196,10 +215,6 @@ void ClikPar::set_derived_params(double* all_params) {
   // Standard CLASS routines
   all_params[z_drag] = m_class_engine->z_drag();
   all_params[rs_drag] = m_class_engine->rs_drag();
-}
-
-ClassEngine* ClikPar::get_CLASS() {
-  return m_class_engine;
 }
 
 #ifdef BAO_LIKE
@@ -233,7 +248,7 @@ double ClikPar::calculate_extra_likelihoods(double* in_params) const {
   double loglike = 0.0;
 
   // Calculate Gaussian priors
-  for (int param = 0; param < TOTAL_PARAMS; ++param) {
+  for (int param = 0; param < TOTAL_PARAM_AMT; ++param) {
     // Only use Gaussian priors for variables that are Gaussian
     if (m_has_gaussian_prior[param]) {
       loglike += pow((in_params[param] - m_mean[param])/m_stddev[param], 2.0) / 2.0;
@@ -264,8 +279,7 @@ double ClikPar::calculate_extra_likelihoods(double* in_params) const {
 double ClikPar::calculate_flat_prior() const {
   double res = 1.0;
 
-  // Loop over free parameters (fixed parameters do not contribute)
-  for (int param = 0; param < FREE_PARAMS; ++param) {
+  for (int param = 0; param < FREE_PARAM_AMT; ++param) {
     res *= (m_max[param] - m_min[param]);
   }
 
@@ -278,4 +292,26 @@ double* ClikPar::get_lower_bounds() {
 
 double* ClikPar::get_upper_bounds() {
   return m_max;
+}
+
+double* ClikPar::get_fixed_params() {
+  return m_value;
+}
+
+double ClikPar::get_par(param_t param, double* free_params) const {
+  if (param < UP_TO_FREE_PARAMS) { // if free
+    return free_params[param];
+  }
+  else if (param < UP_TO_FIXED_PARAMS) { // if fixed
+    return m_value[param - UP_TO_FREE_PARAMS];
+  }
+  else {
+    std::cerr << "[ERROR]: You have tried getting the value "
+              << "of parameter #"
+              << param
+              << ", a derived parameter. This cannot be done "
+              << "with get_par()."
+              << std::endl;
+    throw std::exception();
+  }
 }

@@ -2,6 +2,7 @@
 #define CLIKPAR_H
 
 #include "ClassEngine.hh"
+#include <vector>
 
 
 class ClikPar {
@@ -17,15 +18,21 @@ public:
 
   // CLASS functions
   void initialise_CLASS(int max_l, struct pbh_external* pbh_info);
-  void scale_params(double* in_params);
+  void scale_free_params(double* free_params);
   void set_derived_params(double* all_params);
-  ClassEngine* get_CLASS();
+
+  void run_CLASS(double* free_params);
+  void get_CLASS_spectra(std::vector<unsigned>& cl_ls,
+      std::vector<double>& cl_tt,
+      std::vector<double>& cl_te,
+      std::vector<double>& cl_ee,
+      std::vector<double>& cl_bb);
 
   // Likelihood functions
 #ifdef BAO_LIKE
   double calculate_BAO_likelihood() const; // uses CLASS
 #endif
-  double calculate_extra_likelihoods(double* Cube) const;
+  double calculate_extra_likelihoods(double* in_params) const;
 
   double calculate_flat_prior() const;
 
@@ -33,16 +40,23 @@ public:
   double* get_lower_bounds();
   double* get_upper_bounds();
 
+  double* get_fixed_params();
 
 private:
-  bool m_has_gaussian_prior[TOTAL_PARAMS];
-  bool m_is_log10[TOTAL_PARAMS];
-  double m_min[TOTAL_PARAMS], m_max[TOTAL_PARAMS];
-  double m_mean[TOTAL_PARAMS], m_stddev[TOTAL_PARAMS];
+  bool m_is_log10[TOTAL_PARAM_AMT];
+
+  bool m_has_gaussian_prior[TOTAL_PARAM_AMT];
+  double m_mean[TOTAL_PARAM_AMT], m_stddev[TOTAL_PARAM_AMT];
+
+  // Only needed for free parameters
+  double m_min[FREE_PARAM_AMT], m_max[FREE_PARAM_AMT];
+
+  // Only needed for fixed parameters
+  double m_value[FIXED_PARAM_AMT];
 
   // Array of transforming functions
   typedef double (*trans_t)(double);
-  trans_t m_transform[TOTAL_PARAMS];
+  trans_t m_transform[TOTAL_PARAM_AMT];
 
   // BAO variables
 #ifdef BAO_LIKE
@@ -54,6 +68,8 @@ private:
 #endif
 
   ClassEngine* m_class_engine;
+
+  double get_par(param_t param, double* free_params) const;
 };
 
 #endif
