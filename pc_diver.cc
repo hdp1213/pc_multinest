@@ -9,6 +9,8 @@
 #include <cmath>
 #include <limits>
 
+#include <iostream>
+
 #include "loglike.h"
 
 struct diver_settings {
@@ -34,7 +36,7 @@ struct diver_settings {
                               // generation)
   int     nF;                 // Size of the array indicating scale
                               // factors
-  double* F;                  // Scale factor(s).  Note that this must
+  double F[1] = {0.6};        // Scale factor(s).  Note that this must
                               // be entered as an array.
   double  Cr;                 // Crossover factor
   double  lambda;             // Mixing factor between best and
@@ -91,10 +93,11 @@ double objective(double params[], const int param_dim, int &fcall, bool &quit, c
 
   // Not needed inside LogLike, so set to zero!
   int free_dim = 0;
+  int param_dim_free = param_dim;
 
   // If params[] is within the parameter bounds, evaluate its likelihood
   if (validvector) {
-    LogLike(params, free_dim, param_dim, loglike, context);
+    LogLike(params, free_dim, param_dim_free, loglike, context);
     fcall++;    
   }
 
@@ -113,44 +116,47 @@ double pc_prior(const double real_params[], const int real_param_dim, void*& con
 // pc_diver: a pc_multinest wrapper for cdiver. What is cdiver, you ask? This behemoth:
 // cdiver(double (*obj_func)(double[] params, const int param_dim, int* fcall, bool* quit, const bool validvector, void** context), int nPar, const double[] lowerbounds, const double[] upperbounds, const char[] path, int nDerived, int nDiscrete, const int[] discrete, bool partitionDiscrete, const int maxciv, const int maxgen, int NP, int nF, const double[] F, double Cr, double lambda, bool current, bool expon, int bndry, bool jDE, bool lambdajDE, double convthresh, int convsteps, bool removeDuplicates, bool doBayesian, double(*prior_func)(const double[] real_params, const int real_param_dim, void** context), double maxNodePop, double Ztolerance, int savecount, bool resume, bool outputSamples, int init_pop_strategy, int max_init_attempts, double max_acceptable_val, void** context, int verbose);
 
-void pc_diver(double (*obj_func)(double[], const int, int&, bool&, const bool), double (*prior_func)(const double[], const int, void**), diver_settings& s, void* context) {
+void pc_diver(double (*obj_func)(double[], const int, int&, bool&, const bool, void*&), double (*prior_func)(const double[], const int, void*&), diver_settings& s, void* context) {
 
-  return cdiver(obj_func,
-                s.nPar,
-                const_cast<double*>(s.lowerbounds),
-                const_cast<double*>(s.upperbounds),
-                s.path.c_str(),
-                s.nDerived,
-                s.nDiscrete,
-                const_cast<int*>(s.discrete),
-                s.partitionDiscrete,
-                const_cast<int>(s.maxciv),
-                const_cast<int>(s.maxgen),
-                s.NP,
-                s.nF,
-                const_cast<double*>(s.F),
-                s.Cr,
-                s.lambda,
-                s.current,
-                s.expon,
-                s.bndry,
-                s.jDE,
-                s.lambdajDE,
-                s.convthresh,
-                s.convsteps,
-                s.removeDuplicates,
-                s.doBayesian,
-                s.prior_func,
-                s.maxNodePop,
-                s.Ztolerance,
-                s.savecount,
-                s.resume,
-                s.outputSamples,
-                s.init_pop_strategy,
-                s.max_init_attempts,
-                s.max_acceptable_val,
-                &context,
-                s.verbose);
+  const int maxciv = s.maxciv;
+  const int maxgen = s.maxgen;
+
+  cdiver(obj_func,
+         s.nPar,
+         const_cast<double*>(s.lowerbounds),
+         const_cast<double*>(s.upperbounds),
+         s.path.c_str(),
+         s.nDerived,
+         s.nDiscrete,
+         const_cast<int*>(s.discrete),
+         s.partitionDiscrete,
+         maxciv,
+         maxgen,
+         s.NP,
+         s.nF,
+         const_cast<double*>(s.F),
+         s.Cr,
+         s.lambda,
+         s.current,
+         s.expon,
+         s.bndry,
+         s.jDE,
+         s.lambdajDE,
+         s.convthresh,
+         s.convsteps,
+         s.removeDuplicates,
+         s.doBayesian,
+         prior_func,
+         s.maxNodePop,
+         s.Ztolerance,
+         s.savecount,
+         s.resume,
+         s.outputSamples,
+         s.init_pop_strategy,
+         s.max_init_attempts,
+         s.max_acceptable_val,
+         context,
+         s.verbose);
 
 }
 
@@ -173,7 +179,7 @@ int main(int argc, char** argv)
   settings.maxgen             = 100;
   // settings.NP                 = 200;
   settings.nF                 = 1;
-  settings.F                  = {0.6}
+  // settings.F                  = {0.6};
   settings.Cr                 = 0.9;
   settings.lambda             = 0.8;
   settings.current            = false;
@@ -224,10 +230,6 @@ int main(int argc, char** argv)
   // Clik Par variable
   ClikPar* clik_par(0);
 
-  // Writing variables
-  int param_amts;
-  parname* param_names;
-
   // PLCPack variable
   PLCPack* plc_pack(0);
 
@@ -249,11 +251,11 @@ int main(int argc, char** argv)
   // Read in parameters and set Diver settings
   clik_par = new ClikPar();
 
-  settings.nPar = ClikPar::FREE_PARAMS;
+  settings.nPar = ClikPar::FREE_PARAM_AMT;
   settings.NP = 10*settings.nPar;
-  settings.lowerbounds = clik_par->get_lowerbounds();
-  settings.upperbounds = clik_par->get_upperbounds();
-  settings.nDerived = (ClikPar::TOTAL_PARAMS - ClikPar::FIXED_PARAMS);
+  settings.lowerbounds = clik_par->get_lower_bounds();
+  settings.upperbounds = clik_par->get_upper_bounds();
+  settings.nDerived = ClikPar::DERIVED_PARAM_AMT;
 
   std::cout << "Opening " << hi_l_clik_path << std::endl;
 

@@ -8,10 +8,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <algorithm>
-#include <stdexcept>
-#include <math.h>
-#include <iomanip> // for std::setprecision()
 
 #include "loglike.h"
 

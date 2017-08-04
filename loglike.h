@@ -1,6 +1,10 @@
 #ifndef LOGLIKE_H
 #define LOGLIKE_H
 
+#include <iostream>
+#include <vector>
+#include <stdexcept>
+
 // void pc_loglike(double *input_params, int &n_params)
 
 /***********************/
