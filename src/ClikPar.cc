@@ -106,7 +106,8 @@ ClikPar::~ClikPar() {
 }
 
 // Prepare CLASS engine
-void ClikPar::initialise_CLASS(int max_l, struct pbh_external* pbh_info) {
+// void ClikPar::initialise_CLASS(int max_l, struct pbh_external* pbh_info) {
+void ClikPar::initialise_CLASS(int max_l) {
   ClassParams default_params;
 
   /*** FREE PARAMETERS ***/
@@ -125,8 +126,8 @@ void ClikPar::initialise_CLASS(int max_l, struct pbh_external* pbh_info) {
   default_params.add("n_s", 0.96475);
 
   // PBH DM
-  default_params.add("pbh_mass_dist", "pbh_none");
-  default_params.add("read pbh splines", false);
+  // default_params.add("pbh_mass_dist", "pbh_none");
+  // default_params.add("read pbh splines", false);
   /*
   default_params.add("pbh_mass_dist", "pbh_delta");
   default_params.add("pbh_mass_mean", 1.E6);
@@ -150,9 +151,21 @@ void ClikPar::initialise_CLASS(int max_l, struct pbh_external* pbh_info) {
   default_params.add("l_max_scalars", max_l);
   default_params.add("format", "camb");
 
+  default_params.add("input_verbose", 1);
+  default_params.add("background_verbose", 1);
+  default_params.add("thermodynamics_verbose", 1);
+  default_params.add("perturbations_verbose", 1);
+  default_params.add("transfer_verbose", 1);
+  default_params.add("primordial_verbose", 1);
+  default_params.add("spectra_verbose", 1);
+  default_params.add("nonlinear_verbose", 1);
+  default_params.add("lensing_verbose", 1);
+  default_params.add("output_verbose", 1);
+
   // Initialise CLASS engine with external PBH info
   try {
-    m_class_engine = new ClassEngine(default_params, pbh_info);
+    // m_class_engine = new ClassEngine(default_params, pbh_info);
+    m_class_engine = new ClassEngine(default_params);
   }
   catch (std::exception const &e) {
     std::cerr << "[ERROR] CLASS initialisation in ClikPar "

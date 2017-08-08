@@ -17,7 +17,8 @@ public:
 #include "TTTEEE+lowP.h"
 
   // CLASS functions
-  void initialise_CLASS(int max_l, struct pbh_external* pbh_info);
+  // void initialise_CLASS(int max_l, struct pbh_external* pbh_info);
+  void initialise_CLASS(int max_l);
   void scale_free_params(double* free_params);
   void set_derived_params(double* all_params);
 

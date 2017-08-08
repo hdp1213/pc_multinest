@@ -51,6 +51,8 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   /*           CLASS            */
   /******************************/
 
+  std::cout << "RUNNING CLASS ..." << std::endl;
+
   try {
     plc_pack->run_CLASS(Cube);
   }
@@ -79,6 +81,8 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
     lnew = -1E90;
     return;
   }
+
+  std::cout << "EXTRACTING SPECTRA FROM CLASS ..." << std::endl;
 
   // Calculate Cls from CLASS
   try {
@@ -110,6 +114,8 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
     return;
   }
 
+  std::cout << "SETTING DERIVED PARAMETERS IN CUBE ..." << std::endl;
+
   // Set any derived parameter values in Cube
   plc_pack->set_derived_params(Cube);
 
@@ -124,8 +130,12 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   class_cls.push_back(cl_bb);
   class_cls.push_back(cl_te);
 
+  std::cout << "CREATING ALL CL AND PARS ..." << std::endl;
+
   // Prepare PLC clik object(s) for likelihood calculation
   plc_pack->create_all_cl_and_pars(Cube, class_cls);
+
+  std::cout << "CALCULATING LIKELIHOOD ..." << std::endl;
 
   // Compute the log likelihood using PLC
   lnew = plc_pack->calculate_PLC_likelihood();
@@ -138,7 +148,7 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   // Subtract any other priors for those parameters with them
   lnew -= plc_pack->calculate_extra_likelihoods(Cube);
 
-  /*
+  //*
   std::cout << "[plc_class] Calculated log likelihood of "
             << lnew
             << std::endl;

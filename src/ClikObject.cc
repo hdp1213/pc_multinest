@@ -81,7 +81,7 @@ void ClikObject::set_nuisance_param_enums(std::vector<ClikPar::param_t>& nuisanc
     }
 
     else if (*param_it < ClikPar::UP_TO_FIXED_PARAMS) {
-      m_nuis_pars.push_back(static_cast<int>(*param_it - ClikPar::UP_TO_FIXED_PARAMS));
+      m_nuis_pars.push_back(static_cast<int>(*param_it - ClikPar::UP_TO_FREE_PARAMS));
       m_nuis_par_is_free.push_back(false);
     }
 
@@ -117,6 +117,8 @@ void ClikObject::create_cl_and_pars(double* free_params,
     }
   }
 
+  // std::cout << "[ClikObject] Adding nuisance parameters..." << std::endl;
+
   // Then add nuisance parameters at the end
   // Nuisance parameters need to be stored in the same order they appear
   //  in the set_nuisance_param_enums() input vector
@@ -125,10 +127,12 @@ void ClikObject::create_cl_and_pars(double* free_params,
 
     if (m_nuis_par_is_free[i]) {
       m_cl_and_pars[cap_ind] = free_params[param];
+      // std::cout << param << " = " << free_params[param] << std::endl;
     }
 
     else {
       m_cl_and_pars[cap_ind] = fixed_params[param];
+      // std::cout << param + ClikPar::UP_TO_FREE_PARAMS << " = " << fixed_params[param] << std::endl;
     }
 
     cap_ind++;
@@ -141,6 +145,7 @@ double ClikObject::get_likelihood() const {
   loglike = clik_compute(m_clik_id, m_cl_and_pars, m_err);
   quitOnError(*m_err, __LINE__, stderr);
 
+  std::cout << "[ClikObject] Calculated loglike of " << loglike << std::endl;
   return loglike;
 }
 

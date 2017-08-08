@@ -98,7 +98,7 @@ double objective(double params[], const int param_dim, int &fcall, bool &quit, c
   // If params[] is within the parameter bounds, evaluate its likelihood
   if (validvector) {
     LogLike(params, free_dim, param_dim_free, loglike, context);
-    fcall++;    
+    fcall++;
   }
 
   return -loglike;
@@ -388,7 +388,7 @@ int main(int argc, char** argv)
   plc_pack->add_clik_object(lo_l_clik);
 
   // Initialise CLASS before runing MultiNest
-  plc_pack->read_pbh_files(pbh_file_root);
+  // plc_pack->read_pbh_files(pbh_file_root);
   plc_pack->initialise_CLASS();
 
   context = plc_pack;

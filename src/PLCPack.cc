@@ -5,6 +5,7 @@
 #include <fstream> // for std::ifstream
 #include <sstream> // for std::stringstream
 
+/*
 void print_bicubic_bspline(struct bspline_2d* spline) {
   std::cout << spline->nxknots << std::endl;
 
@@ -25,6 +26,7 @@ void print_bicubic_bspline(struct bspline_2d* spline) {
   }
   std::cout << std::endl;
 }
+*/
 
 PLCPack::PLCPack() : m_largest_max_l(1), m_clik_par(NULL) {
   
@@ -37,6 +39,7 @@ PLCPack::~PLCPack() {
 
   delete m_clik_par;
 
+/*
   // Deallocate b-spline memory
   delete[] m_pbh_info.hion.xknots;
   delete[] m_pbh_info.hion.yknots;
@@ -53,6 +56,7 @@ PLCPack::~PLCPack() {
   // Deallocate axes
   delete[] m_pbh_info.z_deps;
   delete[] m_pbh_info.masses;
+  */
 }
 
 
@@ -78,9 +82,11 @@ void PLCPack::set_clik_params(ClikPar* clik_par) {
 
 // Should only be called after all clik objects have been added
 void PLCPack::initialise_CLASS() {
-  m_clik_par->initialise_CLASS(m_largest_max_l, &m_pbh_info);
+  // m_clik_par->initialise_CLASS(m_largest_max_l, &m_pbh_info);
+  m_clik_par->initialise_CLASS(m_largest_max_l);
 }
 
+/*
 void PLCPack::read_pbh_files(std::string pbh_root) {
   // Read in axes
   // Variables are set internally
@@ -95,6 +101,7 @@ void PLCPack::read_pbh_files(std::string pbh_root) {
   // Read in plasma heating
   read_bicubic_bspline(pbh_root, "heat.dat", &(m_pbh_info.heat));
 }
+*/
 
 double PLCPack::calculate_extra_likelihoods(double* in_params) const {
   return m_clik_par->calculate_extra_likelihoods(in_params);
@@ -148,7 +155,7 @@ double PLCPack::calculate_BAO_likelihood() const {
 }
 #endif
 
-
+/*
 void PLCPack::read_axes(std::string root) {
   std::ostringstream axes_filename;
 
@@ -220,3 +227,4 @@ void PLCPack::read_1d_array(std::ifstream& file, double** array, int* array_size
     i++;
   }
 }
+*/

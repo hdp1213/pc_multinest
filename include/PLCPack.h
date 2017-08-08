@@ -18,7 +18,7 @@ public:
 
   // Pack "building" methods
   void add_clik_object(ClikObject* clik_object);
-  void read_pbh_files(std::string pbh_root);
+  // void read_pbh_files(std::string pbh_root);
   void set_clik_params(ClikPar* clik_par);
   void initialise_CLASS();
 
@@ -54,12 +54,12 @@ private:
   ClikPar* m_clik_par;
 
   // PBH bits
-  struct pbh_external m_pbh_info;
+  // struct pbh_external m_pbh_info;
 
   // PBH methods
-  void read_axes(std::string root);
-  void read_bicubic_bspline(std::string root, const char* channel, struct bspline_2d* spline);
-  void read_1d_array(std::ifstream& file, double** array, int* array_size);
+  // void read_axes(std::string root);
+  // void read_bicubic_bspline(std::string root, const char* channel, struct bspline_2d* spline);
+  // void read_1d_array(std::ifstream& file, double** array, int* array_size);
 };
 
 #endif
