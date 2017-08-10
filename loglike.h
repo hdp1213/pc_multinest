@@ -37,7 +37,6 @@ void LogLike(double *Cube, int &ndim, int &npars, double &lnew, void *context)
   PLCPack* plc_pack;
 
   // CLASS variables
-  std::vector<double> lcdm_params;
   std::vector<double> cl_tt, cl_ee, cl_bb, cl_te;
   std::vector<std::vector<double> > class_cls;
 
