@@ -24,7 +24,7 @@ CPPC := g++
 OPT_FLAGS := -fopenmp -Wall -fPIC -O2 #-ffast-math -march=native
 else
 CPPC := icc
-OPT_FLAGS := -O3 -qopenmp -Wall -fPIC -march=native
+OPT_FLAGS := -O0 -qopenmp -Wall -fPIC# -O3 -march=native
 endif
 # turn off warnings using -w
 INC_FLAGS := -I$(PC_MULTINEST_DIR)/include -I$(PC_MULTINEST_DIR)/params -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include -I$(CFITSIO_DIR)/include -I$(DIVER_DIR)/include
@@ -40,7 +40,7 @@ endif
 CLASS_INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include
 BATCH_CLASS_FLAGS = -Wl,-rpath,$(CLASS_DIR)
 
-PC_MULTINEST_DEFS = #-g -DDBUG #-DLITE_HI_L #-DBAO_LIKE
+PC_MULTINEST_DEFS = -g# -DDBUG #-DLITE_HI_L #-DBAO_LIKE
 
 # Flags for the Fortran compiler which compiles the .o files into the final binary when adding MultiNest
 FC_LIBS = -L$(MULTINEST_DIR) -lnest3 -lstdc++ -L$(DIVER_DIR)/lib -ldiver
@@ -173,7 +173,7 @@ test_class.o: ../tests/test_class.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC)
 test_diver: test_diver.o $(CLASS_CPP_OBJS)
 	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
-test_diver.o: ../test_diver.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) pc_loglike.h .base
+test_diver.o: ../test_diver.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) pc_loglike.h pc_diver.h .base
 	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 clean:
