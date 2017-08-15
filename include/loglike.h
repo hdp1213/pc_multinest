@@ -1,18 +1,21 @@
 #ifndef PC_LOGLIKE
 #define PC_LOGLIKE
 
-#include <algorithm> // for std::copy
+#include "init_plc.h"
+#include "init_params.h"
+
+#include <exception>
 #include <iostream>
-#include <string>
 #include <vector>
 
 #ifndef PARAM_SET
-#error no parameter set included
+#error no parameter set included!
 #endif
 
 /* "Actual" constants */
 const double MIN_LOGLIKE = -1E90;
 const double ZERO_CL = 0.0;
+const int CLASS_CL_AMT = 4;
 
 /* Misc. gaussian likelihood values */
 const double SZ_MEAN = 9.5;
@@ -30,7 +33,6 @@ const int conf_age_LOC = static_cast<int>(conf_age - FIXED_PARAM_AMT);
 const int z_drag_LOC = static_cast<int>(z_drag - FIXED_PARAM_AMT);
 const int rs_drag_LOC = static_cast<int>(rs_drag - FIXED_PARAM_AMT);
 
-
 double calculate_PLC_likelihood(clik_struct*& clik_obj,
                                 double in_vals[],
                                 std::vector<std::vector<double> >& class_spectra);
@@ -40,6 +42,8 @@ double calculate_extra_likelihoods(double in_vals[],
 // raw_params[] contains only free and derived parameters
 void set_derived_params(double raw_params[],
                         ClassEngine*& class_engine);
+
+
 
 /**
  * What do we need to compute the log likelihood for plc_class?
@@ -172,7 +176,11 @@ double calculate_PLC_likelihood(clik_struct*& clik_obj,
   loglike = clik_compute(clik_obj->clik_id, cl_and_pars, err);
   quitOnError(*err, __LINE__, stderr);
 
+#ifdef DBUG
   std::cout << "[calculate_PLC_likelihood] Calculated loglike of " << loglike << std::endl;
+#endif
+
+  free(_err);
 
   return loglike;
 }
@@ -191,11 +199,10 @@ double calculate_extra_likelihoods(double in_vals[],
   }
 
   // Calculate Gaussian priors
-  for (int param_ind = 0; param_ind < TOTAL_PARAM_AMT; ++param_ind) {
-    param_t param = static_cast<param_t>(param_ind);
+  for (int param_ind = 0; param_ind < UP_TO_FIXED_PARAMS; ++param_ind) {
     // Only use Gaussian priors for variables that are Gaussian
-    if (m_has_gaussian_prior[param]) {
-      loglike -= pow((in_vals[param] - m_mean[param])/m_stddev[param], 2.0) / 2.0;
+    if (m_has_gaussian_prior[param_ind]) {
+      loglike -= pow((in_vals[param_ind] - m_mean[param_ind])/m_stddev[param_ind], 2.0) / 2.0;
     }
   }
 
@@ -227,5 +234,6 @@ void set_derived_params(double raw_params[],
   raw_params[z_drag_LOC] = class_engine->z_drag();
   raw_params[rs_drag_LOC] = class_engine->rs_drag();
 }
+
 
 #endif

@@ -5,7 +5,7 @@
 
 // double diver_loglike(double params[], const int param_dim, int &fcall, bool &quit, const bool validvector, void*& context);
 
-#include "pc_diver.h"
+#include "diver_loglike.h"
 
 int main(int argc, char** argv)
 {
@@ -225,14 +225,22 @@ int main(int argc, char** argv)
   std::cout << "Running loglikelihood function ..."
             << std::endl;
 
-  loglike = diver_loglike(params, param_dim, fcall, quit, validvector, context);
+  loglike = diver_loglike(params, param_dim, fcall, quit,
+                          validvector, context);
 
-  std::cout << "[test_diver] Calculated diver_loglike of " << loglike << std::endl;
+  /*
+  std::cout << "[test_diver] Calculated diver_loglike of "
+            << loglike
+            << std::endl;
+  */
 
+  // Deallocate memory
   for (std::vector<clik_struct*>::iterator clik_struct_it = plc_pack->clik_objs.begin(); clik_struct_it != plc_pack->clik_objs.end(); ++clik_struct_it) {
+    free((*clik_struct_it)->clik_id);
     delete *clik_struct_it;
   }
 
+  delete plc_pack->engine;
   delete plc_pack;
 
   return 0;
