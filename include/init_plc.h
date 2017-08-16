@@ -23,6 +23,12 @@ struct clik_struct {
   std::vector<param_t> nuis_pars;
 };
 
+struct plc_bundle {
+  std::vector<clik_struct*> clik_objs;
+  ClassEngine* engine;
+  std::vector<unsigned> cl_ls;
+};
+
 clik_struct* initialise_clik_struct(std::string& clik_path,
                                     std::vector<param_t>& nuis_params,
                                     int& total_max_l);

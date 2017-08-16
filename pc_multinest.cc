@@ -1,17 +1,12 @@
-#include "PLCPack.h"
-#include "ClikObject.h"
-#include "ClikPar.h"
-#include "multinest.h"
+#include "pc_multinest.h"
 
 #include <cstdio> // for stderr
-
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "loglike.h"
-
-void dumper(int &nSamples, int &nlive, int &nPar, double **physLive, double **posterior, double **paramConstr, double &maxLogLike, double &logZ, double &INSlogZ, double &logZerr, void *context);
+#include "multinest.h"
+#include "multinest_loglike.h"
 
 /*
   Uses CLASS (wherever that will be with GAMBIT) to produce
@@ -27,296 +22,277 @@ void dumper(int &nSamples, int &nlive, int &nPar, double **physLive, double **po
 */
 int main(int argc, char* argv[]) {
 
-  // MultiNest variables
-  int IS = 0;             // do Nested Importance Sampling?
-  int mmodal = 0;         // do mode separation?
-  int ceff = 1;           // run in constant efficiency mode?
-                          // Bad for evidence calculations
-  int nlive = 500;        // number of live points
-  double efr = 0.8;       // set the required efficiency. 0.8
-                          // for parameter estimation, 0.3 for
-                          // evidence
-  double tol = 1E-1;      // tol, defines the stopping criteria
-                          // 0.5 should give enough accuracy
-  int ndims = ClikPar::FREE_PARAM_AMT;
-                          // dimensionality (no. of free
-                          // parameters)
-  int nPar = ClikPar::TOTAL_PARAM_AMT;
-                          // total no. of parameters including
-                          // free & derived parameters
-  int nClsPar = 0;        // no. of parameters to do mode
-                          // separation on
-  int updInt = 1000;      // after how many iterations feedback
-                          // is required & the output files
-                          // should be updated
-                          // note: posterior files are updated
-                          // & dumper routine is called after
-                          // every updInt*10 iterations
-  double Ztol = -1E90;    // all the modes with logZ < Ztol are
-                          // ignored
-  int maxModes = 100;     // expected max no. of modes (used
-                          // only for memory allocation)
-  int pWrap[ndims];       // which parameters to have periodic
-                          // boundary conditions?
-  for(int i = 0; i < ndims; i++) pWrap[i] = 0;
-  char* root;             // root for output files
-  int seed = -1;          // random no. generator seed, if < 0
-                          // then take the seed from system
-                          // clock
-  int fb = 1;             // need feedback on standard output?
-  int resume = 1;         // resume from a previous job?
-  int outfile = 1;        // write output files?
-  int initMPI = 1;        // initialize MPI routines?, relevant
-                          // only if compiling with MPI
-                          // set it to F if you want your main
-                          // program to handle MPI
-                          // initialization
-  double logZero = -1E90; // points with loglike < logZero will
-                          // be ignored by MultiNest
-  int maxiter = 0;        // max no. of iterations, a
-                          // non-positive value means infinity.
-                          // MultiNest will terminate if
-                          // either it has done max no. of
-                          // iterations or convergence
-                          // criterion (defined through tol)
-                          // has been satisfied
+  ////// MultiNest settings //////
+  
+  multinest_settings settings;
 
-  void* context = 0;      // not required by MultiNest, any
-                          // additional information user wants
-                          // to pass
+  settings.IS = false;
+  settings.mmodal = false;
+  settings.ceff = true;
+
+  settings.nlive = 500;
+  settings.efr = 0.8;
+  settings.tol = 1E-1;
+
+  settings.ndims = FREE_PARAM_AMT;
+  settings.nPar = TOTAL_PARAM_AMT;
+  settings.nClsPar = 0;
+
+  settings.updInt = 1000;
+  settings.Ztol = MIN_LOGLIKE;
+  settings.maxModes = 4;
+  settings.pWrap = new int[settings.ndims];
+  for(int i = 0; i < settings.ndims; i++) settings.pWrap[i] = 0;
+
+  // settings.root = 'test';
+  settings.seed = -1;
+  settings.fb = true;
+  settings.resume = true;
+  settings.outfile = true;
+  settings.initMPI = true;
+  settings.logZero = MIN_LOGLIKE;
+  settings.maxiter = 0;
+
+
+  ////// plc_class variables //////
+
+  void* context = 0;
+  int total_max_l = -1;
+
+  std::vector<clik_struct*> clik_objects;
+  plc_bundle* plc_pack = new plc_bundle();
 
   // High l full likelihood variables
-  char hi_l_clik_path[255];
-  strcpy(hi_l_clik_path, PLIK_HI_L_FILE_DIR);
+  std::string hi_l_clik_path = std::string(PLIK_HI_L_FILE_DIR);
 #ifdef LITE_HI_L
-  strcat(hi_l_clik_path, "/plik_lite_v18_TTTEEE.clik/");
+  hi_l_clik_path += "/plik_lite_v18_TTTEEE.clik/";
 #else
-  strcat(hi_l_clik_path, "/plik_dx11dr2_HM_v18_TTTEEE.clik/");
+  hi_l_clik_path += "/plik_dx11dr2_HM_v18_TTTEEE.clik/";
 #endif
-  ClikObject* hi_l_clik(0);
-  std::vector<ClikPar::param_t> hi_l_nuis_enums;
+  std::vector<param_t> hi_l_nuis_enums;
+  clik_struct* hi_l_clik;
 
   // Low l likelihood variables  
-  char lo_l_clik_path[255];
-  strcpy(lo_l_clik_path, PLIK_LOW_L_FILE_DIR);
-  strcat(lo_l_clik_path, "/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/");
-  ClikObject* lo_l_clik(0);
-  std::vector<ClikPar::param_t> lo_l_nuis_enums;
-
-  // Clik Pars variable
-  ClikPar* clik_par = new ClikPar();
-
-  PLCPack* plc_pack(0);
-
-  // PBH variable
-  std::string pbh_file_root = std::string(CLASS_PBH_FILE_DIR) + "/pbh_bspline_";
+  std::string lo_l_clik_path = std::string(PLIK_LOW_L_FILE_DIR) \
+    + "/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
+  std::vector<param_t> lo_l_nuis_enums;
+  clik_struct* lo_l_clik;
 
   // Use the first command line argument as a non-default
   // output root
   // That is, if an argument is even specified
   if (argc == 2) {
-    root = argv[1];
+    settings.root = argv[1];
   }
   else {
-    root = "output/pc_multinest_-";
+    settings.root = "output/pc_multinest-";
   }
 
-  std::cout << "Printing results to " << root << std::endl;
+  std::cout << "Printing results to " << settings.root << std::endl;
+
+  //*
+  // Push nuisance parameters in the order they appear in cl_and_pars
+#ifndef LITE_HI_L
+// TT & TTTEEE
+  hi_l_nuis_enums.push_back(A_cib_217);
+  hi_l_nuis_enums.push_back(cib_index);
+  hi_l_nuis_enums.push_back(xi_sz_cib);
+  hi_l_nuis_enums.push_back(A_sz);
+  hi_l_nuis_enums.push_back(ps_A_100_100);
+  hi_l_nuis_enums.push_back(ps_A_143_143);
+  hi_l_nuis_enums.push_back(ps_A_143_217);
+  hi_l_nuis_enums.push_back(ps_A_217_217);
+  hi_l_nuis_enums.push_back(ksz_norm);
+  hi_l_nuis_enums.push_back(gal545_A_100);
+  hi_l_nuis_enums.push_back(gal545_A_143);
+  hi_l_nuis_enums.push_back(gal545_A_143_217);
+  hi_l_nuis_enums.push_back(gal545_A_217);
+// TTTEEE
+  hi_l_nuis_enums.push_back(galf_EE_A_100);
+  hi_l_nuis_enums.push_back(galf_EE_A_100_143);
+  hi_l_nuis_enums.push_back(galf_EE_A_100_217);
+  hi_l_nuis_enums.push_back(galf_EE_A_143);
+  hi_l_nuis_enums.push_back(galf_EE_A_143_217);
+  hi_l_nuis_enums.push_back(galf_EE_A_217);
+  hi_l_nuis_enums.push_back(galf_EE_index);
+  hi_l_nuis_enums.push_back(galf_TE_A_100);
+  hi_l_nuis_enums.push_back(galf_TE_A_100_143);
+  hi_l_nuis_enums.push_back(galf_TE_A_100_217);
+  hi_l_nuis_enums.push_back(galf_TE_A_143);
+  hi_l_nuis_enums.push_back(galf_TE_A_143_217);
+  hi_l_nuis_enums.push_back(galf_TE_A_217);
+  hi_l_nuis_enums.push_back(galf_TE_index);
+  hi_l_nuis_enums.push_back(bleak_epsilon_0_0T_0E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_1_0T_0E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_2_0T_0E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_3_0T_0E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_4_0T_0E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_0_0T_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_1_0T_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_2_0T_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_3_0T_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_4_0T_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_0_0T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_1_0T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_2_0T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_3_0T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_4_0T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_0_1T_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_1_1T_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_2_1T_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_3_1T_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_4_1T_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_0_1T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_1_1T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_2_1T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_3_1T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_4_1T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_0_2T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_1_2T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_2_2T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_3_2T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_4_2T_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_0_0E_0E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_1_0E_0E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_2_0E_0E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_3_0E_0E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_4_0E_0E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_0_0E_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_1_0E_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_2_0E_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_3_0E_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_4_0E_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_0_0E_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_1_0E_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_2_0E_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_3_0E_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_4_0E_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_0_1E_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_1_1E_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_2_1E_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_3_1E_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_4_1E_1E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_0_1E_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_1_1E_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_2_1E_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_3_1E_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_4_1E_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_0_2E_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_1_2E_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_2_2E_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_3_2E_2E);
+  hi_l_nuis_enums.push_back(bleak_epsilon_4_2E_2E);
+// TT & TTTEEE
+  hi_l_nuis_enums.push_back(calib_100T);
+  hi_l_nuis_enums.push_back(calib_217T);
+// TTTEEE
+  hi_l_nuis_enums.push_back(calib_100P);
+  hi_l_nuis_enums.push_back(calib_143P);
+  hi_l_nuis_enums.push_back(calib_217P);
+  hi_l_nuis_enums.push_back(A_pol);
+#endif
+  hi_l_nuis_enums.push_back(A_planck);
 
   std::cout << "Opening " << hi_l_clik_path << std::endl;
 
   // Create new clik object for high l likelihood
-  hi_l_clik = new ClikObject(hi_l_clik_path);
+  hi_l_clik = initialise_clik_struct(hi_l_clik_path,
+                                     hi_l_nuis_enums,
+                                     total_max_l);
+  plc_pack->clik_objs.push_back(hi_l_clik);
+  //*/
 
-  // Push nuisance parameters in the order they appear in cl_and_pars
-#ifndef LITE_HI_L
-// TT & TTTEEE
-  hi_l_nuis_enums.push_back(ClikPar::A_cib_217);
-  hi_l_nuis_enums.push_back(ClikPar::cib_index);
-  hi_l_nuis_enums.push_back(ClikPar::xi_sz_cib);
-  hi_l_nuis_enums.push_back(ClikPar::A_sz);
-  hi_l_nuis_enums.push_back(ClikPar::ps_A_100_100);
-  hi_l_nuis_enums.push_back(ClikPar::ps_A_143_143);
-  hi_l_nuis_enums.push_back(ClikPar::ps_A_143_217);
-  hi_l_nuis_enums.push_back(ClikPar::ps_A_217_217);
-  hi_l_nuis_enums.push_back(ClikPar::ksz_norm);
-  hi_l_nuis_enums.push_back(ClikPar::gal545_A_100);
-  hi_l_nuis_enums.push_back(ClikPar::gal545_A_143);
-  hi_l_nuis_enums.push_back(ClikPar::gal545_A_143_217);
-  hi_l_nuis_enums.push_back(ClikPar::gal545_A_217);
-// TTTEEE
-  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_100);
-  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_100_143);
-  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_100_217);
-  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_143);
-  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_143_217);
-  hi_l_nuis_enums.push_back(ClikPar::galf_EE_A_217);
-  hi_l_nuis_enums.push_back(ClikPar::galf_EE_index);
-  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_100);
-  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_100_143);
-  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_100_217);
-  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_143);
-  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_143_217);
-  hi_l_nuis_enums.push_back(ClikPar::galf_TE_A_217);
-  hi_l_nuis_enums.push_back(ClikPar::galf_TE_index);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0T_0E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0T_0E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0T_0E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0T_0E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0T_0E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0T_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0T_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0T_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0T_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0T_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_1T_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_1T_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_1T_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_1T_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_1T_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_1T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_1T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_1T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_1T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_1T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_2T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_2T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_2T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_2T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_2T_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0E_0E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0E_0E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0E_0E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0E_0E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0E_0E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0E_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0E_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0E_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0E_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0E_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_0E_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_0E_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_0E_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_0E_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_0E_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_1E_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_1E_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_1E_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_1E_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_1E_1E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_1E_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_1E_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_1E_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_1E_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_1E_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_0_2E_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_1_2E_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_2_2E_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_3_2E_2E);
-  hi_l_nuis_enums.push_back(ClikPar::bleak_epsilon_4_2E_2E);
-// TT & TTTEEE
-  hi_l_nuis_enums.push_back(ClikPar::calib_100T);
-  hi_l_nuis_enums.push_back(ClikPar::calib_217T);
-// TTTEEE
-  hi_l_nuis_enums.push_back(ClikPar::calib_100P);
-  hi_l_nuis_enums.push_back(ClikPar::calib_143P);
-  hi_l_nuis_enums.push_back(ClikPar::calib_217P);
-  hi_l_nuis_enums.push_back(ClikPar::A_pol);
-#endif
-  hi_l_nuis_enums.push_back(ClikPar::A_planck);
-
-  hi_l_clik->set_nuisance_param_enums(hi_l_nuis_enums);
-
-  // Print out nuisance parameter names for the world to see
-  std::cout << *hi_l_clik;
+  //*
+  lo_l_nuis_enums.push_back(A_planck);
 
   std::cout << "Opening " << lo_l_clik_path << std::endl;
 
   // Create new clik object for low l likelihood
-  lo_l_clik = new ClikObject(lo_l_clik_path);
-
-  lo_l_nuis_enums.push_back(ClikPar::A_planck);
-
-  lo_l_clik->set_nuisance_param_enums(lo_l_nuis_enums);
-
-  // Print out nuisance parameter names for the world to see
-  std::cout << *lo_l_clik;
+  lo_l_clik = initialise_clik_struct(lo_l_clik_path,
+                                     lo_l_nuis_enums,
+                                     total_max_l);
+  plc_pack->clik_objs.push_back(lo_l_clik);
+  //*/
 
 
-  // Package it all together
-  plc_pack = new PLCPack();
-  plc_pack->add_clik_object(hi_l_clik);
-  plc_pack->add_clik_object(lo_l_clik);
-  plc_pack->set_clik_params(clik_par);
-  plc_pack->read_pbh_files(pbh_file_root);
+  // Create cl_ls vector of l values!!!
+  for (int l = CLASS_MIN_L; l <= total_max_l; ++l) {
+    plc_pack->cl_ls.push_back(l);
+  }
 
+  //*
   // Initialise CLASS before runing MultiNest
-  plc_pack->initialise_CLASS();
+  initialise_CLASS_engine(plc_pack->engine, total_max_l);
 
   context = plc_pack;
+  //*/
 
+  // Initialise m_min, m_max and the rest
+  initialise_params();
+
+  // Initialise CLASS before runing MultiNest
+  // plc_pack->read_pbh_files(pbh_file_root);
+  // plc_pack->initialise_CLASS();
 
   // Calling MultiNest
 
-  nested::run(IS, mmodal, ceff, nlive, tol, efr, ndims, nPar, nClsPar,
-              maxModes, updInt, Ztol, root, seed, pWrap, fb,
-              resume, outfile, initMPI, logZero, maxiter, LogLike,
-              dumper, context);
+  pc_multinest(multinest_loglike, multinest_dumper, settings, context);
 
+  // Deallocate memory
+  delete[] settings.pWrap;
+
+  for (std::vector<clik_struct*>::iterator clik_struct_it = plc_pack->clik_objs.begin(); clik_struct_it != plc_pack->clik_objs.end(); ++clik_struct_it) {
+    free((*clik_struct_it)->clik_id);
+    delete *clik_struct_it;
+  }
+
+  delete plc_pack->engine;
   delete plc_pack;
 
   return 0;
 }
 
+void pc_multinest(void (*loglike)(double*,
+                                  int&,
+                                  int&,
+                                  double&,
+                                  void*),
+                  void (*dumper)(int&,
+                                 int&,
+                                 int&,
+                                 double**,
+                                 double**,
+                                 double**,
+                                 double&,
+                                 double&,
+                                 double&,
+                                 double&,
+                                 void*),
+                  multinest_settings& s,
+                  void*& context) {
 
-/*** Secondary Functions ***/
-
-// The dumper routine will be called every updInt*10 iterations
-// MultiNest doesn not need to the user to do anything. User can use the arguments in whichever way he/she wants
-
-// Arguments:
-//
-// nSamples         = total number of samples in posterior distribution
-// nlive            = total number of live points
-// nPar             = total number of parameters (free + derived)
-// physLive[1][nlive * (nPar + 1)]      = 2D array containing the last set of live points (physical parameters plus derived parameters) along with their loglikelihood values
-// posterior[1][nSamples * (nPar + 2)]      = posterior distribution containing nSamples points. Each sample has nPar parameters (physical + derived) along with the their loglike value & posterior probability
-// paramConstr[1][4*nPar]:
-// paramConstr[0][0] to paramConstr[0][nPar - 1]  = mean values of the parameters
-// paramConstr[0][nPar] to paramConstr[0][2*nPar - 1]   = standard deviation of the parameters
-// paramConstr[0][nPar*2] to paramConstr[0][3*nPar - 1] = best-fit (maxlike) parameters
-// paramConstr[0][nPar*4] to paramConstr[0][4*nPar - 1] = MAP (maximum-a-posteriori) parameters
-// maxLogLike       = maximum loglikelihood value
-// logZ             = log evidence value from the default (non-INS) mode
-// INSlogZ          = log evidence value from the INS mode
-// logZerr          = error on log evidence value
-// context          = void pointer, any additional information
-
-// Default example from eggbox.cc
-void dumper(int &nSamples, int &nlive, int &nPar, double **physLive, double **posterior, double **paramConstr, double &maxLogLike, double &logZ, double &INSlogZ, double &logZerr, void *context)
-{
-  // convert the 2D Fortran arrays to C++ arrays
-  
-  // the posterior distribution
-  // postdist will have nPar parameters in the first nPar columns & loglike value & the posterior probability in the last two columns
-  
-  // int i, j;
-  
-  // double postdist[nSamples][nPar + 2];
-  // for( i = 0; i < nPar + 2; i++ )
-  //   for( j = 0; j < nSamples; j++ )
-  //     postdist[j][i] = posterior[0][i * nSamples + j];
-  
-  // // last set of live points
-  // // pLivePts will have nPar parameters in the first nPar columns & loglike value in the last column
-  
-  // double pLivePts[nlive][nPar + 1];
-  // for( i = 0; i < nPar + 1; i++ )
-  //   for( j = 0; j < nlive; j++ )
-  //     pLivePts[j][i] = physLive[0][i * nlive + j];
+  nested::run(s.IS,
+              s.mmodal,
+              s.ceff,
+              s.nlive,
+              s.tol,
+              s.efr,
+              s.ndims,
+              s.nPar,
+              s.nClsPar,
+              s.maxModes,
+              s.updInt,
+              s.Ztol,
+              s.root,
+              s.seed,
+              s.pWrap,
+              s.fb,
+              s.resume,
+              s.outfile,
+              s.initMPI,
+              s.logZero,
+              s.maxiter,
+              loglike,
+              dumper,
+              context);
 }

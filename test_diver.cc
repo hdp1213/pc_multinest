@@ -13,7 +13,7 @@ int main(int argc, char** argv)
   int total_max_l = -1;
 
   std::vector<clik_struct*> clik_objects;
-  diver_bundle* plc_pack = new diver_bundle();
+  plc_bundle* plc_pack = new plc_bundle();
 
   // High l full likelihood variables
   std::string hi_l_clik_path = std::string(PLIK_HI_L_FILE_DIR);

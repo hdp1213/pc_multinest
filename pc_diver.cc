@@ -15,18 +15,18 @@ int main(int argc, char** argv)
 
   diver_settings settings;
 
-  // settings.nPar               = 2;
-  // settings.lowerbounds        = {-6.0, -6.0};
-  // settings.upperbounds        = { 6.0,  6.0};
+  settings.nPar               = FREE_PARAM_AMT;
+  settings.lowerbounds        = m_min;
+  settings.upperbounds        = m_max;
+  settings.nDerived           = DERIVED_PARAM_AMT;
   // settings.path               = "output/pc_diver-";
-  // settings.nDerived           = 0;
   settings.nDiscrete          = 0;
   settings.discrete           = {none};
   settings.partitionDiscrete  = false;
 
   settings.maxciv             = 100;
   settings.maxgen             = 100;
-  // settings.NP                 = 200;
+  settings.NP = 10*settings.nPar;
   settings.nF                 = 1;
   // settings.F                  = {0.6};
   settings.Cr                 = 0.9;
@@ -54,13 +54,13 @@ int main(int argc, char** argv)
   settings.verbose            = 2;
 
 
-  ////// pc_mulinest variables //////
+  ////// plc_class variables //////
 
   void* context = 0;
   int total_max_l = -1;
 
   std::vector<clik_struct*> clik_objects;
-  diver_bundle* plc_pack = new diver_bundle();
+  plc_bundle* plc_pack = new plc_bundle();
 
   // High l full likelihood variables
   std::string hi_l_clik_path = std::string(PLIK_HI_L_FILE_DIR);
@@ -86,7 +86,6 @@ int main(int argc, char** argv)
   }
 
   std::cout << "Printing results to " << settings.path << std::endl;
-
 
   //*
   // Push nuisance parameters in the order they appear in cl_and_pars
@@ -228,12 +227,6 @@ int main(int argc, char** argv)
   // Initialise m_min, m_max and the rest
   initialise_params();
 
-  settings.nPar = FREE_PARAM_AMT;
-  settings.NP = 10*settings.nPar;
-  settings.lowerbounds = m_min;
-  settings.upperbounds = m_max;
-  settings.nDerived = DERIVED_PARAM_AMT;
-
   // Initialise CLASS before runing MultiNest
   // plc_pack->read_pbh_files(pbh_file_root);
   // plc_pack->initialise_CLASS();
@@ -255,7 +248,17 @@ int main(int argc, char** argv)
   
 }
 
-void pc_diver(double (*obj_func)(double[], const int, int&, bool&, const bool, void*&), double (*prior_func)(const double[], const int, void*&), diver_settings& s, void*& context) {
+void pc_diver(double (*obj_func)(double[],
+                                 const int,
+                                 int&,
+                                 bool&,
+                                 const bool,
+                                 void*&),
+              double (*prior_func)(const double[],
+                                   const int,
+                                   void*&),
+              diver_settings& s,
+              void*& context) {
 
   const int maxciv = s.maxciv;
   const int maxgen = s.maxgen;

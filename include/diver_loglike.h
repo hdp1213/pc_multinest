@@ -5,13 +5,6 @@
 
 #include <algorithm> // for std::copy
 #include <limits>
-#include <vector>
-
-struct diver_bundle {
-  std::vector<clik_struct*> clik_objs;
-  ClassEngine* engine;
-  std::vector<unsigned> cl_ls;
-};
 
 // Function to be minimized.  Corresponds to -ln(Likelihood).  Redirects to the target of context pointer.
 // params contains only free and derived parameters
@@ -22,10 +15,10 @@ double diver_loglike(double params[], const int param_dim, int &fcall, bool &qui
 
   // If params[] is within the parameter bounds, evaluate its likelihood
   if (validvector) {
-    diver_bundle* plc_pack;
+    plc_bundle* plc_pack;
     double in_vals[UP_TO_FIXED_PARAMS];
 
-    plc_pack = static_cast<diver_bundle*>(context);
+    plc_pack = static_cast<plc_bundle*>(context);
 
     // Copy free and fixed parameters into in_vals, the input parameters
     std::copy(params, params + FREE_PARAM_AMT, in_vals);
@@ -54,6 +47,5 @@ double diver_prior(const double real_params[], const int real_param_dim, void*& 
 
   return 1.0/res;
 }
-
 
 #endif

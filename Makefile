@@ -58,7 +58,7 @@ ifeq ($(MACHINE),gnu)
 FC_MPI := mpifort
 FC_MPI_FLAGS := -ffree-line-length-none -DMPI
 else
-FC_MPI := mpiifort
+FC_MPI := mpifort
 FC_MPI_FLAGS := -nofor-main -DMPI
 endif
 
