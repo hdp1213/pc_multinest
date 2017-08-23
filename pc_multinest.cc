@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
   settings.tol = 1E-1;
 
   settings.ndims = FREE_PARAM_AMT;
-  settings.nPar = TOTAL_PARAM_AMT;
+  settings.nPar = FREE_PARAM_AMT + DERIVED_PARAM_AMT;
   settings.nClsPar = 0;
 
   settings.updInt = 1000;

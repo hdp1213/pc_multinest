@@ -16,13 +16,13 @@ void multinest_loglike(double *Cube, int &ndim, int &npars, double &lnew, void *
   plc_pack = static_cast<plc_bundle*>(context);
 
   // Transform free Cube parameters from unit hypercube to physical space
-  for (int param = 0; param < FREE_PARAM_AMT; ++param) {
+  for (int param = 0; param < ndim; ++param) {
     Cube[param] = m_min[param] + Cube[param] * (m_max[param] - m_min[param]);
   }
 
   // Copy free and fixed parameters into in_vals, the input parameters
-  std::copy(Cube, Cube + FREE_PARAM_AMT, in_vals);
-  std::copy(m_value, m_value + FIXED_PARAM_AMT, in_vals + FREE_PARAM_AMT);
+  std::copy(Cube, Cube + ndim, in_vals);
+  std::copy(m_value, m_value + FIXED_PARAM_AMT, in_vals + ndim);
 
   lnew = pc_loglike(plc_pack->clik_objs, plc_pack->engine,
                     plc_pack->cl_ls, Cube, in_vals);
