@@ -68,7 +68,7 @@ CPPC_MPI_FLAGS := #-DMPI
 
 # Own object files to link against
 # PC_OBJS = PLCPack.o ClikObject.o ClikPar.o Param.o
-PC_OBJS = init_plc.o
+PC_OBJS = pbh_io.o init_plc.o
 PC_DIVER_INC = pc_diver.h diver_loglike.h loglike.h
 
 # CLASS object files to link against
@@ -102,11 +102,15 @@ all: pc_multinest pc_multinest_mpi pc_speedtest
 
 ClassEngine.o: Engine.o
 
-init_plc.o: ClassEngine.o
+pbh_io.o:
+
+init_plc.o: ClassEngine.o pbh_io.o
 
 test_diver.o: init_plc.o
 
 pc_diver.o: init_plc.o
+
+pc_multinest_mpi.o: init_plc.o
 
 
 # Compilation commands

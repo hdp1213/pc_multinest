@@ -78,6 +78,10 @@ int main(int argc, char* argv[]) {
   std::vector<param_t> lo_l_nuis_enums;
   clik_struct* lo_l_clik;
 
+  // PBH variables
+  std::string pbh_file_root = std::string(CLASS_PBH_FILE_DIR) + "/";
+  pbh_external* pbh_info;
+
   // Use the first command line argument as a non-default
   // output root
   // That is, if an argument is even specified
@@ -214,6 +218,9 @@ int main(int argc, char* argv[]) {
   plc_pack->clik_objs.push_back(lo_l_clik);
   //*/
 
+  // Read in external PBH files
+  pbh_info = initialise_pbh_external(pbh_file_root);
+
 
   // Create cl_ls vector of l values!!!
   for (int l = CLASS_MIN_L; l <= total_max_l; ++l) {
@@ -222,7 +229,7 @@ int main(int argc, char* argv[]) {
 
   //*
   // Initialise CLASS before runing MultiNest
-  initialise_CLASS_engine(plc_pack->engine, total_max_l);
+  initialise_CLASS_engine(plc_pack->engine, total_max_l, pbh_info);
 
   context = plc_pack;
   //*/

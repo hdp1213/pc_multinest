@@ -1,8 +1,8 @@
+#include "init_plc.h"
+
 #include <cstdio> // for stderr
 #include <exception> // for std::exception
 #include <iostream> // you know, for kids
-
-#include "init_plc.h"
 
 clik_struct* initialise_clik_struct(std::string& clik_path,
                                     std::vector<param_t>& nuis_params,
@@ -75,13 +75,13 @@ clik_struct* initialise_clik_struct(std::string& clik_path,
   return res_struct;
 }
 
-void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l) {
+void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, pbh_external* pbh_info) {
   ClassParams default_params;
 
   /*** FREE PARAMETERS ***/
 
   // PBH DM
-  // default_params.add("Omega_pbh_ratio", 1.E-7);
+  default_params.add("Omega_pbh_ratio", 1.E-7);
 
   /*** FREE/FIXED PARAMETERS ***/
 
@@ -94,14 +94,10 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l) {
   default_params.add("n_s", 0.96475);
 
   // PBH DM
-  // default_params.add("pbh_mass_dist", "pbh_none");
-  // default_params.add("read pbh splines", false);
-  /*
   default_params.add("pbh_mass_dist", "pbh_delta");
   default_params.add("pbh_mass_mean", 1.E6);
   // default_params.add("pbh_mass_width", 1.E1);
   default_params.add("read pbh splines", false); // very important!!
-  */
 
   // Neutrino values
   default_params.add("N_ur", 2.0328);
@@ -134,8 +130,8 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l) {
 
   // Initialise CLASS engine with external PBH info
   try {
-    // class_engine = new ClassEngine(default_params, pbh_info);
-    class_engine = new ClassEngine(default_params);
+    class_engine = new ClassEngine(default_params, pbh_info);
+    // class_engine = new ClassEngine(default_params);
   }
   catch (std::exception const &e) {
     std::cerr << "[ERROR] CLASS initialisation "
@@ -144,4 +140,25 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l) {
               << std::endl;
     throw e;
   }
+}
+
+pbh_external* initialise_pbh_external(std::string& pbh_root) {
+  pbh_external* pbh_info = new pbh_external();
+  pbh_info->hion = new bspline_2d();
+  pbh_info->excite = new bspline_2d();
+  pbh_info->heat = new bspline_2d();
+
+  // Read in axes
+  read_axes(pbh_root, pbh_info);
+
+  // Read in hydrogen ionisation
+  read_bicubic_bspline(pbh_root, "hion.dat", pbh_info->hion);
+
+  // Read in hydrogen excitation
+  read_bicubic_bspline(pbh_root, "excite.dat", pbh_info->excite);
+
+  // Read in plasma heating
+  read_bicubic_bspline(pbh_root, "heat.dat", pbh_info->heat);
+
+  return pbh_info;
 }

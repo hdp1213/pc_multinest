@@ -75,6 +75,7 @@ double pc_loglike(std::vector<clik_struct*>& clik_objs,
   double loglike = 0.0;
   class_cls.reserve(CLASS_CL_AMT);
 
+  class_params.push_back(in_vals[pbh_frac]);
   class_params.push_back(in_vals[omega_b]);
   class_params.push_back(in_vals[omega_cdm]);
   class_params.push_back(in_vals[hundredxtheta_s]);

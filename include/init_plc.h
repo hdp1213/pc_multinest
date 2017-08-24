@@ -4,9 +4,11 @@
 #include "clik.h"
 #include "ClassEngine.hh"
 
+#include "pbh_io.h"
+
 // #include "TTTEEE+lowP_pbh_fixedLCDM.h"
-// #include "TTTEEE+lowP_pbh.h"
-#include "TTTEEE+lowP.h"
+#include "TTTEEE+lowP_pbh.h"
+// #include "TTTEEE+lowP.h"
 
 #include <string>
 #include <vector>
@@ -33,6 +35,8 @@ clik_struct* initialise_clik_struct(std::string& clik_path,
                                     std::vector<param_t>& nuis_params,
                                     int& total_max_l);
 
-void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l);
+void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, pbh_external* pbh_info);
+
+pbh_external* initialise_pbh_external(std::string& pbh_root);
 
 #endif
