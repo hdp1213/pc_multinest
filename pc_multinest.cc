@@ -23,14 +23,14 @@
 int main(int argc, char* argv[]) {
 
   ////// MultiNest settings //////
-  
+
   multinest_settings settings;
 
   settings.IS = false;
   settings.mmodal = false;
   settings.ceff = true;
 
-  settings.nlive = 500;
+  settings.nlive = 4000;
   settings.efr = 0.8;
   settings.tol = 1E-1;
 
