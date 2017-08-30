@@ -1,7 +1,12 @@
 #ifndef PC_MULTINEST
 #define PC_MULTINEST
 
+#include <algorithm>
+#include <cstdio>
 #include <string>
+
+#include "multinest.h"
+#include "multinest_loglike.h"
 
 struct multinest_settings {
   bool IS;           // do Nested Importance Sampling?

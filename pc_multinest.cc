@@ -2,11 +2,7 @@
 
 #include <cstdio> // for stderr
 #include <iostream>
-#include <string>
 #include <vector>
-
-#include "multinest.h"
-#include "multinest_loglike.h"
 
 /*
   Uses CLASS (wherever that will be with GAMBIT) to produce
@@ -30,8 +26,8 @@ int main(int argc, char* argv[]) {
   settings.mmodal = false;
   settings.ceff = true;
 
-  settings.nlive = 4000;
-  settings.efr = 0.8;
+  settings.nlive = 1000;
+  settings.efr = 0.3;
   settings.tol = 1E-1;
 
   settings.ndims = FREE_PARAM_AMT;

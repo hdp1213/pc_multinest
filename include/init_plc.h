@@ -39,4 +39,6 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, pbh_external
 
 pbh_external* initialise_pbh_external(std::string& pbh_root);
 
+void initialise_params();
+
 #endif

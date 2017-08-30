@@ -4,6 +4,13 @@
 #include <exception> // for std::exception
 #include <iostream> // you know, for kids
 
+double m_min[FREE_PARAM_AMT], m_max[FREE_PARAM_AMT];
+double m_value[FIXED_PARAM_AMT];
+
+bool m_has_gaussian_prior[TOTAL_PARAM_AMT];
+double m_mean[TOTAL_PARAM_AMT], m_stddev[TOTAL_PARAM_AMT];
+
+
 clik_struct* initialise_clik_struct(std::string& clik_path,
                                     std::vector<param_t>& nuis_params,
                                     int& total_max_l) {
@@ -95,7 +102,7 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, pbh_external
 
   // PBH DM
   default_params.add("pbh_mass_dist", "pbh_delta");
-  default_params.add("pbh_mass_mean", 1.E6);
+  default_params.add("pbh_mass_mean", 1.E5);
   // default_params.add("pbh_mass_width", 1.E1);
   default_params.add("read pbh splines", false); // very important!!
 
@@ -161,4 +168,14 @@ pbh_external* initialise_pbh_external(std::string& pbh_root) {
   read_bicubic_bspline(pbh_root, "heat.dat", pbh_info->heat);
 
   return pbh_info;
+}
+
+void initialise_params() {
+  // #include "TTTEEE+lowP_pbh_fixedLCDM-flat.cc"
+  #include "TTTEEE+lowP_pbh-flat.cc"
+  // #include "TTTEEE+lowP-flat.cc"
+
+  // #include "TTTEEE+lowP_pbh_fixedLCDM-gauss.cc"
+  #include "TTTEEE+lowP_pbh-gauss.cc"
+  // #include "TTTEEE+lowP-gauss.cc"
 }

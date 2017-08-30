@@ -68,7 +68,7 @@ CPPC_MPI_FLAGS := #-DMPI
 
 # Own object files to link against
 # PC_OBJS = PLCPack.o ClikObject.o ClikPar.o Param.o
-PC_OBJS = pbh_io.o init_plc.o
+PC_OBJS = pbh_io.o init_plc.o loglike.o multinest_loglike.o
 PC_DIVER_INC = pc_diver.h diver_loglike.h loglike.h
 
 # CLASS object files to link against
@@ -106,11 +106,15 @@ pbh_io.o:
 
 init_plc.o: ClassEngine.o pbh_io.o
 
+loglike.o: init_plc.o
+
+multinest_loglike.o: loglike.o
+
 test_diver.o: init_plc.o
 
 pc_diver.o: init_plc.o
 
-pc_multinest_mpi.o: init_plc.o
+pc_multinest_mpi.o: multinest_loglike.o
 
 
 # Compilation commands
@@ -118,61 +122,19 @@ pc_multinest_mpi.o: init_plc.o
 %.o: %.cc .base
 	cd $(WORK_DIR); $(CPPC) -c -o $*.o $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS)
 
-# MultiNest-compatible program 
-# Must link with gfortran!!!
-pc_multinest: pc_multinest.o $(CLASS_CPP_OBJS) $(PC_OBJS)
-	$(FC) $(FC_FLAGS) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
-	rm -rf output/*
-
-pc_multinest.o: ../pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC) .base
-	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
-
 # MultiNest-compatible program compiled with MPI
-pc_multinest_mpi: pc_multinest_mpi.o $(CLASS_CPP_OBJS) $(PC_OBJS)
+pc_multinest_mpi: pc_multinest_mpi.o $(CLASS_CPP_OBJS) $(PC_BUILD_OBJS)
 	$(FC_MPI) $(FC_MPI_FLAGS) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -rf output/*
 
 pc_multinest_mpi.o: ../pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC) .base
 	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
-# Speedtest program
-pc_speedtest: pc_speedtest.o $(PC_OBJS)
-	$(FC) $(FC_FLAGS) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
-	rm -rf output/*
-
-pc_speedtest.o: ../pc_speedtest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC) .base
-	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
-
-# Run CLASS quickly to calculate any derived parameters you want
-pc_propagate: pc_propagate.o $(CLASS_CPP_OBJS)
-	$(CPPC_MPI) $(CPPC_MPI_FLAGS) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(CLASS_INC_FLAGS) $(BATCH_CLASS_FLAGS)
-
-pc_propagate.o: ../pc_propagate.cc $(CPP_SRC) .base
-	cd $(WORK_DIR); $(CPPC_MPI) $(CPPC_MPI_FLAGS) -c -o $@ pc_propagate.cc $(OPT_FLAGS) $(CLASS_INC_FLAGS) $(BATCH_CLASS_FLAGS)
-
 pc_diver: pc_diver.o $(CLASS_CPP_OBJS) $(PC_BUILD_OBJS)
 	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -rf output/*
 
 pc_diver.o: ../pc_diver.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_DIVER_LOC) .base
-	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
-
-test_param: test_param.o Param.o
-	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^))
-
-test_param.o: ../tests/test_param.cc .base
-	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) -I$(PC_MULTINEST_DIR)/include
-
-test_classparam: test_classparam.o $(CLASS_CPP_OBJS) $(PC_OBJS)
-	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
-
-test_classparam.o: ../tests/test_classparam.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC) .base
-	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
-
-test_class: test_class.o $(CLASS_CPP_OBJS) $(PC_OBJS)
-	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
-
-test_class.o: ../tests/test_class.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC) .base
 	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 test_diver: test_diver.o $(CLASS_CPP_OBJS) $(PC_BUILD_OBJS)
