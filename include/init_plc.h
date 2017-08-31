@@ -16,6 +16,13 @@
 const int CL_AMT = 6;
 const int CLASS_MIN_L = 2;
 
+extern double m_min[];
+extern double m_max[];
+extern double m_value[];
+extern bool m_has_gaussian_prior[];
+extern double m_mean[];
+extern double m_stddev[];
+
 struct clik_struct {
   clik_object* clik_id;
   int max_l;

@@ -3,9 +3,9 @@
 
 #include "loglike.h"
 
-extern double* m_min;
-extern double* m_max;
-extern double* m_value;
+extern double m_min[];
+extern double m_max[];
+extern double m_value[];
 
 // Function to be minimized.  Corresponds to ln(Likelihood).  Redirects to the target of context pointer.
 // Cube contains only free and derived parameters. To begin, free params

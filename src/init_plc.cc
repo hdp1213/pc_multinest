@@ -4,12 +4,6 @@
 #include <exception> // for std::exception
 #include <iostream> // you know, for kids
 
-double m_min[FREE_PARAM_AMT], m_max[FREE_PARAM_AMT];
-double m_value[FIXED_PARAM_AMT];
-
-bool m_has_gaussian_prior[TOTAL_PARAM_AMT];
-double m_mean[TOTAL_PARAM_AMT], m_stddev[TOTAL_PARAM_AMT];
-
 
 clik_struct* initialise_clik_struct(std::string& clik_path,
                                     std::vector<param_t>& nuis_params,

@@ -1,8 +1,13 @@
 #include "pc_multinest.h"
 
-#include <cstdio> // for stderr
 #include <iostream>
 #include <vector>
+
+double m_min[FREE_PARAM_AMT], m_max[FREE_PARAM_AMT];
+double m_value[FIXED_PARAM_AMT];
+
+bool m_has_gaussian_prior[TOTAL_PARAM_AMT];
+double m_mean[TOTAL_PARAM_AMT], m_stddev[TOTAL_PARAM_AMT];
 
 /*
   Uses CLASS (wherever that will be with GAMBIT) to produce

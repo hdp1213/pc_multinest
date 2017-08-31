@@ -30,9 +30,9 @@ const int conf_age_LOC = static_cast<int>(conf_age - FIXED_PARAM_AMT);
 const int z_drag_LOC = static_cast<int>(z_drag - FIXED_PARAM_AMT);
 const int rs_drag_LOC = static_cast<int>(rs_drag - FIXED_PARAM_AMT);
 
-extern double* m_mean;
-extern double* m_has_gaussian_prior;
-extern double* m_stddev;
+extern double m_mean[];
+extern bool m_has_gaussian_prior[];
+extern double m_stddev[];
 
 /**
  * What do we need to compute the log likelihood for plc_class?
