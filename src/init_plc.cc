@@ -8,6 +8,9 @@
 clik_struct* initialise_clik_struct(std::string& clik_path,
                                     std::vector<param_t>& nuis_params,
                                     int& total_max_l) {
+  std::cout << "[init_plc] initialising clik_struct"
+            << std::endl;
+
   clik_struct* res_struct = new clik_struct();
 
   int cl_flags[CL_AMT];
@@ -77,6 +80,9 @@ clik_struct* initialise_clik_struct(std::string& clik_path,
 }
 
 void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, pbh_external* pbh_info) {
+  std::cout << "[init_plc] initialising CLASS engine"
+            << std::endl;
+
   ClassParams default_params;
 
   /*** FREE PARAMETERS ***/
@@ -96,7 +102,7 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, pbh_external
 
   // PBH DM
   default_params.add("pbh_mass_dist", "pbh_delta");
-  default_params.add("pbh_mass_mean", 1.E5);
+  default_params.add("pbh_mass_mean", 1.E6);
   // default_params.add("pbh_mass_width", 1.E1);
   default_params.add("read pbh splines", false); // very important!!
 
@@ -144,6 +150,9 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, pbh_external
 }
 
 pbh_external* initialise_pbh_external(std::string& pbh_root) {
+  std::cout << "[init_plc] initialising pbh_external struct"
+            << std::endl;
+
   pbh_external* pbh_info = new pbh_external();
   pbh_info->hion = new bspline_2d();
   pbh_info->excite = new bspline_2d();
@@ -164,7 +173,17 @@ pbh_external* initialise_pbh_external(std::string& pbh_root) {
   return pbh_info;
 }
 
-void initialise_params() {
+void initialise_param_arrays() {
+  std::cout << "[init_plc] initialising parameter arrays"
+            << std::endl;
+
+  // Set defaults for global arrays
+  for (int param = 0; param < FREE_PARAM_AMT; ++param) {
+    m_is_log10[param] = false;
+  }
+
+  // Include parameter array initialisations
+
   // #include "TTTEEE+lowP_pbh_fixedLCDM-flat.cc"
   #include "TTTEEE+lowP_pbh-flat.cc"
   // #include "TTTEEE+lowP-flat.cc"
@@ -172,4 +191,9 @@ void initialise_params() {
   // #include "TTTEEE+lowP_pbh_fixedLCDM-gauss.cc"
   #include "TTTEEE+lowP_pbh-gauss.cc"
   // #include "TTTEEE+lowP-gauss.cc"
+
+  // Set values of m_transform depending on includes
+  for (int param = 0; param < FREE_PARAM_AMT; ++param) {
+    m_transform[param] = m_is_log10[param] ? &pow10 : &self;
+  }
 }

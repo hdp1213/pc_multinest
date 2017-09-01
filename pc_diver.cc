@@ -225,7 +225,7 @@ int main(int argc, char** argv)
   //*/
 
   // Initialise m_min, m_max and the rest
-  initialise_params();
+  initialise_param_arrays();
 
   // Initialise CLASS before runing MultiNest
   // plc_pack->read_pbh_files(pbh_file_root);

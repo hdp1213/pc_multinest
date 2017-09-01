@@ -6,12 +6,14 @@
 void multinest_loglike(double *Cube, int &ndim, int &npars, double &lnew, void *context) {
   plc_bundle* plc_pack;
   double in_vals[UP_TO_FIXED_PARAMS];
+  trans_t func;
 
   plc_pack = static_cast<plc_bundle*>(context);
 
   // Transform free Cube parameters from unit hypercube to physical space
   for (int param = 0; param < ndim; ++param) {
-    Cube[param] = m_min[param] + Cube[param] * (m_max[param] - m_min[param]);
+    func = m_transform[param];
+    Cube[param] = func(m_min[param] + Cube[param] * (m_max[param] - m_min[param]));
   }
 
   // Copy free and fixed parameters into in_vals, the input parameters

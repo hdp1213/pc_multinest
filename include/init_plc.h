@@ -10,8 +10,11 @@
 #include "TTTEEE+lowP_pbh.h"
 // #include "TTTEEE+lowP.h"
 
+#include <math.h>
 #include <string>
 #include <vector>
+
+typedef double (*trans_t)(double);
 
 const int CL_AMT = 6;
 const int CLASS_MIN_L = 2;
@@ -22,6 +25,9 @@ extern double m_value[];
 extern bool m_has_gaussian_prior[];
 extern double m_mean[];
 extern double m_stddev[];
+
+extern bool m_is_log10[];
+extern trans_t m_transform[];
 
 struct clik_struct {
   clik_object* clik_id;
@@ -46,6 +52,9 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, pbh_external
 
 pbh_external* initialise_pbh_external(std::string& pbh_root);
 
-void initialise_params();
+inline double pow10(double x) { return pow(10., x); }
+inline double self(double x) { return x; }
+
+void initialise_param_arrays();
 
 #endif

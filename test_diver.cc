@@ -170,7 +170,7 @@ int main(int argc, char** argv)
   //*/
 
   // Initialise m_min, m_max and the rest
-  initialise_params();
+  initialise_param_arrays();
 
   // Diver parameters
   int nPar = FREE_PARAM_AMT;

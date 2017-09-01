@@ -9,6 +9,9 @@ double m_value[FIXED_PARAM_AMT];
 bool m_has_gaussian_prior[TOTAL_PARAM_AMT];
 double m_mean[TOTAL_PARAM_AMT], m_stddev[TOTAL_PARAM_AMT];
 
+bool m_is_log10[FREE_PARAM_AMT];
+trans_t m_transform[FREE_PARAM_AMT];
+
 /*
   Uses CLASS (wherever that will be with GAMBIT) to produce
   spectra which are used in the log likelihood using PLC to
@@ -236,7 +239,7 @@ int main(int argc, char* argv[]) {
   //*/
 
   // Initialise m_min, m_max and the rest
-  initialise_params();
+  initialise_param_arrays();
 
   // Initialise CLASS before runing MultiNest
   // plc_pack->read_pbh_files(pbh_file_root);
