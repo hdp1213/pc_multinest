@@ -8,8 +8,9 @@
 #define FLAT_PRIOR_SET
 
 // Non-standard LCDM parameters
-m_is_log10[pbh_frac] = true;
-m_min[pbh_frac] = -20.0;          m_max[pbh_frac] = 0.0;
+// m_is_log10[pbh_frac] = true;
+// m_min[pbh_frac] = -20.0;          m_max[pbh_frac] = 0.0;
+m_min[pbh_frac] = 0.0;          m_max[pbh_frac] = 0.01;
 
 // Free LCDM parameters according to TTTEEE+lowP.pars
 m_min[omega_b] = 0.016;          m_max[omega_b] = 0.028;

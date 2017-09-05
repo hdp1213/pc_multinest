@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
   settings.ceff = true;
 
   settings.nlive = 1000;
-  settings.efr = 0.3;
+  settings.efr = 0.05;
   settings.tol = 1E-1;
 
   settings.ndims = FREE_PARAM_AMT;
