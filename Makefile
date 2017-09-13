@@ -112,6 +112,8 @@ multinest_loglike.o: loglike.o
 
 test_diver.o: init_plc.o
 
+test_multinest.o: multinest_loglike.o
+
 pc_diver.o: init_plc.o
 
 pc_multinest_mpi.o: multinest_loglike.o
@@ -142,6 +144,16 @@ test_diver: test_diver.o $(CLASS_CPP_OBJS) $(PC_BUILD_OBJS)
 
 test_diver.o: ../test_diver.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_DIVER_LOC) .base
 	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
+
+test_multinest: test_multinest.o $(CLASS_CPP_OBJS) $(PC_BUILD_OBJS)
+	$(FC_MPI) $(FC_MPI_FLAGS) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
+	rm -rf output/*
+
+test_multinest.o: ../test_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC) .base
+	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
+
+output_chain_files: output_chain_files.cc
+	$(CPPC) -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS)
 
 clean:
 	rm -rf build/* output/*

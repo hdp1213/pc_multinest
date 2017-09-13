@@ -9,6 +9,8 @@ pc_multinest
 pc_multinest_mpi
 pc_speedtest
 pc_propagate
+test_multinest
+output_chain_files
 *.job
 
 # Packages #
