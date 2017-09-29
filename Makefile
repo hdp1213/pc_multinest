@@ -72,7 +72,7 @@ PC_OBJS = pbh_io.o init_plc.o loglike.o multinest_loglike.o
 PC_DIVER_INC = pc_diver.h diver_loglike.h loglike.h
 
 # CLASS object files to link against
-CLASS_CPP = ClassEngine.o Engine.o
+CLASS_OBJS = ClassEngine.o Engine.o
 
 ALL_OBJS = $(PC_OBJS) $(CLASS_OBJS)
 
@@ -127,27 +127,27 @@ pc_multinest_mpi.o: multinest_loglike.o
 	cd $(WORK_DIR); $(CPPC) -c -o $*.o $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS)
 
 # MultiNest-compatible program compiled with MPI
-pc_multinest_mpi: pc_multinest_mpi.o $(CLASS_CPP_OBJS) $(PC_BUILD_OBJS)
+pc_multinest_mpi: pc_multinest_mpi.o $(PC_BUILD_OBJS)
 	$(FC_MPI) $(FC_MPI_FLAGS) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -rf output/*
 
 pc_multinest_mpi.o: ../pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC) .base
 	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
-pc_diver: pc_diver.o $(CLASS_CPP_OBJS) $(PC_BUILD_OBJS)
+pc_diver: pc_diver.o $(PC_BUILD_OBJS)
 	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -rf output/*
 
 pc_diver.o: ../pc_diver.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_DIVER_LOC) .base
 	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
-test_diver: test_diver.o $(CLASS_CPP_OBJS) $(PC_BUILD_OBJS)
+test_diver: test_diver.o $(PC_BUILD_OBJS)
 	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 test_diver.o: ../test_diver.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_DIVER_LOC) .base
 	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
-test_multinest: test_multinest.o $(CLASS_CPP_OBJS) $(PC_BUILD_OBJS)
+test_multinest: test_multinest.o $(PC_BUILD_OBJS)
 	$(FC_MPI) $(FC_MPI_FLAGS) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -rf output/*
 
