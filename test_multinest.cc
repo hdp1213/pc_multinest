@@ -23,24 +23,8 @@ int main(int argc, char const *argv[])
   std::vector<clik_struct*> clik_objects;
   plc_bundle* plc_pack = new plc_bundle();
 
-  // High l full likelihood variables
-  std::string hi_l_clik_path = std::string(PLIK_HI_L_FILE_DIR);
-#ifdef LITE_HI_L
-  hi_l_clik_path += "/plik_lite_v18_TTTEEE.clik/";
-#else
-  hi_l_clik_path += "/plik_dx11dr2_HM_v18_TTTEEE.clik/";
-#endif
-  std::vector<param_t> hi_l_nuis_enums;
-  clik_struct* hi_l_clik;
-
-  // Low l likelihood variables
-  std::string lo_l_clik_path = std::string(PLIK_LOW_L_FILE_DIR) \
-    + "/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
-  std::vector<param_t> lo_l_nuis_enums;
-  clik_struct* lo_l_clik;
-
   // PBH variables
-  std::string pbh_file_root = std::string(CLASS_PBH_FILE_DIR) + "/";
+  std::string pbh_file_root = std::string(CLASS_PBH_FILE_DIR);
   pbh_external* pbh_info;
 
   /// Actual Program ///
@@ -53,7 +37,34 @@ int main(int argc, char const *argv[])
     plc_pack->cl_ls.push_back(l);
   }
 
+  std::cout << "Initialising CLASS..." << std::endl;
+
   init_CLASS(plc_pack->engine, total_max_l, pbh_info);
+
+  std::cout << "CLASS successfully initialised, exiting..." << std::endl;
+
+  delete plc_pack->engine;
+  delete plc_pack;
+
+  delete[] pbh_info->hion->xknots;
+  delete[] pbh_info->hion->yknots;
+  delete[] pbh_info->hion->coeffs;
+  delete pbh_info->hion;
+
+  delete[] pbh_info->excite->xknots;
+  delete[] pbh_info->excite->yknots;
+  delete[] pbh_info->excite->coeffs;
+  delete pbh_info->excite;
+
+  delete[] pbh_info->heat->xknots;
+  delete[] pbh_info->heat->yknots;
+  delete[] pbh_info->heat->coeffs;
+  delete pbh_info->heat;
+
+  delete[] pbh_info->masses;
+  delete[] pbh_info->z_deps;
+
+  delete pbh_info;
 
   return 0;
 }
@@ -64,7 +75,7 @@ void init_CLASS(ClassEngine*& class_engine, int max_l, pbh_external* pbh_info) {
   /*** FREE PARAMETERS ***/
 
   // PBH DM
-  default_params.add("Omega_pbh_ratio", 5.68187e-06);
+  default_params.add("Omega_pbh_ratio", 1.e-07);
 
   /*** FREE/FIXED PARAMETERS ***/
 
@@ -78,7 +89,7 @@ void init_CLASS(ClassEngine*& class_engine, int max_l, pbh_external* pbh_info) {
 
   // PBH DM
   default_params.add("pbh_mass_dist", "pbh_delta");
-  default_params.add("pbh_mass_mean", 1E5);
+  default_params.add("pbh_mass_mean", 1E6);
   // default_params.add("pbh_mass_width", 1.E1);
   default_params.add("read pbh splines", false); // very important!!
 
@@ -98,8 +109,7 @@ void init_CLASS(ClassEngine*& class_engine, int max_l, pbh_external* pbh_info) {
   default_params.add("l_max_scalars", max_l);
   default_params.add("format", "camb");
 
-#ifdef DBUG
-  default_params.add("input_verbose", 1);
+  default_params.add("input_verbose", 3);
   default_params.add("background_verbose", 1);
   default_params.add("thermodynamics_verbose", 1);
   default_params.add("perturbations_verbose", 1);
@@ -109,7 +119,6 @@ void init_CLASS(ClassEngine*& class_engine, int max_l, pbh_external* pbh_info) {
   default_params.add("nonlinear_verbose", 1);
   default_params.add("lensing_verbose", 1);
   default_params.add("output_verbose", 1);
-#endif
 
   // Initialise CLASS engine with external PBH info
   try {

@@ -74,14 +74,14 @@ PC_DIVER_INC = pc_diver.h diver_loglike.h loglike.h
 # CLASS object files to link against
 CLASS_CPP = ClassEngine.o Engine.o
 
+ALL_OBJS = $(PC_OBJS) $(CLASS_OBJS)
+
 
 ########################################################################
 
 PC_MULTINEST_FILES = -D'PLIK_HI_L_FILE_DIR="$(PLIK_HI_L_FILE_DIR)"' -D'PLIK_LOW_L_FILE_DIR="$(PLIK_LOW_L_FILE_DIR)"' -D'CLASS_PBH_FILE_DIR="$(CLASS_PBH_FILE_DIR)"'
 
-CLASS_CPP_OBJS = $(addprefix $(CLASS_DIR)/cpp/, $(CLASS_CPP))
-
-PC_BUILD_OBJS = $(addprefix $(WORK_DIR)/, $(PC_OBJS))
+PC_BUILD_OBJS = $(addprefix $(WORK_DIR)/, $(ALL_OBJS))
 PC_DIVER_LOC = $(addprefix include/, $(PC_DIVER_INC))
 
 # Same thing, but with CLASS sources to compile myself (lame)
@@ -92,13 +92,15 @@ CPP_SRC = $(addprefix $(CLASS_DIR)/cpp/, $(addsuffix .cc, $(basename $(CLASS_CPP
 	if ! [ -e $(WORK_DIR) ]; then mkdir $(WORK_DIR) ; fi;
 	touch $(WORK_DIR)/.base
 
-vpath %.cc $(CLASS_DIR)/cpp:$(PC_MULTINEST_DIR)/src
+vpath %.cc $(PC_MULTINEST_DIR)/src
 vpath %.o $(WORK_DIR)
 vpath .base $(WORK_DIR)
 
 # Various dependencies for targets
 
 all: pc_multinest pc_multinest_mpi pc_speedtest
+
+Engine.o:
 
 ClassEngine.o: Engine.o
 
