@@ -46,6 +46,8 @@ int main(int argc, char const *argv[])
   delete plc_pack->engine;
   delete plc_pack;
 
+  delete[] info->masses;
+  delete[] info->z_deps;
   free_bspline(info->hion);
   free_bspline(info->excite);
   free_bspline(info->heat);
