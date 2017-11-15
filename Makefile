@@ -72,12 +72,17 @@ CPPC_MPI_FLAGS := #-DMPI
 PC_OBJS = pbh_io.o hyrec_io.o init_plc.o loglike.o multinest_loglike.o ClassEngine.o Engine.o
 PC_DIVER_INC = pc_diver.h diver_loglike.h loglike.h
 
+# CLASS object files to link against
+CLASS_OBJS = ClassEngine.o Engine.o
+
+ALL_OBJS = $(PC_OBJS) $(CLASS_OBJS)
+
 
 ########################################################################
 
 PC_MULTINEST_FILES = -D'PLIK_HI_L_FILE_DIR="$(PLIK_HI_L_FILE_DIR)"' -D'PLIK_LOW_L_FILE_DIR="$(PLIK_LOW_L_FILE_DIR)"' -D'CLASS_PBH_FILE_DIR="$(CLASS_PBH_FILE_DIR)"' -D'HYREC_FILE_DIR="$(HYREC_FILE_DIR)"' -DHYREC
 
-PC_BUILD_OBJS = $(addprefix $(WORK_DIR)/, $(PC_OBJS))
+PC_BUILD_OBJS = $(addprefix $(WORK_DIR)/, $(ALL_OBJS))
 PC_DIVER_LOC = $(addprefix include/, $(PC_DIVER_INC))
 
 # Work directory building
@@ -85,7 +90,7 @@ PC_DIVER_LOC = $(addprefix include/, $(PC_DIVER_INC))
 	if ! [ -e $(WORK_DIR) ]; then mkdir $(WORK_DIR) ; fi;
 	touch $(WORK_DIR)/.base
 
-vpath %.cc $(CLASS_DIR)/cpp:$(PC_MULTINEST_DIR)/src
+vpath %.cc $(PC_MULTINEST_DIR)/src
 vpath %.o $(WORK_DIR)
 vpath .base $(WORK_DIR)
 

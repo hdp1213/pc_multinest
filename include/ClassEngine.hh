@@ -1,15 +1,16 @@
 //--------------------------------------------------------------------------
 //
 // Description:
-// 	class ClassEngine :
+//  class ClassEngine :
 // encapsulation of class calls
 //
 //
 // Author List:
-//	Stephane Plaszczynski (plaszczy@lal.in2p3.fr)
+//  Stephane Plaszczynski (plaszczy@lal.in2p3.fr)
 //
 // History (add to end):
-//	creation:   ven. nov. 4 11:02:20 CET 2011
+//  creation:   ven. nov. 4 11:02:20 CET 2011
+//  pc_multinest:  Fri Sep 29 12:23:00 AEST 2017
 //
 //-----------------------------------------------------------------------
 
@@ -26,85 +27,83 @@
 #include <utility>
 #include <ostream>
 
-using std::string;
-
-//general utility to convert safely numerical types to string
+// General utility to safely convert numerical types to string
 template<typename T> std::string str(const T &x);
-//specialisations
+// Specialisations
 template<> std::string str (const float &x);
 template<> std::string str (const double &x);
-template<> std::string str (const bool &x); //"yes" or "no"
+template<> std::string str (const bool &x); // "yes" or "no"
 template<> std::string str (const std::string &x);
 
 std::string str(const char* x);
-//////////////////////////////////////////////////////////////////////////
-//class to encapsulate CLASS parameters from any type (numerical or string)
-class ClassParams{
+
+////////////////////////////////////////////////////////////////////////////
+// Class to encapsulate CLASS parameters from any type (numerical or string)
+class ClassParams {
 public:
 
-  ClassParams(){};
-  ClassParams( const ClassParams& o):pars(o.pars){};
+  ClassParams() {};
+  ClassParams(const ClassParams& o):m_pars(o.m_pars) {};
 
-  //use this to add a CLASS variable
-  template<typename T> unsigned add(const string& key,const T& val){
-  pars.push_back(make_pair(key,str(val)));
-  return pars.size();
+  // Use this to add a CLASS variable
+  template<typename T> unsigned add(const std::string& key,const T& val) {
+    m_pars.push_back(make_pair(key,str(val)));
+    return m_pars.size();
   }
 
-  //accesors
-  inline unsigned size() const {return pars.size();}
-  inline string key(const unsigned& i) const {return pars[i].first;}
-  inline string value(const unsigned& i) const {return pars[i].second;}
+  // Accessors
+  inline unsigned size() const { return m_pars.size(); }
+  inline std::string key(const unsigned& i) const { return m_pars[i].first; }
+  inline std::string value(const unsigned& i) const { return m_pars[i].second; }
 
 
 private:
-  std::vector<std::pair<string,string> > pars;
+  std::vector<std::pair<std::string, std::string> > m_pars;
 };
 
 ///////////////////////////////////////////////////////////////////////////
-class ClassEngine : public Engine
-{
+class ClassEngine : public Engine {
 
   friend class ClassParams;
 
 public:
-  //constructors
+  // Default constructor
   ClassEngine(const ClassParams& pars);
-  //with a class .pre file
-  ClassEngine(const ClassParams& pars,const string& precision_file);
-  //with a set of PBH splines
+  // With a CLASS .pre file
+  ClassEngine(const ClassParams& pars, const std::string& precision_file);
+  // With a set of PBH splines
   ClassEngine(const ClassParams& pars, struct external_info* info);
-  //from a CLASS .ini file with PBH splines
-  ClassEngine(const string& init_file, int l_max, struct external_info* info);
+  // From a CLASS .ini file with PBH splines
+  ClassEngine(const std::string& init_file, int l_max, struct external_info* info);
 
-  // destructor
+  // Destructor
   ~ClassEngine();
 
-  //modfiers: _FAILURE_ returned if CLASS pb:
-  bool updateParValues(const std::vector<double>& par);
+  // Modfiers: false returned if CLASS fails
+  bool update_parameters(const std::vector<double>& par);
 
+  // Get value at l ( 2<l<lmax): in units = (micro-K)^2
+  // Don't call if FAILURE returned previously
+  // Throws std::execption if fails
 
-  //get value at l ( 2<l<lmax): in units = (micro-K)^2
-  //don't call if FAILURE returned previously
-  //throws std::execption if pb
+  void get_Cls(const std::vector<unsigned>& lVec, //input
+               std::vector<double>& cltt,
+               std::vector<double>& clte,
+               std::vector<double>& clee,
+               std::vector<double>& clbb);
 
-  double getCl(Engine::cltype t,const long &l);
-  void getCls(const std::vector<unsigned>& lVec, //input
-	      std::vector<double>& cltt,
-	      std::vector<double>& clte,
-	      std::vector<double>& clee,
-	      std::vector<double>& clbb);
+  bool get_lensing_Cls(const std::vector<unsigned>& lVec, //input
+                       std::vector<double>& clphiphi,
+                       std::vector<double>& cltphi,
+                       std::vector<double>& clephi);
 
+  double get_Cl_value_at(const long &l, Engine::cltype t);
 
-  bool getLensing(const std::vector<unsigned>& lVec, //input
-	      std::vector<double>& clphiphi,
-	      std::vector<double>& cltphi,
-	      std::vector<double>& clephi);
+  // For BAO
+  inline double z_drag() const { return m_th.z_d; }
+  inline double rs_drag() const { return m_th.rs_d; }
 
- //for BAO
-  inline double z_drag() const {return th.z_d;}
-  inline double rs_drag() const {return th.rs_d;}
-  double get_Dv(double z);
+  inline double get_Dv(double z);
 
   double get_Da(double z);
   double get_sigma8(double z);
@@ -114,86 +113,83 @@ public:
   double get_Hz(double z);
   double get_Az(double z);
 
-  inline double getTauReio() const {return th.tau_reio;}
+  inline double get_tau_reio() const { return m_th.tau_reio; }
 
   //may need that
-  inline int numCls() const {return sp.ct_size;}
-  inline double Tcmb() const {return ba.T_cmb;}
+  inline int num_Cls() const { return m_sp.ct_size; }
+  inline double get_T_cmb() const { return m_ba.T_cmb; }
 
-  inline int l_max_scalars() const {return _lmax;}
+  inline int l_max_scalars() const { return m_lmax; }
 
   // Derived parameters
   // Get H0 in km s^-1 Mpc^-1
-  inline double get_H0() const {return ba.H0 * _c_ / 1000.0;}
+  inline double get_H0() const { return m_ba.H0 * _c_ / 1000.0; }
   // Get Omega_b
-  inline double get_Omega_b() const {return ba.Omega0_b;}
+  inline double get_Omega_b() const { return m_ba.Omega0_b; }
   // Get Omega_cdm
-  inline double get_Omega_cdm() const {return ba.Omega0_cdm;}
+  inline double get_Omega_cdm() const { return m_ba.Omega0_cdm; }
   // Get Omega_Lambda
-  inline double get_Omega_L() const {return ba.Omega0_lambda;}
+  inline double get_Omega_L() const { return m_ba.Omega0_lambda; }
   // Get Omega_g
-  inline double get_Omega_g() const {return ba.Omega0_g;}
+  inline double get_Omega_g() const { return m_ba.Omega0_g; }
   // Get Omega_k
-  inline double get_Omega_k() const {return ba.Omega0_k;}
+  inline double get_Omega_k() const { return m_ba.Omega0_k; }
   // Get sigma8 perturbation parameter
-  inline double get_sigma8() const {return sp.sigma8;}
+  inline double get_sigma8() const { return m_sp.sigma8; }
   // Get age in giga years
-  inline double get_age() const {return ba.age;}
+  inline double get_age() const { return m_ba.age; }
   // Get conformal age in Mpc
-  inline double get_conf_age() const {return ba.conformal_age;}
+  inline double get_conf_age() const { return m_ba.conformal_age; }
   // Get curvature parameter K
-  inline double get_K() const {return ba.K;}
+  inline double get_K() const { return m_ba.K; }
 
   //print content of file_content
-  void printFC();
+  void print_FC();
 
 private:
   //structures class en commun
-  struct file_content fc;
-  struct precision pr;        /* for precision parameters */
-  struct background ba;       /* for cosmological background */
-  struct thermo th;           /* for thermodynamics */
-  struct perturbs pt;         /* for source functions */
-  struct transfers tr;        /* for transfer functions */
-  struct primordial pm;       /* for primordial spectra */
-  struct spectra sp;          /* for output spectra */
-  struct nonlinear nl;        /* for non-linear spectra */
-  struct lensing le;          /* for lensed spectra */
-  struct output op;           /* for output files */
+  struct file_content m_fc;
+  struct precision m_pr;        /* for precision parameters */
+  struct background m_ba;       /* for cosmological background */
+  struct thermo m_th;           /* for thermodynamics */
+  struct perturbs m_pt;         /* for source functions */
+  struct transfers m_tr;        /* for transfer functions */
+  struct primordial m_pm;       /* for primordial spectra */
+  struct spectra m_sp;          /* for output spectra */
+  struct nonlinear m_nl;        /* for non-linear spectra */
+  struct lensing m_le;          /* for lensed spectra */
+  struct output m_op;           /* for output files */
 
-  ErrorMsg _errmsg;            /* for error messages */
-  double * cl;
+  ErrorMsg m_errmsg;            /* for error messages */
+  double * m_cl;
 
   //helpers
-  bool dofree;
-  int freeStructs();
+  bool m_do_free;
+  int free_structs();
 
   //call once /model
-  int computeCls();
+  int compute_Cls();
 
-  int class_main(
-		 struct file_content *pfc,
-		 struct precision * ppr,
-		 struct background * pba,
-		 struct thermo * pth,
-		 struct perturbs * ppt,
-		 struct transfers * ptr,
-		 struct primordial * ppm,
-		 struct spectra * psp,
-		 struct nonlinear * pnl,
-		 struct lensing * ple,
-		 struct output * pop,
-		 ErrorMsg errmsg);
-  //parnames
-  std::vector<std::string> parNames;
+  // Internal methods for intialisations
+  void write_pars_to_fc(const ClassParams& pars, struct file_content* fc);
+
+  int class_main(struct file_content *pfc,
+                 struct precision * ppr,
+                 struct background * pba,
+                 struct thermo * pth,
+                 struct perturbs * ppt,
+                 struct transfers * ptr,
+                 struct primordial * ppm,
+                 struct spectra * psp,
+                 struct nonlinear * pnl,
+                 struct lensing * ple,
+                 struct output * pop,
+                 ErrorMsg errmsg);
+
+  // Parameter names
+  std::vector<std::string> m_parnames;
 
   struct external_info* m_info;
-
-protected:
-
-
 };
 
-
-;
 #endif

@@ -34,7 +34,7 @@ double pc_loglike(std::vector<clik_struct*>& clik_objs,
 
   // Run CLASS
   try {
-    class_engine->updateParValues(class_params);
+    class_engine->update_parameters(class_params);
   }
   catch (std::exception const& e) {
     std::cerr << "[ERROR] CLASS failed, throwing exception "
@@ -46,7 +46,7 @@ double pc_loglike(std::vector<clik_struct*>& clik_objs,
 
   // Extract CLASS spectra
   try {
-    class_engine->getCls(cl_ls, cl_tt, cl_te, cl_ee, cl_bb);
+    class_engine->get_Cls(cl_ls, cl_tt, cl_te, cl_ee, cl_bb);
   }
   catch (std::exception const &e) {
     std::cerr << "[ERROR] Spectra extraction unsuccessful, CLASS threw "

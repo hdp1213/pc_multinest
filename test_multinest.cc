@@ -25,22 +25,6 @@ int main(int argc, char const *argv[])
   std::vector<clik_struct*> clik_objects;
   plc_bundle* plc_pack = new plc_bundle();
 
-  // High l full likelihood variables
-  std::string hi_l_clik_path = std::string(PLIK_HI_L_FILE_DIR);
-#ifdef LITE_HI_L
-  hi_l_clik_path += "/plik_lite_v18_TTTEEE.clik/";
-#else
-  hi_l_clik_path += "/plik_dx11dr2_HM_v18_TTTEEE.clik/";
-#endif
-  std::vector<param_t> hi_l_nuis_enums;
-  clik_struct* hi_l_clik;
-
-  // Low l likelihood variables
-  std::string lo_l_clik_path = std::string(PLIK_LOW_L_FILE_DIR) \
-    + "/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
-  std::vector<param_t> lo_l_nuis_enums;
-  clik_struct* lo_l_clik;
-
   // PBH variables
   std::string pbh_file_root = std::string(CLASS_PBH_FILE_DIR) + "/";
   std::string hyrec_file_root = std::string(HYREC_FILE_DIR) + "/";
@@ -60,6 +44,7 @@ int main(int argc, char const *argv[])
 
   /* Free all heap-allocated memory at the end */
   delete plc_pack->engine;
+  delete plc_pack;
 
   free_bspline(info->hion);
   free_bspline(info->excite);
@@ -67,6 +52,10 @@ int main(int argc, char const *argv[])
 
   hyrec_free_2D_array(NTM, info->logAlpha_tab[0]);
   hyrec_free_2D_array(NTM, info->logAlpha_tab[1]);
+
+  delete info;
+
+  std::cout << "CLASS successfully initialised, exiting..." << std::endl;
 
   return 0;
 }
@@ -77,7 +66,7 @@ void init_CLASS(ClassEngine*& class_engine, int max_l, external_info* info) {
   /*** FREE PARAMETERS ***/
 
   // PBH DM
-  default_params.add("Omega_pbh_ratio", 5.68187e-06);
+  default_params.add("Omega_pbh_ratio", 1.e-07);
 
   /*** FREE/FIXED PARAMETERS ***/
 
@@ -91,7 +80,7 @@ void init_CLASS(ClassEngine*& class_engine, int max_l, external_info* info) {
 
   // PBH DM
   default_params.add("pbh_mass_dist", "pbh_delta");
-  default_params.add("pbh_mass_mean", 1E5);
+  default_params.add("pbh_mass_mean", 1E6);
   // default_params.add("pbh_mass_width", 1.E1);
   default_params.add("read external files", false); // very important!!
 

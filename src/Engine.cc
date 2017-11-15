@@ -14,23 +14,22 @@
 //--------------------
 // C++
 //--------------------
-#include<numeric>
-#include<iostream>
-#include<stdexcept>
+#include <numeric>
+#include <iostream>
+#include <stdexcept>
 //--------------------
 // C
 //----------------
 
-using namespace std;
 //---------------
 // Constructors --
 //----------------
-Engine::Engine():_lmax(-1)
-{
+Engine::Engine():m_lmax(-1) {
+  // constructor
 }
 
-Engine::Engine(int lmax):_lmax(lmax)
-{
+Engine::Engine(int lmax):m_lmax(lmax) {
+  // constructor
 }
 //--------------
 // Destructor --
@@ -41,34 +40,38 @@ Engine::Engine(int lmax):_lmax(lmax)
 //-----------------
 
 void
-Engine::writeCls(std::ostream &of){
+Engine::write_Cls(std::ostream &out){
+  // Create vector of l values
+  std::vector<unsigned> lvec(m_lmax-1, 1);
+  lvec[0] = 2;
+  std::partial_sum(lvec.begin(), lvec.end(), lvec.begin());
 
-  vector<unsigned> lvec(_lmax-1,1);
-  lvec[0]=2;
-  partial_sum(lvec.begin(),lvec.end(),lvec.begin());
-
-  vector<double> cltt,clte,clee,clbb,clpp,cltp,clep;
-  bool hasLensing=false;
-  try{
-    getCls(lvec,cltt,clte,clee,clbb);
-    hasLensing=getLensing(lvec,clpp,cltp,clep);
+  // Get all spectra values
+  std::vector<double> cltt, clte, clee, clbb, clpp, cltp, clep;
+  bool hasLensing = false;
+  try {
+    get_Cls(lvec, cltt, clte, clee, clbb);
+    hasLensing = get_lensing_Cls(lvec, clpp, cltp, clep);
   }
-  catch (std::exception &e){
-    cout << "GIOSH" << e.what() << endl;
+  catch (std::exception &e) {
+    std::cerr << "[ERROR] write_Cls(): " << e.what() << std::endl;
   }
 
-  cout.precision( 16 );
-  for (size_t i=0;i<lvec.size();i++) {
-    of << lvec[i] << "\t"
-       << cltt[i] << "\t"
-       << clte[i] << "\t"
-       << clee[i] << "\t"
-       << clbb[i];
-    if (hasLensing){
-      of << "\t" << clpp[i] << "\t" << cltp[i] << "\t" << clep[i];
+  std::cout.precision(16);
+  for (std::size_t i = 0; i < lvec.size(); i++) {
+    out << lvec[i] << "\t"
+        << cltt[i] << "\t"
+        << clte[i] << "\t"
+        << clee[i] << "\t"
+        << clbb[i];
+
+    if (hasLensing) {
+      out << "\t"
+          << clpp[i] << "\t"
+          << cltp[i] << "\t"
+          << clep[i];
     }
-    of << "\n";
+
+    out << std::endl;
   }
-
-
 }
