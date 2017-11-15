@@ -67,7 +67,7 @@ template std::string str(const unsigned long long &x);
 //---------------
 // Constructors --
 //----------------
-ClassEngine::ClassEngine(const ClassParams& pars): m_cl(0), m_do_free(true), m_info(0) {
+ClassEngine::ClassEngine(const ClassParams& pars): m_cl(0), m_do_free(true), m_info(NULL) {
   write_pars_to_fc(pars, &m_fc);
 
   // Initialise input
@@ -85,14 +85,14 @@ ClassEngine::ClassEngine(const ClassParams& pars): m_cl(0), m_do_free(true), m_i
   // Run CLASS
   compute_Cls();
 
-  // std::cout << "Creating " << m_sp.ct_size << " arrays" <<endl;
+  // std::cout << "Creating " << m_sp.ct_size << " arrays" << std::endl;
   m_cl = new double[m_sp.ct_size];
 
   //print_FC();
 }
 
 
-ClassEngine::ClassEngine(const ClassParams& pars, const std::string & precision_file): m_cl(0), m_do_free(true), m_info(0) {
+ClassEngine::ClassEngine(const ClassParams& pars, const std::string & precision_file): m_cl(0), m_do_free(true), m_info(NULL) {
 
   // Decode precision structure
   struct file_content fc_precision;
@@ -130,7 +130,7 @@ ClassEngine::ClassEngine(const ClassParams& pars, const std::string & precision_
   // Run CLASS
   compute_Cls();
 
-  //cout <<"creating " << m_sp.ct_size << " arrays" <<endl;
+  // std::cout << "creating " << m_sp.ct_size << " arrays" << std::endl;
   m_cl = new double[m_sp.ct_size];
 
   //print_FC();
@@ -156,7 +156,7 @@ ClassEngine::ClassEngine(const ClassParams& pars, struct external_info* info): m
   // Run CLASS
   compute_Cls();
 
-  //cout <<"creating " << m_sp.ct_size << " arrays" <<endl;
+  // std::cout <<"creating " << m_sp.ct_size << " arrays" << std::endl;
   m_cl = new double[m_sp.ct_size];
 
   //print_FC();
@@ -217,7 +217,7 @@ ClassEngine::ClassEngine(const std::string& init_file, int l_max, struct externa
   // Run CLASS
   compute_Cls();
 
-  //cout <<"creating " << m_sp.ct_size << " arrays" <<endl;
+  // std::cout <<"creating " << m_sp.ct_size << " arrays" << std::endl;
   m_cl = new double[m_sp.ct_size];
 
   //print_FC();
@@ -232,6 +232,8 @@ ClassEngine::~ClassEngine() {
   //print_FC();
   std::cout << "Deleting CLASS..." << std::endl;
   m_do_free && free_structs();
+
+  parser_free(&m_fc);
 
   delete[] m_cl;
 }
@@ -649,15 +651,15 @@ double ClassEngine::get_Dv(double z)
 
   delete[] pvecback;
 #ifdef DBUG
-  cout << "H_z= "<< H_z <<endl;
-  cout << "D_ang= "<< D_ang <<endl;
+  std::cout << "H_z= "<< H_z << std::endl;
+  std::cout << "D_ang= "<< D_ang << std::endl;
 #endif
   double D_v;
 
   D_v=pow(D_ang*(1+z),2)*z/H_z; // H_z is given in Mpc^-1 (i.e. H_z * c)
   D_v=pow(D_v,1./3.);
 #ifdef DBUG
-  cout << D_v << endl;
+  std::cout << D_v << std::endl;
 #endif
   return D_v;
 }
@@ -683,8 +685,8 @@ double ClassEngine::get_Fz(double z)
   delete[] pvecback;
 
 #ifdef DBUG
-  cout << "H_z= "<< H_z <<endl;
-  cout << "D_ang= "<< D_ang <<endl;
+  std::cout << "H_z= "<< H_z << std::endl;
+  std::cout << "D_ang= "<< D_ang << std::endl;
 #endif
   double F_z = (1.+z) * D_ang * H_z /_c_;
   return F_z;
@@ -732,8 +734,8 @@ double ClassEngine::get_Da(double z)
   delete[] pvecback;
 
 #ifdef DBUG
-  cout << "H_z= "<< H_z <<endl;
-  cout << "D_ang= "<< D_ang <<endl;
+  std::cout << "H_z= "<< H_z << std::endl;
+  std::cout << "D_ang= "<< D_ang << std::endl;
 #endif
   return D_ang;
 }
