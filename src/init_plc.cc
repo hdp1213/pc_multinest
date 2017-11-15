@@ -79,7 +79,7 @@ clik_struct* initialise_clik_struct(std::string& clik_path,
   return res_struct;
 }
 
-void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, pbh_external* pbh_info) {
+void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_info* info) {
   std::cout << "[init_plc] initialising CLASS engine"
             << std::endl;
 
@@ -104,7 +104,7 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, pbh_external
   default_params.add("pbh_mass_dist", "pbh_delta");
   default_params.add("pbh_mass_mean", 1.E6);
   // default_params.add("pbh_mass_width", 1.E1);
-  default_params.add("read pbh splines", false); // very important!!
+  default_params.add("read external files", false); // very important!!
 
   // Neutrino values
   default_params.add("N_ur", 2.0328);
@@ -137,7 +137,7 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, pbh_external
 
   // Initialise CLASS engine with external PBH info
   try {
-    class_engine = new ClassEngine(default_params, pbh_info);
+    class_engine = new ClassEngine(default_params, info);
     // class_engine = new ClassEngine(default_params);
   }
   catch (std::exception const &e) {
@@ -149,28 +149,44 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, pbh_external
   }
 }
 
-pbh_external* initialise_pbh_external(std::string& pbh_root) {
-  std::cout << "[init_plc] initialising pbh_external struct"
+external_info* initialise_external_info(std::string& pbh_root, std::string& hyrec_root) {
+  std::cout << "[init_plc] initialising external_info struct"
             << std::endl;
 
-  pbh_external* pbh_info = new pbh_external();
-  pbh_info->hion = new bspline_2d();
-  pbh_info->excite = new bspline_2d();
-  pbh_info->heat = new bspline_2d();
+  /* First read in the PBH stuff */
+
+  external_info* info = new external_info();
+  info->hion = new bspline_2d();
+  info->excite = new bspline_2d();
+  info->heat = new bspline_2d();
 
   // Read in axes
-  read_axes(pbh_root, pbh_info);
+  read_axes(pbh_root, info);
 
   // Read in hydrogen ionisation
-  read_bicubic_bspline(pbh_root, "hion.dat", pbh_info->hion);
+  read_bicubic_bspline(pbh_root, "hion.dat", info->hion);
 
   // Read in hydrogen excitation
-  read_bicubic_bspline(pbh_root, "excite.dat", pbh_info->excite);
+  read_bicubic_bspline(pbh_root, "excite.dat", info->excite);
 
   // Read in plasma heating
-  read_bicubic_bspline(pbh_root, "heat.dat", pbh_info->heat);
+  read_bicubic_bspline(pbh_root, "heat.dat", info->heat);
 
-  return pbh_info;
+  /* Then read in the HyRec stuff */
+
+  // This is good to do, too
+  initialise_temp_tables(info);
+
+  read_alpha(hyrec_root, info);
+
+  read_RR(hyrec_root, info);
+
+  read_two_photon(hyrec_root, info);
+
+  // Normalise the stuff
+  normalise_atomic(info);
+
+  return info;
 }
 
 void initialise_param_arrays() {

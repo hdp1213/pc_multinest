@@ -5,6 +5,7 @@
 #include "ClassEngine.hh"
 
 #include "pbh_io.h"
+#include "hyrec_io.h"
 
 // #include "TTTEEE+lowP_pbh_fixedLCDM.h"
 #include "TTTEEE+lowP_pbh.h"
@@ -48,9 +49,9 @@ clik_struct* initialise_clik_struct(std::string& clik_path,
                                     std::vector<param_t>& nuis_params,
                                     int& total_max_l);
 
-void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, pbh_external* pbh_info);
+void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_info* info);
 
-pbh_external* initialise_pbh_external(std::string& pbh_root);
+external_info* initialise_external_info(std::string& pbh_root, std::string& hyrec_root);
 
 inline double pow10(double x) { return pow(10., x); }
 inline double self(double x) { return x; }

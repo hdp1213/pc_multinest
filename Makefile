@@ -5,6 +5,7 @@ PLIK_HI_L_FILE_DIR := $(ROOT_DIR)/staging/plc_2.0/hi_l/plik
 # PLIK_HI_L_FILE_DIR := $(ROOT_DIR)/staging/plc_2.0/hi_l/plik_lite
 PLIK_LOW_L_FILE_DIR := $(ROOT_DIR)/staging/plc_2.0/low_l/bflike
 CLASS_PBH_FILE_DIR := $(ROOT_DIR)/staging/pbh_bsplines
+HYREC_FILE_DIR := $(ROOT_DIR)/staging/hyrec_data
 
 PLIK_DIR := $(ROOT_DIR)/plc-2.0
 CLASS_DIR := $(ROOT_DIR)/class
@@ -23,11 +24,11 @@ ifeq ($(MACHINE),gnu)
 CPPC := g++
 OPT_FLAGS := -fopenmp -Wall -fPIC -O2 #-ffast-math -march=native
 else
-CPPC := icc
+CPPC := icpc
 OPT_FLAGS := -qopenmp -Wall -fPIC -O3 -march=native
 endif
 # turn off warnings using -w
-INC_FLAGS := -I$(PC_MULTINEST_DIR)/include -I$(PC_MULTINEST_DIR)/params -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include -I$(CFITSIO_DIR)/include -I$(DIVER_DIR)/include
+INC_FLAGS := -I$(PC_MULTINEST_DIR)/include -I$(PC_MULTINEST_DIR)/params -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include -I$(CFITSIO_DIR)/include -I$(DIVER_DIR)/include -I$(CLASS_DIR)/hyrec/include
 
 BATCH_PLC_FLAGS = -DHAVE_PYEMBED=1 -DHAVE_PYTHON_H=1 -DHAS_LAPACK -DLAPACK_CLIK -DNOHEALPIX -DCLIK_LENSING -D'CLIKSVNVERSION="6dc2a8cf3965 MAKEFILE"' -DCAMSPEC_V1
 ifeq ($(MACHINE),gnu)
@@ -68,24 +69,16 @@ CPPC_MPI_FLAGS := #-DMPI
 
 # Own object files to link against
 # PC_OBJS = PLCPack.o ClikObject.o ClikPar.o Param.o
-PC_OBJS = pbh_io.o init_plc.o loglike.o multinest_loglike.o
+PC_OBJS = pbh_io.o hyrec_io.o init_plc.o loglike.o multinest_loglike.o ClassEngine.o Engine.o
 PC_DIVER_INC = pc_diver.h diver_loglike.h loglike.h
-
-# CLASS object files to link against
-CLASS_CPP = ClassEngine.o Engine.o
 
 
 ########################################################################
 
-PC_MULTINEST_FILES = -D'PLIK_HI_L_FILE_DIR="$(PLIK_HI_L_FILE_DIR)"' -D'PLIK_LOW_L_FILE_DIR="$(PLIK_LOW_L_FILE_DIR)"' -D'CLASS_PBH_FILE_DIR="$(CLASS_PBH_FILE_DIR)"'
-
-CLASS_CPP_OBJS = $(addprefix $(CLASS_DIR)/cpp/, $(CLASS_CPP))
+PC_MULTINEST_FILES = -D'PLIK_HI_L_FILE_DIR="$(PLIK_HI_L_FILE_DIR)"' -D'PLIK_LOW_L_FILE_DIR="$(PLIK_LOW_L_FILE_DIR)"' -D'CLASS_PBH_FILE_DIR="$(CLASS_PBH_FILE_DIR)"' -D'HYREC_FILE_DIR="$(HYREC_FILE_DIR)"' -DHYREC
 
 PC_BUILD_OBJS = $(addprefix $(WORK_DIR)/, $(PC_OBJS))
 PC_DIVER_LOC = $(addprefix include/, $(PC_DIVER_INC))
-
-# Same thing, but with CLASS sources to compile myself (lame)
-CPP_SRC = $(addprefix $(CLASS_DIR)/cpp/, $(addsuffix .cc, $(basename $(CLASS_CPP))))
 
 # Work directory building
 .base:
@@ -100,11 +93,15 @@ vpath .base $(WORK_DIR)
 
 all: pc_multinest pc_multinest_mpi pc_speedtest
 
+Engine.o:
+
 ClassEngine.o: Engine.o
+
+hyrec_io.o:
 
 pbh_io.o:
 
-init_plc.o: ClassEngine.o pbh_io.o
+init_plc.o: ClassEngine.o pbh_io.o hyrec_io.o
 
 loglike.o: init_plc.o
 
@@ -125,31 +122,31 @@ pc_multinest_mpi.o: multinest_loglike.o
 	cd $(WORK_DIR); $(CPPC) -c -o $*.o $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS)
 
 # MultiNest-compatible program compiled with MPI
-pc_multinest_mpi: pc_multinest_mpi.o $(CLASS_CPP_OBJS) $(PC_BUILD_OBJS)
+pc_multinest_mpi: pc_multinest_mpi.o $(PC_BUILD_OBJS)
 	$(FC_MPI) $(FC_MPI_FLAGS) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -rf output/*
 
-pc_multinest_mpi.o: ../pc_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC) .base
+pc_multinest_mpi.o: ../pc_multinest.cc $(PLIK_DIR)/src/clik.c $(PC_INC) .base
 	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
-pc_diver: pc_diver.o $(CLASS_CPP_OBJS) $(PC_BUILD_OBJS)
+pc_diver: pc_diver.o $(PC_BUILD_OBJS)
 	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -rf output/*
 
-pc_diver.o: ../pc_diver.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_DIVER_LOC) .base
+pc_diver.o: ../pc_diver.cc $(PLIK_DIR)/src/clik.c $(PC_DIVER_LOC) .base
 	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
-test_diver: test_diver.o $(CLASS_CPP_OBJS) $(PC_BUILD_OBJS)
+test_diver: test_diver.o $(PC_BUILD_OBJS)
 	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
-test_diver.o: ../test_diver.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_DIVER_LOC) .base
+test_diver.o: ../test_diver.cc $(PLIK_DIR)/src/clik.c $(PC_DIVER_LOC) .base
 	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
-test_multinest: test_multinest.o $(CLASS_CPP_OBJS) $(PC_BUILD_OBJS)
+test_multinest: test_multinest.o $(PC_BUILD_OBJS)
 	$(FC_MPI) $(FC_MPI_FLAGS) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 	rm -rf output/*
 
-test_multinest.o: ../test_multinest.cc $(PLIK_DIR)/src/clik.c $(CPP_SRC) $(PC_INC) .base
+test_multinest.o: ../test_multinest.cc $(PLIK_DIR)/src/clik.c $(PC_INC) .base
 	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 output_chain_files: output_chain_files.cc

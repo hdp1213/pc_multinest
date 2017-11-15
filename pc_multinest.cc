@@ -84,7 +84,8 @@ int main(int argc, char* argv[]) {
 
   // PBH variables
   std::string pbh_file_root = std::string(CLASS_PBH_FILE_DIR) + "/";
-  pbh_external* pbh_info;
+  std::string hyrec_file_root = std::string(HYREC_FILE_DIR) + "/";
+  external_info* info;
 
   // Use the first command line argument as a non-default
   // output root
@@ -223,7 +224,7 @@ int main(int argc, char* argv[]) {
   //*/
 
   // Read in external PBH files
-  pbh_info = initialise_pbh_external(pbh_file_root);
+  info = initialise_external_info(pbh_file_root, hyrec_file_root);
 
 
   // Create cl_ls vector of l values!!!
@@ -233,7 +234,7 @@ int main(int argc, char* argv[]) {
 
   //*
   // Initialise CLASS before runing MultiNest
-  initialise_CLASS_engine(plc_pack->engine, total_max_l, pbh_info);
+  initialise_CLASS_engine(plc_pack->engine, total_max_l, info);
 
   context = plc_pack;
   //*/

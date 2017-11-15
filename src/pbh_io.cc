@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 
-void read_axes(std::string& root, pbh_external* pbh_info) {
+void read_axes(std::string& root, external_info* info) {
   std::ostringstream axes_filename;
 
   axes_filename << root << "axes.dat";
@@ -14,15 +14,15 @@ void read_axes(std::string& root, pbh_external* pbh_info) {
 
   if (axes_file.is_open()) {
     // Read in redshift axis
-    read_1d_array(axes_file, &(pbh_info->z_deps), &(pbh_info->z_deps_size));
+    read_1d_array(axes_file, &(info->z_deps), &(info->z_deps_size));
 
     // Read in mass axis
-    read_1d_array(axes_file, &(pbh_info->masses), &(pbh_info->masses_size));
+    read_1d_array(axes_file, &(info->masses), &(info->masses_size));
   }
   else {
     std::cerr << "[ERROR]: Could not read in axes file '"
-             << axes_filename.str() << "'"
-             << std::endl;
+              << axes_filename.str() << "'"
+              << std::endl;
 
     throw std::exception();
   }
