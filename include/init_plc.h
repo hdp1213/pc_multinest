@@ -8,7 +8,8 @@
 #include "hyrec_io.h"
 
 // #include "TTTEEE+lowP_pbh_fixedLCDM.h"
-#include "TTTEEE+lowP_pbh.h"
+#include "TTTEEE+lowP_pbh_clark.h"
+// #include "TTTEEE+lowP_pbh.h"
 // #include "TTTEEE+lowP.h"
 
 #include <math.h>

@@ -1,8 +1,8 @@
 # Locations of external dependencies
 ROOT_DIR := /home/a1648400
 
-PLIK_HI_L_FILE_DIR := $(ROOT_DIR)/staging/plc_2.0/hi_l/plik
-# PLIK_HI_L_FILE_DIR := $(ROOT_DIR)/staging/plc_2.0/hi_l/plik_lite
+# PLIK_HI_L_FILE_DIR := $(ROOT_DIR)/staging/plc_2.0/hi_l/plik
+PLIK_HI_L_FILE_DIR := $(ROOT_DIR)/staging/plc_2.0/hi_l/plik_lite
 PLIK_LOW_L_FILE_DIR := $(ROOT_DIR)/staging/plc_2.0/low_l/bflike
 CLASS_PBH_FILE_DIR := $(ROOT_DIR)/staging/pbh_bsplines
 HYREC_FILE_DIR := $(ROOT_DIR)/staging/hyrec_data
@@ -41,7 +41,7 @@ endif
 CLASS_INC_FLAGS := -I$(CLASS_DIR)/cpp -I$(CLASS_DIR)/include
 BATCH_CLASS_FLAGS = -Wl,-rpath,$(CLASS_DIR)
 
-PC_MULTINEST_DEFS = #-g -DDBUG #-DLITE_HI_L #-DBAO_LIKE
+PC_MULTINEST_DEFS = -DLITE_HI_L#-g -DDBUG #-DBAO_LIKE
 
 # Flags for the Fortran compiler which compiles the .o files into the final binary when adding MultiNest
 FC_LIBS = -L$(MULTINEST_DIR) -lnest3 -lstdc++ -L$(DIVER_DIR)/lib -ldiver
@@ -152,7 +152,7 @@ test_multinest: test_multinest.o $(PC_BUILD_OBJS)
 	rm -rf output/*
 
 test_multinest.o: ../test_multinest.cc $(PLIK_DIR)/src/clik.c $(PC_INC) .base
-	cd $(WORK_DIR); $(CPPC) -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
+	cd $(WORK_DIR); $(CPPC) -std=c++11 -c -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 output_chain_files: output_chain_files.cc
 	$(CPPC) -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS)

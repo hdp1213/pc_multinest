@@ -1,5 +1,6 @@
 #include "init_plc.h"
 
+#include <array>
 #include <iostream>
 #include <vector>
 
@@ -13,6 +14,7 @@ bool m_is_log10[FREE_PARAM_AMT];
 trans_t m_transform[FREE_PARAM_AMT];
 
 void init_CLASS(ClassEngine*& class_engine, int max_l, external_info* info);
+void update_CLASS(ClassEngine*& class_engine);
 
 void free_bspline(struct bspline_2d* spline);
 
@@ -42,6 +44,8 @@ int main(int argc, char const *argv[])
 
   init_CLASS(plc_pack->engine, total_max_l, info);
 
+  update_CLASS(plc_pack->engine);
+
   /* Free all heap-allocated memory at the end */
   delete plc_pack->engine;
   delete plc_pack;
@@ -57,7 +61,7 @@ int main(int argc, char const *argv[])
 
   delete info;
 
-  std::cout << "CLASS successfully initialised, exiting..." << std::endl;
+  std::cout << "CLASS tested, exiting..." << std::endl;
 
   return 0;
 }
@@ -68,7 +72,8 @@ void init_CLASS(ClassEngine*& class_engine, int max_l, external_info* info) {
   /*** FREE PARAMETERS ***/
 
   // PBH DM
-  default_params.add("Omega_pbh_ratio", 1.e-07);
+  default_params.add("Omega_pbh_ratio", 1.E-7);
+  default_params.add("pbh_mass_mean", 1.E6);
 
   /*** FREE/FIXED PARAMETERS ***/
 
@@ -82,16 +87,16 @@ void init_CLASS(ClassEngine*& class_engine, int max_l, external_info* info) {
 
   // PBH DM
   default_params.add("pbh_mass_dist", "pbh_delta");
-  default_params.add("pbh_mass_mean", 1E6);
   // default_params.add("pbh_mass_width", 1.E1);
   default_params.add("read external files", false); // very important!!
 
   // Neutrino values
-  default_params.add("N_ur", 3.046);
-  // default_params.add("N_ncdm", 1);
-  // default_params.add("m_ncdm", 0.06); // MeV
+  default_params.add("N_ur", 2.0328);
+  default_params.add("N_ncdm", 1);
+  default_params.add("m_ncdm", 0.06); // MeV
   // default_params.add("T_ncdm", 0.71611);
 
+  // Use HyRec for recombination
   default_params.add("recombination", "HyRec");
 
   // Perturbation options for matter perturbation spectrum mPk
@@ -129,6 +134,40 @@ void init_CLASS(ClassEngine*& class_engine, int max_l, external_info* info) {
               << e.what()
               << std::endl;
     throw e;
+  }
+}
+
+/* Just updates CLASS to test values of pbh_frac and pbh_mass that break CLASS in preparation for leak checking */
+void update_CLASS(ClassEngine*& class_engine) {
+  std::vector<std::array<double, 2> > param_vector;
+
+  /* fails in HyRec somewhere (need to check) */
+  param_vector.push_back({0.940561, 643503});
+  param_vector.push_back({0.454753, 300062});
+
+  /* reionization exceeds max iterations while searching for optical depth */
+  param_vector.push_back({0.592319, 3.33219e+06});
+  param_vector.push_back({0.345466, 863279});
+
+  for (int i = 0; i < param_vector.size(); ++i) {
+    std::array<double, 2> vals = param_vector[i];
+    std::vector<double> class_params(&vals[0], &vals[0]+2);
+
+    std::cout << "Updating CLASS with following parameters:\n"
+              << "pbh_frac = " << class_params[0] << " "
+              << "pbh_mass = " << class_params[1]
+              << std::endl;
+
+    try {
+      class_engine->update_parameters(class_params);
+    }
+    catch (std::exception const& e) {
+      std::cerr << "[ERROR] CLASS failed, throwing exception "
+                << e.what()
+                << std::endl;
+
+      return;
+    }
   }
 }
 

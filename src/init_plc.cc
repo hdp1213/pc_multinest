@@ -89,6 +89,7 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_inf
 
   // PBH DM
   default_params.add("Omega_pbh_ratio", 1.E-7);
+  default_params.add("pbh_mass_mean", 1.E6);
 
   /*** FREE/FIXED PARAMETERS ***/
 
@@ -102,7 +103,6 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_inf
 
   // PBH DM
   default_params.add("pbh_mass_dist", "pbh_delta");
-  default_params.add("pbh_mass_mean", 1.E6);
   // default_params.add("pbh_mass_width", 1.E1);
   default_params.add("read external files", false); // very important!!
 
@@ -111,6 +111,9 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_inf
   default_params.add("N_ncdm", 1);
   default_params.add("m_ncdm", 0.06); // MeV
   // default_params.add("T_ncdm", 0.71611);
+
+  // Use HyRec for recombination
+  default_params.add("recombination", "HyRec");
 
   // Perturbation options for matter perturbation spectrum mPk
   // default_params.add("P_k_max_h/Mpc", 1.);
@@ -201,11 +204,13 @@ void initialise_param_arrays() {
   // Include parameter array initialisations
 
   // #include "TTTEEE+lowP_pbh_fixedLCDM-flat.cc"
-  #include "TTTEEE+lowP_pbh-flat.cc"
+  #include "TTTEEE+lowP_pbh_clark-flat.cc"
+  // #include "TTTEEE+lowP_pbh-flat.cc"
   // #include "TTTEEE+lowP-flat.cc"
 
   // #include "TTTEEE+lowP_pbh_fixedLCDM-gauss.cc"
-  #include "TTTEEE+lowP_pbh-gauss.cc"
+  #include "TTTEEE+lowP_pbh_clark-gauss.cc"
+  // #include "TTTEEE+lowP_pbh-gauss.cc"
   // #include "TTTEEE+lowP-gauss.cc"
 
   // Set values of m_transform depending on includes
