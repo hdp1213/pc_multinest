@@ -141,7 +141,7 @@ void init_CLASS(ClassEngine*& class_engine, int max_l, external_info* info) {
 void update_CLASS(ClassEngine*& class_engine) {
   std::vector<std::array<double, 2> > param_vector;
 
-  /* fails in HyRec somewhere (need to check) */
+  /* TR > TR_MAX in hydrogen.c:interpolate_rates() */
   param_vector.push_back({0.940561, 643503});
   param_vector.push_back({0.454753, 300062});
 
@@ -149,7 +149,7 @@ void update_CLASS(ClassEngine*& class_engine) {
   param_vector.push_back({0.592319, 3.33219e+06});
   param_vector.push_back({0.345466, 863279});
 
-  for (int i = 0; i < param_vector.size(); ++i) {
+  for (size_t i = 0; i < param_vector.size(); ++i) {
     std::array<double, 2> vals = param_vector[i];
     std::vector<double> class_params(&vals[0], &vals[0]+2);
 
