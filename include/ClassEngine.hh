@@ -80,7 +80,7 @@ public:
   ~ClassEngine();
 
   // Modfiers: false returned if CLASS fails
-  bool update_parameters(const std::vector<double>& par);
+  void update_parameters(const std::vector<double>& par);
 
   // Get value at l ( 2<l<lmax): in units = (micro-K)^2
   // Don't call if FAILURE returned previously

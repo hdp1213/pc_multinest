@@ -83,7 +83,12 @@ ClassEngine::ClassEngine(const ClassParams& pars): m_cl(0), m_do_free(true), m_i
   }
 
   // Run CLASS
-  compute_Cls();
+  int status;
+  status = compute_Cls();
+
+  if (status == _FAILURE_) {
+    throw std::out_of_range(m_errmsg);
+  }
 
   // std::cout << "Creating " << m_sp.ct_size << " arrays" << std::endl;
   m_cl = new double[m_sp.ct_size];
@@ -128,7 +133,12 @@ ClassEngine::ClassEngine(const ClassParams& pars, const std::string & precision_
   }
 
   // Run CLASS
-  compute_Cls();
+  int status;
+  status = compute_Cls();
+
+  if (status == _FAILURE_) {
+    throw std::out_of_range(m_errmsg);
+  }
 
   // std::cout << "creating " << m_sp.ct_size << " arrays" << std::endl;
   m_cl = new double[m_sp.ct_size];
@@ -154,7 +164,12 @@ ClassEngine::ClassEngine(const ClassParams& pars, struct external_info* info): m
   }
 
   // Run CLASS
-  compute_Cls();
+  int status;
+  status = compute_Cls();
+
+  if (status == _FAILURE_) {
+    throw std::out_of_range(m_errmsg);
+  }
 
   // std::cout <<"creating " << m_sp.ct_size << " arrays" << std::endl;
   m_cl = new double[m_sp.ct_size];
@@ -215,7 +230,12 @@ ClassEngine::ClassEngine(const std::string& init_file, int l_max, struct externa
   }
 
   // Run CLASS
-  compute_Cls();
+  int status;
+  status = compute_Cls();
+
+  if (status == _FAILURE_) {
+    throw std::out_of_range(m_errmsg);
+  }
 
   // std::cout <<"creating " << m_sp.ct_size << " arrays" << std::endl;
   m_cl = new double[m_sp.ct_size];
@@ -241,7 +261,7 @@ ClassEngine::~ClassEngine() {
 //-----------------
 // Member functions --
 //-----------------
-bool
+void
 ClassEngine::update_parameters(const std::vector<double>& par) {
   m_do_free && free_structs();
 
@@ -260,7 +280,9 @@ ClassEngine::update_parameters(const std::vector<double>& par) {
   std::cout << "update par status=" << status << ", succes=" << _SUCCESS_ << std::endl;
 #endif
 
-  return (status == _SUCCESS_);
+  if (status == _FAILURE_) {
+    throw std::out_of_range(m_errmsg);
+  }
 }
 
 //print content of file_content
@@ -294,14 +316,14 @@ ClassEngine::class_main(struct file_content *pfc,
   }
 
   if (background_init(ppr, pba) == _FAILURE_) {
-    printf("\n\nError running background_init \n=>%s\n",pba->error_message);
+    strcpy(m_errmsg, pba->error_message);
     background_free(&m_ba);
     m_do_free=false;
     return _FAILURE_;
   }
 
   if (thermodynamics_init(ppr, pba, pth, m_info) == _FAILURE_) {
-    printf("\n\nError in thermodynamics_init \n=>%s\n",pth->error_message);
+    strcpy(m_errmsg, pth->error_message);
     thermodynamics_free(&m_th);
     background_free(&m_ba);
     m_do_free=false;
@@ -309,7 +331,7 @@ ClassEngine::class_main(struct file_content *pfc,
   }
 
   if (perturb_init(ppr, pba, pth, ppt) == _FAILURE_) {
-    printf("\n\nError in perturb_init \n=>%s\n",ppt->error_message);
+    strcpy(m_errmsg, ppt->error_message);
     perturb_free(&m_pt);
     thermodynamics_free(&m_th);
     background_free(&m_ba);
@@ -318,7 +340,7 @@ ClassEngine::class_main(struct file_content *pfc,
   }
 
   if (primordial_init(ppr, ppt, ppm) == _FAILURE_) {
-    printf("\n\nError in primordial_init \n=>%s\n",ppm->error_message);
+    strcpy(m_errmsg, ppm->error_message);
     primordial_free(&m_pm);
     perturb_free(&m_pt);
     thermodynamics_free(&m_th);
@@ -328,7 +350,7 @@ ClassEngine::class_main(struct file_content *pfc,
   }
 
   if (nonlinear_init(ppr, pba, pth, ppt, ppm, pnl) == _FAILURE_)  {
-    printf("\n\nError in nonlinear_init \n=>%s\n",pnl->error_message);
+    strcpy(m_errmsg, pnl->error_message);
     nonlinear_free(&m_nl);
     primordial_free(&m_pm);
     perturb_free(&m_pt);
@@ -339,7 +361,7 @@ ClassEngine::class_main(struct file_content *pfc,
   }
 
   if (transfer_init(ppr, pba, pth, ppt, pnl, ptr) == _FAILURE_) {
-    printf("\n\nError in transfer_init \n=>%s\n",ptr->error_message);
+    strcpy(m_errmsg, ptr->error_message);
     transfer_free(&m_tr);
     nonlinear_free(&m_nl);
     primordial_free(&m_pm);
@@ -351,7 +373,7 @@ ClassEngine::class_main(struct file_content *pfc,
   }
 
   if (spectra_init(ppr, pba, ppt, ppm, pnl, ptr, psp) == _FAILURE_) {
-    printf("\n\nError in spectra_init \n=>%s\n",psp->error_message);
+    strcpy(m_errmsg, psp->error_message);
     spectra_free(&m_sp);
     transfer_free(&m_tr);
     nonlinear_free(&m_nl);
@@ -364,7 +386,7 @@ ClassEngine::class_main(struct file_content *pfc,
   }
 
   if (lensing_init(ppr, ppt, psp, pnl, ple) == _FAILURE_) {
-    printf("\n\nError in lensing_init \n=>%s\n",ple->error_message);
+    strcpy(m_errmsg, ple->error_message);
     lensing_free(&m_le);
     spectra_free(&m_sp);
     transfer_free(&m_tr);
@@ -401,42 +423,42 @@ ClassEngine::compute_Cls(){
 int
 ClassEngine::free_structs() {
   if (lensing_free(&m_le) == _FAILURE_) {
-    printf("\n\nError in spectra_free \n=>%s\n",m_le.error_message);
+    strcpy(m_errmsg, m_le.error_message);
     return _FAILURE_;
   }
 
   if (nonlinear_free(&m_nl) == _FAILURE_) {
-    printf("\n\nError in nonlinear_free \n=>%s\n",m_nl.error_message);
+    strcpy(m_errmsg, m_nl.error_message);
     return _FAILURE_;
   }
 
   if (spectra_free(&m_sp) == _FAILURE_) {
-    printf("\n\nError in spectra_free \n=>%s\n",m_sp.error_message);
+    strcpy(m_errmsg, m_sp.error_message);
     return _FAILURE_;
   }
 
   if (primordial_free(&m_pm) == _FAILURE_) {
-    printf("\n\nError in primordial_free \n=>%s\n",m_pm.error_message);
+    strcpy(m_errmsg, m_pm.error_message);
     return _FAILURE_;
   }
 
   if (transfer_free(&m_tr) == _FAILURE_) {
-    printf("\n\nError in transfer_free \n=>%s\n",m_tr.error_message);
+    strcpy(m_errmsg, m_tr.error_message);
     return _FAILURE_;
   }
 
   if (perturb_free(&m_pt) == _FAILURE_) {
-    printf("\n\nError in perturb_free \n=>%s\n",m_pt.error_message);
+    strcpy(m_errmsg, m_pt.error_message);
     return _FAILURE_;
   }
 
   if (thermodynamics_free(&m_th) == _FAILURE_) {
-    printf("\n\nError in thermodynamics_free \n=>%s\n",m_th.error_message);
+    strcpy(m_errmsg, m_th.error_message);
     return _FAILURE_;
   }
 
   if (background_free(&m_ba) == _FAILURE_) {
-    printf("\n\nError in background_free \n=>%s\n",m_ba.error_message);
+    strcpy(m_errmsg, m_ba.error_message);
     return _FAILURE_;
   }
 

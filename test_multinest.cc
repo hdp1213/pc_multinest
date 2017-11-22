@@ -165,8 +165,6 @@ void update_CLASS(ClassEngine*& class_engine) {
       std::cerr << "[ERROR] CLASS failed, throwing exception "
                 << e.what()
                 << std::endl;
-
-      return;
     }
   }
 }

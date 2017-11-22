@@ -32,7 +32,7 @@ public:
   Engine(int lmax);
 
   // Pure virtual methods
-  virtual bool update_parameters(const std::vector<double>& cosmopars) = 0;
+  virtual void update_parameters(const std::vector<double>& cosmopars) = 0;
 
   // Throws std::exception on failure
   // units = (micro-K)^2
