@@ -42,7 +42,16 @@ int main(int argc, char const *argv[])
     plc_pack->cl_ls.push_back(l);
   }
 
-  init_CLASS(plc_pack->engine, total_max_l, info);
+  try {
+    init_CLASS(plc_pack->engine, total_max_l, info);
+  }
+  catch (std::exception const &e) {
+    std::cerr << "[ERROR] CLASS initialisation "
+              << "failed, throwing exception "
+              << e.what()
+              << std::endl;
+    return -1;
+  }
 
   update_CLASS(plc_pack->engine);
 
@@ -125,16 +134,7 @@ void init_CLASS(ClassEngine*& class_engine, int max_l, external_info* info) {
   std::cout << "Intialising CLASS..." << std::endl;
 
   // Initialise CLASS engine with external PBH info
-  try {
-    class_engine = new ClassEngine(default_params, info);
-  }
-  catch (std::exception const &e) {
-    std::cerr << "[ERROR] CLASS initialisation "
-              << "failed, throwing exception "
-              << e.what()
-              << std::endl;
-    throw e;
-  }
+  class_engine = new ClassEngine(default_params, info);
 }
 
 /* Just updates CLASS to test values of pbh_frac and pbh_mass that break CLASS in preparation for leak checking */
