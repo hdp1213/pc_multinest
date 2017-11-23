@@ -107,9 +107,10 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_inf
   default_params.add("read external files", false); // very important!!
 
   // Neutrino values
-  default_params.add("N_ur", 2.0328);
-  default_params.add("N_ncdm", 1);
-  default_params.add("m_ncdm", 0.06); // MeV
+  default_params.add("N_ur", 3.046);
+  // default_params.add("N_ur", 2.0328);
+  // default_params.add("N_ncdm", 1);
+  // default_params.add("m_ncdm", 0.06); // MeV
   // default_params.add("T_ncdm", 0.71611);
 
   // Use HyRec for recombination
