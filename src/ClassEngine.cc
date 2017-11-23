@@ -268,7 +268,6 @@ ClassEngine::update_parameters(const std::vector<double>& par) {
   for (std::size_t i = 0; i < par.size(); i++) {
     double val = par[i];
     strcpy(m_fc.value[i], str(val).c_str());
-    strcpy(m_fc.name[i], m_parnames[i].c_str());
 #ifdef DBUG
     std::cout << "update par values " << m_parnames[i] << "\t" <<  val << "\t" << str(val).c_str() << std::endl;
 #endif
