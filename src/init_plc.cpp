@@ -1,4 +1,7 @@
-#include "init_plc.h"
+#include "init_plc.hpp"
+
+#include "pbh_io.hpp"
+#include "hyrec_io.hpp"
 
 #include <cstdio> // for stderr
 #include <exception> // for std::exception
@@ -204,15 +207,15 @@ void initialise_param_arrays() {
 
   // Include parameter array initialisations
 
-  // #include "TTTEEE+lowP_pbh_fixedLCDM-flat.cc"
-  #include "TTTEEE+lowP_pbh_clark-flat.cc"
-  // #include "TTTEEE+lowP_pbh-flat.cc"
-  // #include "TTTEEE+lowP-flat.cc"
+  // #include "TTTEEE+lowP_pbh_fixedLCDM-flat.cpp"
+  #include "TTTEEE+lowP_pbh_clark-flat.cpp"
+  // #include "TTTEEE+lowP_pbh-flat.cpp"
+  // #include "TTTEEE+lowP-flat.cpp"
 
-  // #include "TTTEEE+lowP_pbh_fixedLCDM-gauss.cc"
-  #include "TTTEEE+lowP_pbh_clark-gauss.cc"
-  // #include "TTTEEE+lowP_pbh-gauss.cc"
-  // #include "TTTEEE+lowP-gauss.cc"
+  // #include "TTTEEE+lowP_pbh_fixedLCDM-gauss.cpp"
+  #include "TTTEEE+lowP_pbh_clark-gauss.cpp"
+  // #include "TTTEEE+lowP_pbh-gauss.cpp"
+  // #include "TTTEEE+lowP-gauss.cpp"
 
   // Set values of m_transform depending on includes
   for (int param = 0; param < FREE_PARAM_AMT; ++param) {

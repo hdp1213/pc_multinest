@@ -1,7 +1,7 @@
 #ifndef DIVER_LOGLIKE
 #define DIVER_LOGLIKE
 
-#include "loglike.h"
+#include "pc_loglike.hpp"
 
 #include <algorithm> // for std::copy
 #include <limits>
@@ -30,7 +30,7 @@ double diver_loglike(double params[], const int param_dim, int &fcall, bool &qui
   }
 
   quit = false;
-  
+
   std::cout << "[diver_loglike] Calculated loglike of "
             << -loglike
             << std::endl;

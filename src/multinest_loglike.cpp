@@ -1,7 +1,9 @@
-#include "multinest_loglike.h"
+#include "multinest_loglike.hpp"
 
 #include <algorithm> // for std::copy
 #include <iostream>
+
+#include "pc_loglike.hpp"
 
 void multinest_loglike(double *Cube, int &ndim, int &npars, double &lnew, void *context) {
   plc_bundle* plc_pack;

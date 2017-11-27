@@ -2,15 +2,12 @@
 #define PC_INIT
 
 #include "clik.h"
-#include "ClassEngine.hh"
+#include "ClassEngine.hpp"
 
-#include "pbh_io.h"
-#include "hyrec_io.h"
-
-// #include "TTTEEE+lowP_pbh_fixedLCDM.h"
-#include "TTTEEE+lowP_pbh_clark.h"
-// #include "TTTEEE+lowP_pbh.h"
-// #include "TTTEEE+lowP.h"
+// #include "TTTEEE+lowP_pbh_fixedLCDM.hpp"
+#include "TTTEEE+lowP_pbh_clark.hpp"
+// #include "TTTEEE+lowP_pbh.hpp"
+// #include "TTTEEE+lowP.hpp"
 
 #include <math.h>
 #include <string>

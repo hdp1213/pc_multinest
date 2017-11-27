@@ -7,7 +7,7 @@
 //-----------------------
 // This Class's Header --
 //-----------------------
-#include "ClassEngine.hh"
+#include "ClassEngine.hpp"
 // ------------------------
 // Collaborating classes --
 //-------------------------

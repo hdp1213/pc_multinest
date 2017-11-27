@@ -1,7 +1,7 @@
 #ifndef PC_LOGLIKE
 #define PC_LOGLIKE
 
-#include "init_plc.h"
+#include "init_plc.hpp"
 
 #include <vector>
 
@@ -43,7 +43,7 @@ extern double m_stddev[];
  * - the fixed values, which are always constant and never change
  * - a way of telling which parameter is free or fixed
  * - any gaussian priors!!!
- * 
+ *
  * Things that have already happened prior to this:
  * - .clik objects have been initialised
  * - CLASS engine has been initialised

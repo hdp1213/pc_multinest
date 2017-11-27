@@ -9,7 +9,7 @@ struct diver_settings {
   double* lowerbounds;        // Lower boundaries of parameter space
   double* upperbounds;        // Upper boundaries of parameter space
   std::string  path;          // Path to save samples, resume files,
-                              // etc 
+                              // etc
   int     nDerived;           // Number of derived quantities to output
   int     nDiscrete;          // Number of parameters that are to be
                               // treated as discrete
@@ -64,7 +64,7 @@ struct diver_settings {
                               // nDerived != 0) files
   int     init_pop_strategy;  // Initialisation strategy: 0=one shot,
                               // 1=n-shot, 2=n-shot with error if no
-                              // valid vectors found. 
+                              // valid vectors found.
   int     max_init_attempts;  // Maximum number of times to try to find
                               // a valid vector for each slot in the
                               // initial population.

@@ -1,4 +1,4 @@
-#include "TTTEEE+lowP_pbh.h"
+#include "TTTEEE+lowP_pbh.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -42,8 +42,8 @@ main(int argc, char const *argv[]) {
 // Function implementations
 void
 initialise_arrays() {
-  #include "TTTEEE+lowP_pbh-flat.cc"
-  #include "TTTEEE+lowP_pbh-names.cc"
+  #include "TTTEEE+lowP_pbh-flat.cpp"
+  #include "TTTEEE+lowP_pbh-names.cpp"
 }
 
 void

@@ -1,4 +1,4 @@
-#include "hyrec_io.h"
+#include "hyrec_io.hpp"
 
 #include "io_params.h"
 

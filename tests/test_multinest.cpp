@@ -1,4 +1,5 @@
-#include "init_plc.h"
+#include "init_plc.hpp"
+#include "hyrec_io.hpp"
 
 #include <array>
 #include <iostream>

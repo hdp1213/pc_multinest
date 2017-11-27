@@ -1,14 +1,71 @@
-#include <limits>
+#include "pc_multinest.hpp"
 
+#include <algorithm>
+#include <cstdio>
+#include <iostream>
 #include <vector>
-#include <iostream> // you know, for kids
 
-// double diver_loglike(double params[], const int param_dim, int &fcall, bool &quit, const bool validvector, void*& context);
+#include "multinest.h"
+#include "pc_loglike.hpp"
+#include "multinest_loglike.hpp"
 
-#include "diver_loglike.h"
+double m_min[FREE_PARAM_AMT], m_max[FREE_PARAM_AMT];
+double m_value[FIXED_PARAM_AMT];
 
-int main(int argc, char** argv)
-{
+bool m_has_gaussian_prior[TOTAL_PARAM_AMT];
+double m_mean[TOTAL_PARAM_AMT], m_stddev[TOTAL_PARAM_AMT];
+
+bool m_is_log10[FREE_PARAM_AMT];
+trans_t m_transform[FREE_PARAM_AMT];
+
+/*
+  Uses CLASS (wherever that will be with GAMBIT) to produce
+  spectra which are used in the log likelihood using PLC to
+  derive the log likelihood. Then MultiNest does the rest.
+
+  5/10/16 - tested plc_class against Multinest for no free
+            params.
+            Shows identical agreement against plc_class for
+            identical nuisance parameter input and CLASS
+            initial conditions.
+            Cannot find out how to use *context, though.
+*/
+int main(int argc, char* argv[]) {
+
+  ////// MultiNest settings //////
+
+  multinest_settings settings;
+
+  settings.IS = false;
+  settings.mmodal = false;
+  settings.ceff = true;
+
+  settings.nlive = 1000;
+  settings.efr = 0.05;
+  settings.tol = 1E-1;
+
+  settings.ndims = FREE_PARAM_AMT;
+  settings.nPar = FREE_PARAM_AMT + DERIVED_PARAM_AMT;
+  settings.nClsPar = 0;
+
+  settings.updInt = 1000;
+  settings.Ztol = MIN_LOGLIKE;
+  settings.maxModes = 4;
+  settings.pWrap = new int[settings.ndims];
+  for(int i = 0; i < settings.ndims; i++) settings.pWrap[i] = 0;
+
+  // settings.root = 'test';
+  settings.seed = -1;
+  settings.fb = true;
+  settings.resume = true;
+  settings.outfile = true;
+  settings.initMPI = true;
+  settings.logZero = MIN_LOGLIKE;
+  settings.maxiter = 0;
+
+
+  ////// plc_class variables //////
+
   void* context = 0;
   int total_max_l = -1;
 
@@ -31,6 +88,22 @@ int main(int argc, char** argv)
   std::vector<param_t> lo_l_nuis_enums;
   clik_struct* lo_l_clik;
 
+  // PBH variables
+  std::string pbh_file_root = std::string(CLASS_PBH_FILE_DIR) + "/";
+  std::string hyrec_file_root = std::string(HYREC_FILE_DIR) + "/";
+  external_info* info;
+
+  // Use the first command line argument as a non-default
+  // output root
+  // That is, if an argument is even specified
+  if (argc == 2) {
+    settings.root = argv[1];
+  }
+  else {
+    settings.root = "output/pc_multinest-";
+  }
+
+  std::cout << "Printing results to " << settings.root << std::endl;
 
   //*
   // Push nuisance parameters in the order they appear in cl_and_pars
@@ -156,6 +229,9 @@ int main(int argc, char** argv)
   plc_pack->clik_objs.push_back(lo_l_clik);
   //*/
 
+  // Read in external PBH files
+  info = initialise_external_info(pbh_file_root, hyrec_file_root);
+
 
   // Create cl_ls vector of l values!!!
   for (int l = CLASS_MIN_L; l <= total_max_l; ++l) {
@@ -164,7 +240,7 @@ int main(int argc, char** argv)
 
   //*
   // Initialise CLASS before runing MultiNest
-  initialise_CLASS_engine(plc_pack->engine, total_max_l);
+  initialise_CLASS_engine(plc_pack->engine, total_max_l, info);
 
   context = plc_pack;
   //*/
@@ -172,69 +248,17 @@ int main(int argc, char** argv)
   // Initialise m_min, m_max and the rest
   initialise_param_arrays();
 
-  // Diver parameters
-  int nPar = FREE_PARAM_AMT;
-  int NP = 10*nPar;
-  double* lowerbounds = m_min;
-  double* upperbounds = m_max;
-  int nDerived = DERIVED_PARAM_AMT;
+  // Initialise CLASS before runing MultiNest
+  // plc_pack->read_pbh_files(pbh_file_root);
+  // plc_pack->initialise_CLASS();
 
-  // Objective function parameters
-  const int param_dim = nPar + nDerived;
-  double params[FREE_PARAM_AMT + DERIVED_PARAM_AMT] = {
-    0.022252,
-    0.11987,
-    1.040778,
-    0.0789,
-    3.0929,
-    0.96475,
-    1.00029,
-    66.4,
-    0.13,
-    7.17,
-    255.0,
-    40.1,
-    36.4,
-    98.7,
-    0.00,
-    7.34,
-    8.97,
-    17.56,
-    81.9,
-    0.0813,
-    0.0488,
-    0.0995,
-    0.1002,
-    0.2236,
-    0.645,
-    0.1417,
-    0.1321,
-    0.307,
-    0.155,
-    0.338,
-    1.667,
-    0.99818,
-    0.99598
-  };
-  int fcall = 0;
-  bool quit = false;
-  const bool validvector = true;
+  // Calling MultiNest
 
-  double loglike;
-
-  std::cout << "Running loglikelihood function ..."
-            << std::endl;
-
-  loglike = diver_loglike(params, param_dim, fcall, quit,
-                          validvector, context);
-
-  /*
-  std::cout << "[test_diver] Calculated diver_loglike of "
-            << loglike
-            << std::endl;
-  */
+  pc_multinest(multinest_loglike, multinest_dumper, settings, context);
 
   // Deallocate memory
+  delete[] settings.pWrap;
+
   for (std::vector<clik_struct*>::iterator clik_struct_it = plc_pack->clik_objs.begin(); clik_struct_it != plc_pack->clik_objs.end(); ++clik_struct_it) {
     free((*clik_struct_it)->clik_id);
     delete *clik_struct_it;
@@ -244,4 +268,49 @@ int main(int argc, char** argv)
   delete plc_pack;
 
   return 0;
+}
+
+void pc_multinest(void (*loglike)(double*,
+                                  int&,
+                                  int&,
+                                  double&,
+                                  void*),
+                  void (*dumper)(int&,
+                                 int&,
+                                 int&,
+                                 double**,
+                                 double**,
+                                 double**,
+                                 double&,
+                                 double&,
+                                 double&,
+                                 double&,
+                                 void*),
+                  multinest_settings& s,
+                  void*& context) {
+
+  nested::run(s.IS,
+              s.mmodal,
+              s.ceff,
+              s.nlive,
+              s.tol,
+              s.efr,
+              s.ndims,
+              s.nPar,
+              s.nClsPar,
+              s.maxModes,
+              s.updInt,
+              s.Ztol,
+              s.root,
+              s.seed,
+              s.pWrap,
+              s.fb,
+              s.resume,
+              s.outfile,
+              s.initMPI,
+              s.logZero,
+              s.maxiter,
+              loglike,
+              dumper,
+              context);
 }

@@ -1,30 +1,63 @@
-#include "multinest_loglike.h"
+#include "pc_diver.hpp"
 
-#include <iomanip>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 #include <iostream>
-#include <sstream>
-#include <fstream>
-#include <string>
-#include <stdexcept>
-#include <vector>
+#include <limits>
 
-double m_min[FREE_PARAM_AMT], m_max[FREE_PARAM_AMT];
-double m_value[FIXED_PARAM_AMT];
+#include "diver.hpp"
+#include "diver_loglike.hpp"
 
-bool m_has_gaussian_prior[TOTAL_PARAM_AMT];
-double m_mean[TOTAL_PARAM_AMT], m_stddev[TOTAL_PARAM_AMT];
+int main(int argc, char** argv)
+{
+  ////// Diver settings //////
 
-bool m_is_log10[FREE_PARAM_AMT];
-trans_t m_transform[FREE_PARAM_AMT];
+  diver_settings settings;
 
-int main(int argc, char* argv[]) {
+  settings.nPar               = FREE_PARAM_AMT;
+  settings.lowerbounds        = m_min;
+  settings.upperbounds        = m_max;
+  settings.nDerived           = DERIVED_PARAM_AMT;
+  // settings.path               = "output/pc_diver-";
+  settings.nDiscrete          = 0;
+  settings.discrete           = {none};
+  settings.partitionDiscrete  = false;
+
+  settings.maxciv             = 100;
+  settings.maxgen             = 100;
+  settings.NP = 10*settings.nPar;
+  settings.nF                 = 1;
+  // settings.F                  = {0.6};
+  settings.Cr                 = 0.9;
+  settings.lambda             = 0.8;
+  settings.current            = false;
+  settings.expon              = false;
+  settings.bndry              = 3;
+  settings.jDE                = true;
+  settings.lambdajDE          = true;
+
+  settings.convthresh         = 1.e-3;
+  settings.convsteps          = 10;
+  settings.removeDuplicates   = true;
+
+  settings.doBayesian         = true;
+  settings.maxNodePop         = 1.9;
+  settings.Ztolerance         = 0.1;
+
+  settings.savecount          = 1;
+  settings.resume             = false; // watch out for me please!
+  settings.outputSamples      = true;
+  settings.init_pop_strategy  = 2; // fatal n-shot
+  settings.max_init_attempts  = 10;
+  settings.max_acceptable_val = 1e6;
+  settings.verbose            = 2;
+
 
   ////// plc_class variables //////
 
   void* context = 0;
   int total_max_l = -1;
-
-  double pbh_frac, pbh_mass, log_pbh_mass;
 
   std::vector<clik_struct*> clik_objects;
   plc_bundle* plc_pack = new plc_bundle();
@@ -45,23 +78,16 @@ int main(int argc, char* argv[]) {
   std::vector<param_t> lo_l_nuis_enums;
   clik_struct* lo_l_clik;
 
-  // PBH variables
-  std::string pbh_file_root = std::string(CLASS_PBH_FILE_DIR) + "/";
-  std::string hyrec_file_root = std::string(HYREC_FILE_DIR) + "/";
-  external_info* info;
-
-  // Read in pbh frac and mass
-  if (argc == 3) {
-    std::istringstream arg1stream(argv[1]);
-    arg1stream >> pbh_frac;
-
-    std::istringstream arg2stream(argv[2]);
-    arg2stream >> log_pbh_mass;
+  if (argc == 2) {
+    settings.path = argv[1];
   }
   else {
-    throw std::invalid_argument("Not enough parameters given");
+    settings.path = "output/pc_diver-";
   }
 
+  std::cout << "Printing results to " << settings.path << std::endl;
+
+  //*
   // Push nuisance parameters in the order they appear in cl_and_pars
 #ifndef LITE_HI_L
 // TT & TTTEEE
@@ -171,7 +197,9 @@ int main(int argc, char* argv[]) {
                                      hi_l_nuis_enums,
                                      total_max_l);
   plc_pack->clik_objs.push_back(hi_l_clik);
+  //*/
 
+  //*
   lo_l_nuis_enums.push_back(A_planck);
 
   std::cout << "Opening " << lo_l_clik_path << std::endl;
@@ -181,60 +209,95 @@ int main(int argc, char* argv[]) {
                                      lo_l_nuis_enums,
                                      total_max_l);
   plc_pack->clik_objs.push_back(lo_l_clik);
+  //*/
 
-  // Read in external PBH files
-  info = initialise_external_info(pbh_file_root, hyrec_file_root);
 
-  // Create cl_ls vector of l values
+  // Create cl_ls vector of l values!!!
   for (int l = CLASS_MIN_L; l <= total_max_l; ++l) {
     plc_pack->cl_ls.push_back(l);
   }
 
-  // Initialise CLASS
-  initialise_CLASS_engine(plc_pack->engine, total_max_l, info);
+  //*
+  // Initialise CLASS before runing MultiNest
+  initialise_CLASS_engine(plc_pack->engine, total_max_l);
 
   context = plc_pack;
+  //*/
 
-  /* Run the dang thing */
+  // Initialise m_min, m_max and the rest
+  initialise_param_arrays();
 
-  double lnew;
-  double Aplanck = 1.00029;
-  int ndim = FREE_PARAM_AMT;
-  int npar = FREE_PARAM_AMT + DERIVED_PARAM_AMT;
-  std::vector<double> new_pars;
+  // Initialise CLASS before runing MultiNest
+  // plc_pack->read_pbh_files(pbh_file_root);
+  // plc_pack->initialise_CLASS();
 
-  pbh_mass = pow(10., log_pbh_mass);
+  // Calling Diver
 
-  new_pars.push_back(pbh_frac);
-  new_pars.push_back(pbh_mass);
-  new_pars.push_back(Aplanck);
+  pc_diver(diver_loglike, diver_prior, settings, context);
 
-  multinest_loglike_pt(new_pars, ndim, npar, lnew, context);
-
-  /* Write the dang output to a dang file */
-  std::ostringstream out_name;
-
-  out_name << "point_results/"
-           << pbh_frac << "_" << log_pbh_mass << ".res";
-
-  std::cout << "Printing result to " << out_name.str() << "..." << std::endl;
-
-  std::ofstream file_out(out_name.str().c_str(), std::ofstream::out);
-
-  if (!file_out.is_open()) {
-    std::cerr << "[ERROR]: file output error" << std::endl;
-    return -1;
+  // Deallocate memory
+  for (std::vector<clik_struct*>::iterator clik_struct_it = plc_pack->clik_objs.begin(); clik_struct_it != plc_pack->clik_objs.end(); ++clik_struct_it) {
+    free((*clik_struct_it)->clik_id);
+    delete *clik_struct_it;
   }
 
-  file_out << std::setw(16) << std::setprecision(10)
-           << pbh_frac
-           << std::setw(16) << std::setprecision(10)
-           << log_pbh_mass
-           << std::setw(16) << std::setprecision(10)
-           << lnew
-           << std::endl;
-
-  file_out.close();
+  delete plc_pack->engine;
+  delete plc_pack;
 
   return 0;
+
+}
+
+void pc_diver(double (*obj_func)(double[],
+                                 const int,
+                                 int&,
+                                 bool&,
+                                 const bool,
+                                 void*&),
+              double (*prior_func)(const double[],
+                                   const int,
+                                   void*&),
+              diver_settings& s,
+              void*& context) {
+
+  const int maxciv = s.maxciv;
+  const int maxgen = s.maxgen;
+
+  cdiver(obj_func,
+         s.nPar,
+         const_cast<double*>(s.lowerbounds),
+         const_cast<double*>(s.upperbounds),
+         s.path.c_str(),
+         s.nDerived,
+         s.nDiscrete,
+         const_cast<int*>(s.discrete),
+         s.partitionDiscrete,
+         maxciv,
+         maxgen,
+         s.NP,
+         s.nF,
+         const_cast<double*>(s.F),
+         s.Cr,
+         s.lambda,
+         s.current,
+         s.expon,
+         s.bndry,
+         s.jDE,
+         s.lambdajDE,
+         s.convthresh,
+         s.convsteps,
+         s.removeDuplicates,
+         s.doBayesian,
+         prior_func,
+         s.maxNodePop,
+         s.Ztolerance,
+         s.savecount,
+         s.resume,
+         s.outputSamples,
+         s.init_pop_strategy,
+         s.max_init_attempts,
+         s.max_acceptable_val,
+         context,
+         s.verbose);
+
 }

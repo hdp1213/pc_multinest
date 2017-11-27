@@ -1,9 +1,9 @@
 #ifndef MULTINEST_LOGLIKE
 #define MULTINEST_LOGLIKE
 
-#include <vector>
+#include "init_plc.hpp"
 
-#include "loglike.h"
+#include <vector>
 
 extern double m_min[];
 extern double m_max[];

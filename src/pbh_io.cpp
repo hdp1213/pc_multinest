@@ -1,4 +1,4 @@
-#include "pbh_io.h"
+#include "pbh_io.hpp"
 
 #include <exception>
 #include <iostream>
