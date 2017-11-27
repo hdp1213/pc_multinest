@@ -1,16 +1,30 @@
-#include <limits>
+#include "multinest_loglike.h"
 
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <stdexcept>
 #include <vector>
-#include <iostream> // you know, for kids
 
-// double diver_loglike(double params[], const int param_dim, int &fcall, bool &quit, const bool validvector, void*& context);
+double m_min[FREE_PARAM_AMT], m_max[FREE_PARAM_AMT];
+double m_value[FIXED_PARAM_AMT];
 
-#include "diver_loglike.h"
+bool m_has_gaussian_prior[TOTAL_PARAM_AMT];
+double m_mean[TOTAL_PARAM_AMT], m_stddev[TOTAL_PARAM_AMT];
 
-int main(int argc, char** argv)
-{
+bool m_is_log10[FREE_PARAM_AMT];
+trans_t m_transform[FREE_PARAM_AMT];
+
+int main(int argc, char* argv[]) {
+
+  ////// plc_class variables //////
+
   void* context = 0;
   int total_max_l = -1;
+
+  double pbh_frac, pbh_mass, log_pbh_mass;
 
   std::vector<clik_struct*> clik_objects;
   plc_bundle* plc_pack = new plc_bundle();
@@ -25,14 +39,29 @@ int main(int argc, char** argv)
   std::vector<param_t> hi_l_nuis_enums;
   clik_struct* hi_l_clik;
 
-  // Low l likelihood variables  
+  // Low l likelihood variables
   std::string lo_l_clik_path = std::string(PLIK_LOW_L_FILE_DIR) \
     + "/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
   std::vector<param_t> lo_l_nuis_enums;
   clik_struct* lo_l_clik;
 
+  // PBH variables
+  std::string pbh_file_root = std::string(CLASS_PBH_FILE_DIR) + "/";
+  std::string hyrec_file_root = std::string(HYREC_FILE_DIR) + "/";
+  external_info* info;
 
-  //*
+  // Read in pbh frac and mass
+  if (argc == 3) {
+    std::istringstream arg1stream(argv[1]);
+    arg1stream >> pbh_frac;
+
+    std::istringstream arg2stream(argv[2]);
+    arg2stream >> log_pbh_mass;
+  }
+  else {
+    throw std::invalid_argument("Not enough parameters given");
+  }
+
   // Push nuisance parameters in the order they appear in cl_and_pars
 #ifndef LITE_HI_L
 // TT & TTTEEE
@@ -142,9 +171,7 @@ int main(int argc, char** argv)
                                      hi_l_nuis_enums,
                                      total_max_l);
   plc_pack->clik_objs.push_back(hi_l_clik);
-  //*/
 
-  //*
   lo_l_nuis_enums.push_back(A_planck);
 
   std::cout << "Opening " << lo_l_clik_path << std::endl;
@@ -154,94 +181,60 @@ int main(int argc, char** argv)
                                      lo_l_nuis_enums,
                                      total_max_l);
   plc_pack->clik_objs.push_back(lo_l_clik);
-  //*/
 
+  // Read in external PBH files
+  info = initialise_external_info(pbh_file_root, hyrec_file_root);
 
-  // Create cl_ls vector of l values!!!
+  // Create cl_ls vector of l values
   for (int l = CLASS_MIN_L; l <= total_max_l; ++l) {
     plc_pack->cl_ls.push_back(l);
   }
 
-  //*
-  // Initialise CLASS before runing MultiNest
-  initialise_CLASS_engine(plc_pack->engine, total_max_l);
+  // Initialise CLASS
+  initialise_CLASS_engine(plc_pack->engine, total_max_l, info);
 
   context = plc_pack;
-  //*/
 
-  // Initialise m_min, m_max and the rest
-  initialise_param_arrays();
+  /* Run the dang thing */
 
-  // Diver parameters
-  int nPar = FREE_PARAM_AMT;
-  int NP = 10*nPar;
-  double* lowerbounds = m_min;
-  double* upperbounds = m_max;
-  int nDerived = DERIVED_PARAM_AMT;
+  double lnew;
+  double Aplanck = 1.00029;
+  int ndim = FREE_PARAM_AMT;
+  int npar = FREE_PARAM_AMT + DERIVED_PARAM_AMT;
+  std::vector<double> new_pars;
 
-  // Objective function parameters
-  const int param_dim = nPar + nDerived;
-  double params[FREE_PARAM_AMT + DERIVED_PARAM_AMT] = {
-    0.022252,
-    0.11987,
-    1.040778,
-    0.0789,
-    3.0929,
-    0.96475,
-    1.00029,
-    66.4,
-    0.13,
-    7.17,
-    255.0,
-    40.1,
-    36.4,
-    98.7,
-    0.00,
-    7.34,
-    8.97,
-    17.56,
-    81.9,
-    0.0813,
-    0.0488,
-    0.0995,
-    0.1002,
-    0.2236,
-    0.645,
-    0.1417,
-    0.1321,
-    0.307,
-    0.155,
-    0.338,
-    1.667,
-    0.99818,
-    0.99598
-  };
-  int fcall = 0;
-  bool quit = false;
-  const bool validvector = true;
+  pbh_mass = pow(10., log_pbh_mass);
 
-  double loglike;
+  new_pars.push_back(pbh_frac);
+  new_pars.push_back(pbh_mass);
+  new_pars.push_back(Aplanck);
 
-  std::cout << "Running loglikelihood function ..."
-            << std::endl;
+  multinest_loglike_pt(new_pars, ndim, npar, lnew, context);
 
-  loglike = diver_loglike(params, param_dim, fcall, quit,
-                          validvector, context);
+  /* Write the dang output to a dang file */
+  std::ostringstream out_name;
 
-  /*
-  std::cout << "[test_diver] Calculated diver_loglike of "
-            << loglike
-            << std::endl;
-  */
+  out_name << "point_results/"
+           << pbh_frac << "_" << log_pbh_mass << ".res";
 
-  // Deallocate memory
-  for (std::vector<clik_struct*>::iterator clik_struct_it = plc_pack->clik_objs.begin(); clik_struct_it != plc_pack->clik_objs.end(); ++clik_struct_it) {
-    free((*clik_struct_it)->clik_id);
-    delete *clik_struct_it;
+  std::cout << "Printing result to " << out_name.str() << "..." << std::endl;
+
+  std::ofstream file_out(out_name.str().c_str(), std::ofstream::out);
+
+  if (!file_out.is_open()) {
+    std::cerr << "[ERROR]: file output error" << std::endl;
+    return -1;
   }
 
-  delete plc_pack->engine;
-  delete plc_pack;
+  file_out << std::setw(16) << std::setprecision(10)
+           << pbh_frac
+           << std::setw(16) << std::setprecision(10)
+           << log_pbh_mass
+           << std::setw(16) << std::setprecision(10)
+           << lnew
+           << std::endl;
+
+  file_out.close();
 
   return 0;
 }

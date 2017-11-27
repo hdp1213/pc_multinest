@@ -142,12 +142,15 @@ void update_CLASS(ClassEngine*& class_engine) {
   std::vector<std::array<double, 2> > param_vector;
 
   /* TR > TR_MAX in hydrogen.c:interpolate_rates() */
-  param_vector.push_back({0.940561, 643503});
-  param_vector.push_back({0.454753, 300062});
+  // param_vector.push_back({0.940561, 643503});
+  // param_vector.push_back({0.454753, 300062});
 
   /* reionization exceeds max iterations while searching for optical depth */
-  param_vector.push_back({0.592319, 3.33219e+06});
-  param_vector.push_back({0.345466, 863279});
+  // param_vector.push_back({0.592319, 3.33219e+06});
+  // param_vector.push_back({0.345466, 863279});
+
+  /* Seg fault! */
+  param_vector.push_back({0.564443, 632829});
 
   for (size_t i = 0; i < param_vector.size(); ++i) {
     std::array<double, 2> vals = param_vector[i];

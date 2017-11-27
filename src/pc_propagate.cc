@@ -86,7 +86,6 @@ int main(int argc, char* argv[])
   // only 86 hours!
   // const int DERIVED_SIZE = ClikPar::TOTAL_OUT_PARAMS - ClikPar::TOTAL_IN_PARAMS;
 
-  
   const char* phoenix_in;
   const char* derived_out;
 
@@ -139,7 +138,7 @@ int main(int argc, char* argv[])
   // Run checks on divisibility of row number by mpi processes
   if (mpi_rank == ROOT_RANK) {
     if (IN_ROWS % mpi_size != 0) {
-      std::cerr << "[ERROR]: You've chosen " << mpi_size 
+      std::cerr << "[ERROR]: You've chosen " << mpi_size
                 << " MPI processes. "
                 << "Please choose one that divides "
                 << IN_ROWS << std::endl;
@@ -168,7 +167,7 @@ int main(int argc, char* argv[])
 
   // default_params.add("P_k_max_h/Mpc", 1.);
   // default_params.add("k_pivot", 0.05); // Mpc-1
-  
+
   default_params.add("output", "tCl");
   // default_params.add("output", "tCl,pCl,lCl,mPk");
   // default_params.add("lensing", true);   //note boolean
@@ -338,7 +337,7 @@ int main(int argc, char* argv[])
     out.open(derived_out);
 
     for (int i = 0; i < OUT_SIZE; ++i) {
-      out << std::setw(width) << std::setprecision(precis) 
+      out << std::setw(width) << std::setprecision(precis)
           << out_params[i];
 
       if (i % ClikPar::TOTAL_OUT_PARAMS == 0) {
