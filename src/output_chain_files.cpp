@@ -1,4 +1,4 @@
-#include "TTTEEE+lowP_pbh.hpp"
+#include "TTTEEE+lowP_pbh_clark.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -8,6 +8,7 @@
 // Global array declarations
 double m_min[FREE_PARAM_AMT], m_max[FREE_PARAM_AMT];
 double m_value[FIXED_PARAM_AMT];
+bool m_is_log10[FREE_PARAM_AMT];
 
 char* m_name[FREE_PARAM_AMT + DERIVED_PARAM_AMT];
 char* m_latex[FREE_PARAM_AMT + DERIVED_PARAM_AMT];
@@ -42,8 +43,8 @@ main(int argc, char const *argv[]) {
 // Function implementations
 void
 initialise_arrays() {
-  #include "TTTEEE+lowP_pbh-flat.cpp"
-  #include "TTTEEE+lowP_pbh-names.cpp"
+  #include "TTTEEE+lowP_pbh_clark-flat.cpp"
+  #include "TTTEEE+lowP_pbh_clark-names.cpp"
 }
 
 void
