@@ -166,7 +166,7 @@ void set_derived_params(double raw_params[],
   raw_params[Omega_cdm_LOC] = class_engine->get_Omega_cdm();
   raw_params[Omega_L_LOC] = class_engine->get_Omega_L();
   raw_params[Omega_g_LOC] = class_engine->get_Omega_g();
-  raw_params[sigma8_LOC] = class_engine->get_sigma8();
+  // raw_params[sigma8_LOC] = class_engine->get_sigma8();
   raw_params[age_LOC] = class_engine->get_age();
   raw_params[conf_age_LOC] = class_engine->get_conf_age();
 
