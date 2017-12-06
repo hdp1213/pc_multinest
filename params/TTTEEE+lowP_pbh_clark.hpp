@@ -6,7 +6,6 @@ enum param_t {
   pbh_frac,
   pbh_mass,
   // Free parameters (PLC TT nuisance)
-  A_planck,
 #ifndef LITE_HI_L
   A_cib_217,
   xi_sz_cib,
@@ -45,7 +44,11 @@ enum param_t {
   tau_reio,
   ln10_10_A_s,
   n_s,
+#endif
   // Fixed parameters (PLC TT nuisance)
+  A_planck = UP_TO_FREE_PARAMS,
+  UP_TO_FIXED_PARAMS, // remove all nuisance params for LITE_HI_L except A_planck
+#ifndef LITE_HI_L
   cib_index,
   // Fixed parameters (PLC TTTEEE nuisance)
   galf_EE_index,
@@ -115,8 +118,6 @@ enum param_t {
   calib_217P,
   A_pol,
   UP_TO_FIXED_PARAMS,
-#else // remove all nuisance params for LITE_HI_L except A_planck
-  UP_TO_FIXED_PARAMS = UP_TO_FREE_PARAMS,
 #endif
   // Derived parameters (LCDM)
   H0 = UP_TO_FIXED_PARAMS,
