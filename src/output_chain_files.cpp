@@ -1,4 +1,4 @@
-#include "TTTEEE+lowP_pbh_clark.hpp"
+#include "init_plc.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -9,6 +9,7 @@
 double m_min[FREE_PARAM_AMT], m_max[FREE_PARAM_AMT];
 double m_value[FIXED_PARAM_AMT];
 bool m_is_log10[FREE_PARAM_AMT];
+trans_t m_transform[FREE_PARAM_AMT];
 
 char* m_name[FREE_PARAM_AMT + DERIVED_PARAM_AMT];
 char* m_latex[FREE_PARAM_AMT + DERIVED_PARAM_AMT];
@@ -43,8 +44,18 @@ main(int argc, char const *argv[]) {
 // Function implementations
 void
 initialise_arrays() {
-  #include "TTTEEE+lowP_pbh_clark-flat.cpp"
-  #include "TTTEEE+lowP_pbh_clark-names.cpp"
+  // Set defaults for global arrays
+  for (int param = 0; param < FREE_PARAM_AMT; ++param) {
+    m_is_log10[param] = false;
+  }
+
+  #include "TTTEEE+lowP_pbh_dist-flat.cpp"
+  #include "TTTEEE+lowP_pbh_dist-names.cpp"
+
+  // Set values of m_transform depending on includes
+  for (int param = 0; param < FREE_PARAM_AMT; ++param) {
+    m_transform[param] = m_is_log10[param] ? &pow10 : &self;
+  }
 }
 
 void
@@ -72,7 +83,8 @@ write_ranges(std::string root) {
   fout = fopen(range_file.c_str(), "w");
 
   for (int param = 0; param < FREE_PARAM_AMT; ++param) {
-    fprintf(fout, "%-22s%#17.7E%#17.7E\n", m_name[param], m_min[param], m_max[param]);
+    trans_t func = m_transform[param];
+    fprintf(fout, "%-22s%#17.7E%#17.7E\n", m_name[param], func(m_min[param]), func(m_max[param]));
   }
 
   fclose(fout);
