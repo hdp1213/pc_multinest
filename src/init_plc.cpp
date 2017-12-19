@@ -91,10 +91,13 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_inf
   /*** FREE PARAMETERS ***/
 
   // PBH DM
-  default_params.add("Omega_pbh_ratio", 1.E-7);
-  default_params.add("pbh_mass_mean", 1.E6);
+  default_params.add("pbh_mass_mean", 3.E6);
+  default_params.add("pbh_mass_width", 0.01);
 
   /*** FREE/FIXED PARAMETERS ***/
+
+  // PBH DM frac set to unity
+  default_params.add("Omega_pbh_ratio", 1.0);
 
   // LCDM variables set to best-fit TTTEEE+lowP (2015)
   default_params.add("omega_b", 0.022252);
@@ -105,8 +108,7 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_inf
   default_params.add("n_s", 0.96475);
 
   // PBH DM
-  default_params.add("pbh_mass_dist", "pbh_delta");
-  // default_params.add("pbh_mass_width", 1.E1);
+  default_params.add("pbh_mass_dist", "pbh_log_norm");
   default_params.add("read external files", false); // very important!!
 
   // Neutrino values
@@ -209,13 +211,15 @@ void initialise_param_arrays() {
 
   // #include "TTTEEE+lowP_pbh_fixedLCDM-flat.cpp"
   // #include "TTTEEE+lowP_pbh_clark-flat.cpp"
-  #include "TTTEEE+lowP_pbh_clark_freeLCDM-flat.cpp"
+  // #include "TTTEEE+lowP_pbh_clark_freeLCDM-flat.cpp"
+  #include "TTTEEE+lowP_pbh_dist-flat.cpp"
   // #include "TTTEEE+lowP_pbh-flat.cpp"
   // #include "TTTEEE+lowP-flat.cpp"
 
   // #include "TTTEEE+lowP_pbh_fixedLCDM-gauss.cpp"
   // #include "TTTEEE+lowP_pbh_clark-gauss.cpp"
-  #include "TTTEEE+lowP_pbh_clark_freeLCDM-gauss.cpp"
+  // #include "TTTEEE+lowP_pbh_clark_freeLCDM-gauss.cpp"
+  #include "TTTEEE+lowP_pbh_dist-gauss.cpp"
   // #include "TTTEEE+lowP_pbh-gauss.cpp"
   // #include "TTTEEE+lowP-gauss.cpp"
 
