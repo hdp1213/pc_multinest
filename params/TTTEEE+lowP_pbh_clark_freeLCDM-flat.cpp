@@ -9,9 +9,11 @@
 
 // Non-standard LCDM parameters
 m_is_log10[pbh_frac] = true;
-m_min[pbh_frac] = -20.0;          m_max[pbh_frac] = 0.0;
+m_min[pbh_frac] = -8.0;          m_max[pbh_frac] = 0.0;
 // m_min[pbh_frac] = 0.0;           m_max[pbh_frac] = 1.E0;
-m_min[pbh_mass] = 1.E5;          m_max[pbh_mass] = 1.E7;
+m_is_log10[pbh_mass] = true;
+m_min[pbh_mass] = 5;             m_max[pbh_mass] = 7;
+// m_min[pbh_mass] = 1.E5;          m_max[pbh_mass] = 1.E7;
 
 // Free LCDM parameters according to TTTEEE+lowP.pars
 m_min[omega_b] = 0.016;          m_max[omega_b] = 0.028;
