@@ -208,14 +208,14 @@ void initialise_param_arrays() {
   // Include parameter array initialisations
 
   // #include "TTTEEE+lowP_pbh_fixedLCDM-flat.cpp"
-  #include "TTTEEE+lowP_pbh_clark-flat.cpp"
-  // #include "TTTEEE+lowP_pbh_clark_freeLCDM-flat.cpp"
+  // #include "TTTEEE+lowP_pbh_clark-flat.cpp"
+  #include "TTTEEE+lowP_pbh_clark_freeLCDM-flat.cpp"
   // #include "TTTEEE+lowP_pbh-flat.cpp"
   // #include "TTTEEE+lowP-flat.cpp"
 
   // #include "TTTEEE+lowP_pbh_fixedLCDM-gauss.cpp"
-  #include "TTTEEE+lowP_pbh_clark-gauss.cpp"
-  // #include "TTTEEE+lowP_pbh_clark_freeLCDM-gauss.cpp"
+  // #include "TTTEEE+lowP_pbh_clark-gauss.cpp"
+  #include "TTTEEE+lowP_pbh_clark_freeLCDM-gauss.cpp"
   // #include "TTTEEE+lowP_pbh-gauss.cpp"
   // #include "TTTEEE+lowP-gauss.cpp"
 

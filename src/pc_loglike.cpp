@@ -18,9 +18,22 @@ double pc_loglike(std::vector<clik_struct*>& clik_objs,
 
   class_params.push_back(in_vals[pbh_frac]);
   class_params.push_back(in_vals[pbh_mass]);
+  class_params.push_back(in_vals[omega_b]);
+  class_params.push_back(in_vals[omega_cdm]);
+  class_params.push_back(in_vals[hundredxtheta_s]);
+  class_params.push_back(in_vals[tau_reio]);
+  class_params.push_back(in_vals[ln10_10_A_s]);
+  class_params.push_back(in_vals[n_s]);
 
   std::cout << in_vals[pbh_frac] << " "
-            << in_vals[pbh_mass] << std::endl;
+            << in_vals[pbh_mass] << " "
+            << in_vals[omega_b] << " "
+            << in_vals[omega_cdm] << " "
+            << in_vals[hundredxtheta_s] << " "
+            << in_vals[tau_reio] << " "
+            << in_vals[ln10_10_A_s] << " "
+            << in_vals[n_s] << " "
+            << in_vals[A_planck] << std::endl;
 
   // Run CLASS
   try {
