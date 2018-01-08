@@ -1,9 +1,10 @@
 #include "multinest_loglike.hpp"
 
+#include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <math.h>
 #include <sstream>
-#include <fstream>
 #include <string>
 #include <stdexcept>
 #include <vector>
@@ -24,7 +25,7 @@ int main(int argc, char* argv[]) {
   void* context = 0;
   int total_max_l = -1;
 
-  double pbh_frac, pbh_mass, log_pbh_mass;
+  double log_pbh_frac, pbh_frac, log_pbh_mass, pbh_mass;
 
   std::vector<clik_struct*> clik_objects;
   plc_bundle* plc_pack = new plc_bundle();
@@ -46,14 +47,14 @@ int main(int argc, char* argv[]) {
   clik_struct* lo_l_clik;
 
   // PBH variables
-  std::string pbh_file_root = std::string(CLASS_PBH_FILE_DIR) + "/";
+  std::string pbh_file_root = std::string(CLASS_PBH_FILE_DIR);
   std::string hyrec_file_root = std::string(HYREC_FILE_DIR) + "/";
   external_info* info;
 
   // Read in pbh frac and mass
   if (argc == 3) {
     std::istringstream arg1stream(argv[1]);
-    arg1stream >> pbh_frac;
+    arg1stream >> log_pbh_frac;
 
     std::istringstream arg2stream(argv[2]);
     arg2stream >> log_pbh_mass;
@@ -197,17 +198,19 @@ int main(int argc, char* argv[]) {
 
   /* Run the dang thing */
 
-  double lnew;
-  double Aplanck = 1.00029;
-  int ndim = FREE_PARAM_AMT;
-  int npar = FREE_PARAM_AMT + DERIVED_PARAM_AMT;
   std::vector<double> new_pars;
 
+  double Aplanck = 1.00029;
+  pbh_frac = pow(10., log_pbh_frac);
   pbh_mass = pow(10., log_pbh_mass);
 
   new_pars.push_back(pbh_frac);
   new_pars.push_back(pbh_mass);
   new_pars.push_back(Aplanck);
+
+  int ndim = FREE_PARAM_AMT;
+  int npar = FREE_PARAM_AMT + DERIVED_PARAM_AMT;
+  double lnew = 1E-99;
 
   multinest_loglike_pt(new_pars, ndim, npar, lnew, context);
 
@@ -215,7 +218,9 @@ int main(int argc, char* argv[]) {
   std::ostringstream out_name;
 
   out_name << "point_results/"
-           << pbh_frac << "_" << log_pbh_mass << ".res";
+           << std::fixed << std::setprecision(3) << log_pbh_frac
+           << "_"
+           << std::fixed << std::setprecision(3) << log_pbh_mass << ".res";
 
   std::cout << "Printing result to " << out_name.str() << "..." << std::endl;
 
@@ -227,7 +232,7 @@ int main(int argc, char* argv[]) {
   }
 
   file_out << std::setw(16) << std::setprecision(10)
-           << pbh_frac
+           << log_pbh_frac
            << std::setw(16) << std::setprecision(10)
            << log_pbh_mass
            << std::setw(16) << std::setprecision(10)
