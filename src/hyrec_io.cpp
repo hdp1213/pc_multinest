@@ -128,9 +128,9 @@ void read_two_photon(std::string& root, external_info* info) {
 void initialise_temp_tables(external_info* info) {
   /* These actually set the values of the table */
   hyrec_maketab(log(TR_MIN), log(TR_MAX), NTR, info->logTR_tab);
-  hyrec_maketab(TM_TR_MIN, TM_TR_MAX, NTM, info->TM_TR_tab);
+  hyrec_maketab(log(TM_TR_MIN), log(TM_TR_MAX), NTM, info->logTM_TR_tab);
   info->DlogTR = info->logTR_tab[1] - info->logTR_tab[0];
-  info->DTM_TR = info->TM_TR_tab[1] - info->TM_TR_tab[0];
+  info->DlogTM_TR = info->logTM_TR_tab[1] - info->logTM_TR_tab[0];
 }
 
 void normalise_atomic(external_info* info) {
