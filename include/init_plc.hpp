@@ -1,7 +1,9 @@
 #ifndef PC_INIT
 #define PC_INIT
 
+extern "C" {
 #include "clik.h"
+}
 #include "ClassEngine.hpp"
 
 // #include "TTTEEE+lowP_pbh_fixedLCDM.hpp"
