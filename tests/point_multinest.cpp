@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
   void* context = 0;
   int total_max_l = -1;
 
-  double log_pbh_frac, pbh_frac, log_pbh_mass, pbh_mass;
+  double log_pbh_mass, pbh_mass, log_pbh_width, pbh_width;
 
   std::vector<clik_struct*> clik_objects;
   plc_bundle* plc_pack = new plc_bundle();
@@ -51,13 +51,13 @@ int main(int argc, char* argv[]) {
   std::string hyrec_file_root = std::string(HYREC_FILE_DIR) + "/";
   external_info* info;
 
-  // Read in pbh frac and mass
+  // Read in pbh width and mass
   if (argc == 3) {
     std::istringstream arg1stream(argv[1]);
-    arg1stream >> log_pbh_frac;
+    arg1stream >> log_pbh_mass;
 
     std::istringstream arg2stream(argv[2]);
-    arg2stream >> log_pbh_mass;
+    arg2stream >> log_pbh_width;
   }
   else {
     throw std::invalid_argument("Not enough parameters given");
@@ -196,16 +196,18 @@ int main(int argc, char* argv[]) {
 
   context = plc_pack;
 
+  initialise_param_arrays();
+
   /* Run the dang thing */
 
   std::vector<double> new_pars;
 
   double Aplanck = 1.00029;
-  pbh_frac = pow(10., log_pbh_frac);
   pbh_mass = pow(10., log_pbh_mass);
+  pbh_width = pow(10., log_pbh_width);
 
-  new_pars.push_back(pbh_frac);
   new_pars.push_back(pbh_mass);
+  new_pars.push_back(pbh_width);
   new_pars.push_back(Aplanck);
 
   int ndim = FREE_PARAM_AMT;
@@ -218,9 +220,9 @@ int main(int argc, char* argv[]) {
   std::ostringstream out_name;
 
   out_name << "point_results/"
-           << std::fixed << std::setprecision(3) << log_pbh_frac
+           << std::fixed << std::setprecision(3) << log_pbh_mass
            << "_"
-           << std::fixed << std::setprecision(3) << log_pbh_mass << ".res";
+           << std::fixed << std::setprecision(3) << log_pbh_width << ".res";
 
   std::cout << "Printing result to " << out_name.str() << "..." << std::endl;
 
@@ -232,9 +234,9 @@ int main(int argc, char* argv[]) {
   }
 
   file_out << std::setw(16) << std::setprecision(10)
-           << log_pbh_frac
-           << std::setw(16) << std::setprecision(10)
            << log_pbh_mass
+           << std::setw(16) << std::setprecision(10)
+           << log_pbh_width
            << std::setw(16) << std::setprecision(10)
            << lnew
            << std::endl;
