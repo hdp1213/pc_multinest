@@ -97,7 +97,7 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_inf
   /*** FREE/FIXED PARAMETERS ***/
 
   // PBH DM frac set to unity
-  default_params.add("Omega_pbh_ratio", 1.0);
+  default_params.add("Omega_pbh_ratio", 1.e-5);
 
   // LCDM variables set to best-fit TTTEEE+lowP (2015)
   default_params.add("omega_b", 0.022252);
@@ -120,6 +120,7 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_inf
 
   // Use HyRec for recombination
   default_params.add("recombination", "HyRec");
+  default_params.add("start_sources_at_tau_c_over_tau_h", 1e-3);
 
   // Perturbation options for matter perturbation spectrum mPk
   // default_params.add("P_k_max_h/Mpc", 1.);
