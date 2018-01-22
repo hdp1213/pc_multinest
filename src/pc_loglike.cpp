@@ -155,6 +155,10 @@ double calculate_extra_likelihoods(double in_vals[],
 
   // Calculate any other priors needed ...
 
+#ifdef DBUG
+  std::cout << "[calculate_extra_likelihoods] Calculated loglike of " << loglike << std::endl;
+#endif
+
   return loglike;
 }
 
