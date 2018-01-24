@@ -233,11 +233,11 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
-  file_out << std::setw(16) << std::setprecision(10)
+  file_out << std::fixed << std::setw(16) << std::setprecision(2)
            << log_pbh_mass
-           << std::setw(16) << std::setprecision(10)
+           << std::setw(16) << std::setprecision(2)
            << log_pbh_width
-           << std::setw(16) << std::setprecision(10)
+           << std::scientific << std::setw(16) << std::setprecision(6)
            << lnew
            << std::endl;
 
