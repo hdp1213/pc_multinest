@@ -42,7 +42,7 @@ void hyrec_maketab(double xmin, double xmax, unsigned Nx, double *xtab) {
 void read_alpha(std::string& root, external_info* info) {
   std::ostringstream alpha_filename;
 
-  alpha_filename << root << "Alpha_inf_extended.dat";
+  alpha_filename << root << "Alpha_inf_unity.dat";
   std::cout << "reading in: '" << alpha_filename.str() << "'" << std::endl;
 
   /* what the hell am i doing */
