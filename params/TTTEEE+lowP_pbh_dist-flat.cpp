@@ -11,7 +11,7 @@
 m_is_log10[pbh_mass] = true;
 m_min[pbh_mass] = 5;             m_max[pbh_mass] = 7;
 m_is_log10[pbh_width] = true;
-m_min[pbh_width] = -10;          m_max[pbh_width] = 1;
+m_min[pbh_width] = -3;          m_max[pbh_width] = 1;
 
 // Nuisance parameters (PLC TT & TTTEEE)
 // Using thinner bounds from base_plikTTTEEE_lowTEB results

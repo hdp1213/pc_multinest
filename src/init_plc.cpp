@@ -97,7 +97,7 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_inf
   /*** FREE/FIXED PARAMETERS ***/
 
   // PBH DM frac set to unity
-  default_params.add("Omega_pbh_ratio", 1.e-5);
+  default_params.add("Omega_pbh_ratio", 1.e-3);
 
   // LCDM variables set to best-fit TTTEEE+lowP (2015)
   default_params.add("omega_b", 0.022252);
