@@ -2,6 +2,7 @@
 
 #include <exception>
 #include <iostream>
+#include <iomanip>
 
 double pc_loglike(std::vector<clik_struct*>& clik_objs,
                   ClassEngine*& class_engine,
@@ -19,7 +20,8 @@ double pc_loglike(std::vector<clik_struct*>& clik_objs,
   class_params.push_back(in_vals[pbh_mass]);
   class_params.push_back(in_vals[pbh_width]);
 
-  std::cout << in_vals[pbh_mass] << " "
+  std::cout << std::scientific << std::setprecision(12)
+            << in_vals[pbh_mass] << " "
             << in_vals[pbh_width] << std::endl;
 
   // Run CLASS
