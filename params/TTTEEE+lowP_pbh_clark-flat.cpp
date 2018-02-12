@@ -17,7 +17,7 @@ m_min[pbh_mass] = 5;             m_max[pbh_mass] = 7;
 
 // Nuisance parameters (PLC TT & TTTEEE)
 // Using thinner bounds from base_plikTTTEEE_lowTEB results
-m_value[A_planck - UP_TO_FREE_PARAMS] = 1.00029;
+m_value[A_planck - UP_TO_FREE_PARAMS] = 1.00013;
 #ifndef LITE_HI_L
 m_min[A_cib_217] = 30.0;         m_max[A_cib_217] = 100.0;
 m_min[xi_sz_cib] = 0.0;          m_max[xi_sz_cib] = 1.0;
@@ -62,12 +62,12 @@ m_min[galf_TE_A_217] = 0.0;
 m_max[galf_TE_A_217] = 4.5;
 
 // Fixed LCDM parameters to TTTEEE+lowP best-fit values
-m_value[omega_b - UP_TO_FREE_PARAMS] = 0.022252;
-m_value[omega_cdm - UP_TO_FREE_PARAMS] = 0.11987;
-m_value[hundredxtheta_s - UP_TO_FREE_PARAMS] = 1.040778;
-m_value[tau_reio - UP_TO_FREE_PARAMS] = 0.0789;
-m_value[ln10_10_A_s - UP_TO_FREE_PARAMS] = 3.0929;
-m_value[n_s - UP_TO_FREE_PARAMS] = 0.96475;
+m_value[omega_b - UP_TO_FREE_PARAMS] = 0.022250;
+m_value[omega_cdm - UP_TO_FREE_PARAMS] = 0.11978;
+m_value[hundredxtheta_s - UP_TO_FREE_PARAMS] = 1.041706;
+m_value[tau_reio - UP_TO_FREE_PARAMS] = 0.0781;
+m_value[ln10_10_A_s - UP_TO_FREE_PARAMS] = 3.0906;
+m_value[n_s - UP_TO_FREE_PARAMS] = 0.96417;
 
 
 // Fixed parameters (PLC TT & TTTEEE)

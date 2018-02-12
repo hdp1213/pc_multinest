@@ -15,7 +15,7 @@ m_min[pbh_width] = -2;          m_max[pbh_width] = 1;
 
 // Nuisance parameters (PLC TT & TTTEEE)
 // Using thinner bounds from base_plikTTTEEE_lowTEB results
-m_value[A_planck - UP_TO_FREE_PARAMS] = 1.00029;
+m_value[A_planck - UP_TO_FREE_PARAMS] = 1.00013;
 #ifndef LITE_HI_L
 m_min[A_cib_217] = 30.0;         m_max[A_cib_217] = 100.0;
 m_min[xi_sz_cib] = 0.0;          m_max[xi_sz_cib] = 1.0;
