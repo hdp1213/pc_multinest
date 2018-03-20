@@ -121,7 +121,7 @@ enum param_t {
   Omega_cdm,
   Omega_L,
   Omega_g,
-  sigma8,
+  // sigma8,
   age,
   conf_age,
   z_drag,
