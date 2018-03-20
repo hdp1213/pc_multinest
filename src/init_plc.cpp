@@ -90,41 +90,23 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_inf
 
   /*** FREE PARAMETERS ***/
 
-  // PBH DM
-  default_params.add("pbh_mass_mean", 3.E6);
-  default_params.add("pbh_mass_width", 0.01);
-
-  /*** FREE/FIXED PARAMETERS ***/
-
-  // PBH DM frac set to unity
-  default_params.add("Omega_pbh_ratio", 1.e-1);
-
-  // LCDM variables set to best-fit TTTEEE+lowP (2015)
-  default_params.add("omega_b", 0.022252);
-  default_params.add("omega_cdm", 0.11987);
-  default_params.add("100*theta_s", 1.040778);
-  default_params.add("tau_reio", 0.0789);
-  default_params.add("ln10^{10}A_s", 3.0929);
-  default_params.add("n_s", 0.96475);
+  // LCDM variables set to own best-fit TTTEEE+lowTEB
+  default_params.add("omega_b", 0.022231);
+  default_params.add("omega_cdm", 0.12003);
+  default_params.add("100*theta_s", 1.041740);
+  default_params.add("tau_reio", 0.0807);
+  default_params.add("ln10^{10}A_s", 3.0933);
+  default_params.add("n_s", 0.96749);
 
   // PBH DM
-  default_params.add("pbh_mass_dist", "pbh_log_norm");
+  default_params.add("pbh_mass_dist", "pbh_none");
   default_params.add("read external files", false); // very important!!
 
   // Neutrino values
   default_params.add("N_ur", 3.046);
-  // default_params.add("N_ur", 2.0328);
-  // default_params.add("N_ncdm", 1);
-  // default_params.add("m_ncdm", 0.06); // MeV
-  // default_params.add("T_ncdm", 0.71611);
 
   // Use HyRec for recombination
-  default_params.add("recombination", "HyRec");
-  default_params.add("start_sources_at_tau_c_over_tau_h", 1e-3);
-
-  // Perturbation options for matter perturbation spectrum mPk
-  // default_params.add("P_k_max_h/Mpc", 1.);
-  // default_params.add("k_pivot", 0.05); // Mpc-1
+  default_params.add("recombination", "RECFAST");
 
   // Spectra output options
   default_params.add("output", "tCl,pCl,lCl"); // mPk
@@ -212,17 +194,21 @@ void initialise_param_arrays() {
 
   // #include "TTTEEE+lowP_pbh_fixedLCDM-flat.cpp"
   // #include "TTTEEE+lowP_pbh_clark-flat.cpp"
+  // #include "TTTEEE+lowP_pbh_full-flat.cpp"
+  // #include "TTTEEE+lowP_pbh_full_freeLCDM-flat.cpp"
   // #include "TTTEEE+lowP_pbh_clark_freeLCDM-flat.cpp"
-  #include "TTTEEE+lowP_pbh_dist-flat.cpp"
+  // #include "TTTEEE+lowP_pbh_dist-flat.cpp"
   // #include "TTTEEE+lowP_pbh-flat.cpp"
-  // #include "TTTEEE+lowP-flat.cpp"
+  #include "TTTEEE+lowP-flat.cpp"
 
   // #include "TTTEEE+lowP_pbh_fixedLCDM-gauss.cpp"
   // #include "TTTEEE+lowP_pbh_clark-gauss.cpp"
+  // #include "TTTEEE+lowP_pbh_full-gauss.cpp"
+  // #include "TTTEEE+lowP_pbh_full_freeLCDM-gauss.cpp"
   // #include "TTTEEE+lowP_pbh_clark_freeLCDM-gauss.cpp"
-  #include "TTTEEE+lowP_pbh_dist-gauss.cpp"
+  // #include "TTTEEE+lowP_pbh_dist-gauss.cpp"
   // #include "TTTEEE+lowP_pbh-gauss.cpp"
-  // #include "TTTEEE+lowP-gauss.cpp"
+  #include "TTTEEE+lowP-gauss.cpp"
 
   // Set values of m_transform depending on includes
   for (int param = 0; param < FREE_PARAM_AMT; ++param) {
