@@ -37,11 +37,6 @@ m_has_gaussian_prior[galf_TE_A_217] = true;
 #endif
 
 // Set Gaussian priors
-#ifdef GAUSS_TAU
-m_mean[tau_reio] = 0.07;
-m_stddev[tau_reio] = 0.02;
-#endif
-
 m_mean[A_planck] = 1.0;
 m_stddev[A_planck] = 0.0025;
 #ifndef LITE_HI_L

@@ -36,15 +36,6 @@ enum param_t {
   calib_217T,
 #endif
   UP_TO_FREE_PARAMS,
-#ifndef LITE_HI_L
-  // Fixed parameters (CLASS)
-  omega_b = UP_TO_FREE_PARAMS,
-  omega_cdm,
-  hundredxtheta_s,
-  tau_reio,
-  ln10_10_A_s,
-  n_s,
-#endif
   // Fixed parameters (PLC TT nuisance)
   A_planck = UP_TO_FREE_PARAMS,
   UP_TO_FIXED_PARAMS, // remove all nuisance params for LITE_HI_L except A_planck
