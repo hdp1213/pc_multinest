@@ -40,8 +40,8 @@ int main(int argc, char* argv[]) {
   settings.mmodal = false;
   settings.ceff = true;
 
-  settings.nlive = 1000;
-  settings.efr = 0.05;
+  settings.nlive = 2000;
+  settings.efr = 0.01;
   settings.tol = 1E-1;
 
   settings.ndims = FREE_PARAM_AMT;
