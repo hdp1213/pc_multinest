@@ -89,6 +89,8 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_inf
   ClassParams default_params;
 
   /*** FREE PARAMETERS ***/
+  default_params.add("Omega_pbh_ratio", 1e-7);
+  default_params.add("pbh_mass_mean", 1e7);
 
   // LCDM variables set to own best-fit TTTEEE+lowTEB
   default_params.add("omega_b", 0.022231);
@@ -99,14 +101,14 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_inf
   default_params.add("n_s", 0.96749);
 
   // PBH DM
-  default_params.add("pbh_mass_dist", "pbh_none");
+  default_params.add("pbh_mass_dist", "pbh_delta");
   default_params.add("read external files", false); // very important!!
 
   // Neutrino values
   default_params.add("N_ur", 3.046);
 
   // Use HyRec for recombination
-  default_params.add("recombination", "RECFAST");
+  default_params.add("recombination", "HyRec");
 
   // Spectra output options
   default_params.add("output", "tCl,pCl,lCl"); // mPk
@@ -193,22 +195,22 @@ void initialise_param_arrays() {
   // Include parameter array initialisations
 
   // #include "TTTEEE+lowP_pbh_fixedLCDM-flat.cpp"
-  // #include "TTTEEE+lowP_pbh_clark-flat.cpp"
+  #include "TTTEEE+lowP_pbh_clark-flat.cpp"
   // #include "TTTEEE+lowP_pbh_full-flat.cpp"
   // #include "TTTEEE+lowP_pbh_full_freeLCDM-flat.cpp"
   // #include "TTTEEE+lowP_pbh_clark_freeLCDM-flat.cpp"
   // #include "TTTEEE+lowP_pbh_dist-flat.cpp"
   // #include "TTTEEE+lowP_pbh-flat.cpp"
-  #include "TTTEEE+lowP-flat.cpp"
+  // #include "TTTEEE+lowP-flat.cpp"
 
   // #include "TTTEEE+lowP_pbh_fixedLCDM-gauss.cpp"
-  // #include "TTTEEE+lowP_pbh_clark-gauss.cpp"
+  #include "TTTEEE+lowP_pbh_clark-gauss.cpp"
   // #include "TTTEEE+lowP_pbh_full-gauss.cpp"
   // #include "TTTEEE+lowP_pbh_full_freeLCDM-gauss.cpp"
   // #include "TTTEEE+lowP_pbh_clark_freeLCDM-gauss.cpp"
   // #include "TTTEEE+lowP_pbh_dist-gauss.cpp"
   // #include "TTTEEE+lowP_pbh-gauss.cpp"
-  #include "TTTEEE+lowP-gauss.cpp"
+  // #include "TTTEEE+lowP-gauss.cpp"
 
   // Set values of m_transform depending on includes
   for (int param = 0; param < FREE_PARAM_AMT; ++param) {

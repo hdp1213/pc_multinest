@@ -7,13 +7,13 @@ extern "C" {
 #include "ClassEngine.hpp"
 
 // #include "TTTEEE+lowP_pbh_fixedLCDM.hpp"
-// #include "TTTEEE+lowP_pbh_clark.hpp"
+#include "TTTEEE+lowP_pbh_clark.hpp"
 // #include "TTTEEE+lowP_pbh_full.hpp"
 // #include "TTTEEE+lowP_pbh_full_freeLCDM.hpp"
 // #include "TTTEEE+lowP_pbh_clark_freeLCDM.hpp"
 // #include "TTTEEE+lowP_pbh_dist.hpp"
 // #include "TTTEEE+lowP_pbh.hpp"
-#include "TTTEEE+lowP.hpp"
+// #include "TTTEEE+lowP.hpp"
 
 #include <math.h>
 #include <string>

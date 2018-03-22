@@ -49,8 +49,8 @@ initialise_arrays() {
     m_is_log10[param] = false;
   }
 
-  #include "TTTEEE+lowP_pbh_dist-flat.cpp"
-  #include "TTTEEE+lowP_pbh_dist-names.cpp"
+  #include "TTTEEE+lowP_pbh_clark-flat.cpp"
+  #include "TTTEEE+lowP_pbh_clark-names.cpp"
 
   // Set values of m_transform depending on includes
   for (int param = 0; param < FREE_PARAM_AMT; ++param) {

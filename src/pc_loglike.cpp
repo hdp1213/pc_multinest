@@ -17,20 +17,12 @@ double pc_loglike(std::vector<clik_struct*>& clik_objs,
   double loglike = 0.0;
   class_cls.reserve(CLASS_CL_AMT);
 
-  class_params.push_back(in_vals[omega_b]);
-  class_params.push_back(in_vals[omega_cdm]);
-  class_params.push_back(in_vals[hundredxtheta_s]);
-  class_params.push_back(in_vals[tau_reio]);
-  class_params.push_back(in_vals[ln10_10_A_s]);
-  class_params.push_back(in_vals[n_s]);
+  class_params.push_back(in_vals[pbh_frac]);
+  class_params.push_back(in_vals[pbh_mass]);
 
   std::cout << std::scientific << std::setprecision(16)
-            << in_vals[omega_b] << " "
-            << in_vals[omega_cdm] << " "
-            << in_vals[hundredxtheta_s] << " "
-            << in_vals[tau_reio] << " "
-            << in_vals[ln10_10_A_s] << " "
-            << in_vals[n_s] << std::endl;
+            << in_vals[pbh_frac] << " "
+            << in_vals[pbh_mass] << std::endl;
 
   // Run CLASS
   try {
