@@ -121,8 +121,8 @@ test_multinest: test_multinest.o $(PC_BUILD_OBJS)
 point_multinest: point_multinest.o $(PC_BUILD_OBJS)
 	$(FC_MPI) $(FC_MPI_FLAGS) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
 
-output_chain_files: output_chain_files.cpp
-	$(CPPC) -o $@ $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS)
+output_chain_files: output_chain_files.o
+	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $<)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS)
 
 clean:
 	rm -rf build/* output/*
