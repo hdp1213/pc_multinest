@@ -16,8 +16,8 @@ char* m_latex[FREE_PARAM_AMT + DERIVED_PARAM_AMT];
 
 // Function prototypes
 void initialise_arrays();
-void write_paramnames(std::string root);
-void write_ranges(std::string root);
+void write_paramnames(const std::string& root);
+void write_ranges(const std::string& root);
 
 // Main function
 int
@@ -59,7 +59,7 @@ initialise_arrays() {
 }
 
 void
-write_paramnames(std::string root) {
+write_paramnames(const std::string& root) {
   std::ofstream fout;
   std::string paramnames_file = root + ".paramnames";
 
@@ -76,7 +76,7 @@ write_paramnames(std::string root) {
 }
 
 void
-write_ranges(std::string root) {
+write_ranges(const std::string& root) {
   FILE * fout;
   std::string range_file = root + ".ranges";
 
