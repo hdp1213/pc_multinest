@@ -11,7 +11,7 @@
 m_is_log10[pbh_mass] = true;
 m_min[pbh_mass] = 5;             m_max[pbh_mass] = 7;
 m_is_log10[pbh_width] = true;
-m_min[pbh_width] = -3;          m_max[pbh_width] = 1;
+m_min[pbh_width] = -2;          m_max[pbh_width] = 1;
 
 // Free LCDM parameters according to TTTEEE+lowP.pars
 m_min[omega_b] = 0.016;          m_max[omega_b] = 0.028;
