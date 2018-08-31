@@ -14,8 +14,8 @@
 //--------------------
 // C++
 //--------------------
-#include <numeric>
 #include <iostream>
+#include <numeric>
 #include <stdexcept>
 //--------------------
 // C
@@ -42,7 +42,7 @@ Engine::Engine(int lmax):m_lmax(lmax) {
 void
 Engine::write_Cls(std::ostream &out){
   // Create vector of l values
-  std::vector<unsigned> lvec(m_lmax-1, 1);
+  std::vector<unsigned> lvec(m_lmax - 1, 1);
   lvec[0] = 2;
   std::partial_sum(lvec.begin(), lvec.end(), lvec.begin());
 

@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------
 //
 // Description:
-//  class ClassEngine : see header file (ClassEngine.hh) for description.
+//  class ClassEngine : see header file (ClassEngine.hpp) for description.
 //
 //------------------------------------------------------------------------
 //-----------------------
@@ -13,33 +13,33 @@
 //-------------------------
 // C++
 //--------------------
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <cmath>
-#include <stdexcept>
-#include <sstream>
-#include <numeric>
 #include <cassert>
-
-//#define DBUG
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <numeric>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 
 template<typename T> std::string str(const T &x) {
   std::ostringstream os;
   os << x;
   return os.str();
-};
-//specilization
+}
+
 template<> std::string str (const float &x) {
   std::ostringstream os;
   os << std::setprecision(8) << x;
   return os.str();
 }
+
 template<> std::string str (const double &x) {
   std::ostringstream os;
   os << std::setprecision(16) << x;
   return os.str();
 }
+
 template<> std::string str (const bool &x) {
   return x ? "yes" : "no";
 }
@@ -52,7 +52,7 @@ std::string str (const char* s) {
   return std::string(s);
 }
 
-//instanciations
+// instanciations
 template std::string str(const int &x);
 template std::string str(const signed char &x);
 template std::string str(const unsigned char &x);
@@ -78,7 +78,7 @@ ClassEngine::ClassEngine(const ClassParams& pars): m_cl(0), m_do_free(true), m_i
   // Protection against invalid parameters that haven't been read
   for (std::size_t i = 0; i < pars.size(); i++) {
     if (m_fc.read[i] != _TRUE_) {
-      throw std::invalid_argument(std::string("invalid CLASS parameter: ") + m_fc.name[i]);
+      throw std::invalid_argument(std::string("Invalid CLASS parameter: ") + m_fc.name[i]);
     }
   }
 
@@ -90,10 +90,14 @@ ClassEngine::ClassEngine(const ClassParams& pars): m_cl(0), m_do_free(true), m_i
     throw std::out_of_range(m_errmsg);
   }
 
-  // std::cout << "Creating " << m_sp.ct_size << " arrays" << std::endl;
+#ifdef DBUG
+  std::cout << "Creating " << m_sp.ct_size << " arrays" << std::endl;
+#endif
   m_cl = new double[m_sp.ct_size];
 
-  //print_FC();
+#ifdef DBUG
+  print_FC();
+#endif
 }
 
 
@@ -112,7 +116,7 @@ ClassEngine::ClassEngine(const ClassParams& pars, const std::string & precision_
   fc_input.filename = new char[1];
   write_pars_to_fc(pars, &fc_input);
 
-  //concatenate bom_th
+  // concatenate bom_th
   if (parser_cat(&fc_input, &fc_precision, &m_fc, m_errmsg) == _FAILURE_) {
     throw std::invalid_argument(m_errmsg);
   }
@@ -128,7 +132,7 @@ ClassEngine::ClassEngine(const ClassParams& pars, const std::string & precision_
   // Protection against invalid parameters that haven't been read
   for (std::size_t i = 0; i < pars.size(); i++) {
     if (m_fc.read[i] != _TRUE_) {
-      throw std::invalid_argument(std::string("invalid CLASS parameter: ") + m_fc.name[i]);
+      throw std::invalid_argument(std::string("Invalid CLASS parameter: ") + m_fc.name[i]);
     }
   }
 
@@ -140,15 +144,18 @@ ClassEngine::ClassEngine(const ClassParams& pars, const std::string & precision_
     throw std::out_of_range(m_errmsg);
   }
 
-  // std::cout << "creating " << m_sp.ct_size << " arrays" << std::endl;
+#ifdef DBUG
+  std::cout << "Creating " << m_sp.ct_size << " arrays" << std::endl;
+#endif
   m_cl = new double[m_sp.ct_size];
 
-  //print_FC();
+#ifdef DBUG
+  print_FC();
+#endif
 }
 
-// This method is the only one that initialises m_info to be non-zero
 ClassEngine::ClassEngine(const ClassParams& pars, struct external_info* info): m_cl(0), m_do_free(true), m_info(info) {
-  //prepare fp structure
+  // Prepare fp structure
   write_pars_to_fc(pars, &m_fc);
 
   // Initialise input
@@ -171,32 +178,35 @@ ClassEngine::ClassEngine(const ClassParams& pars, struct external_info* info): m
     throw std::out_of_range(m_errmsg);
   }
 
-  // std::cout <<"creating " << m_sp.ct_size << " arrays" << std::endl;
+#ifdef DBUG
+  std::cout << "Creating " << m_sp.ct_size << " arrays" << std::endl;
+#endif
   m_cl = new double[m_sp.ct_size];
 
-  //print_FC();
+#ifdef DBUG
+  print_FC();
+#endif
 }
 
-// There's also this method
 ClassEngine::ClassEngine(const std::string& init_file, int l_max, struct external_info* info): Engine(l_max), m_cl(0), m_do_free(true), m_info(info) {
 
-  // variables
+  // Variables
   std::size_t i;
   std::string lmax_str = str(l_max);
   bool found_lmax = false;
 
-  //pars
+  // Pars
   m_fc.size = 0;
-  //decode init structure
+  // Decode init structure
   if (parser_read_file(const_cast<char*>(init_file.c_str()), &m_fc, m_errmsg) == _FAILURE_) {
     throw std::invalid_argument(m_errmsg);
   }
 
-  //config
+  // Config
   for (i = 0; i < m_fc.size; i++) {
-    //store
+    // Store
     m_parnames.push_back(m_fc.name[i]);
-    //identify if lmax is given in init_file, and override
+    // Identify if lmax is given in init_file, and override
     if (strcmp(m_fc.name[i], "l_max_scalars") == 0) {
       strcpy(m_fc.value[i], lmax_str.c_str());
       found_lmax = true;
@@ -214,7 +224,7 @@ ClassEngine::ClassEngine(const std::string& init_file, int l_max, struct externa
     strcpy(m_fc.value[i], lmax_str.c_str());
   }
 
-  std::cout << __FILE__ << " : using lmax=" << m_lmax << std::endl;
+  std::cout << __FILE__ << " : using lmax = " << m_lmax << std::endl;
   assert(m_lmax>0);
 
   // Initialise input
@@ -237,10 +247,14 @@ ClassEngine::ClassEngine(const std::string& init_file, int l_max, struct externa
     throw std::out_of_range(m_errmsg);
   }
 
-  // std::cout <<"creating " << m_sp.ct_size << " arrays" << std::endl;
+#ifdef DBUG
+  std::cout << "Creating " << m_sp.ct_size << " arrays" << std::endl;
+#endif
   m_cl = new double[m_sp.ct_size];
 
-  //print_FC();
+#ifdef DBUG
+  print_FC();
+#endif
 }
 
 
@@ -249,7 +263,9 @@ ClassEngine::ClassEngine(const std::string& init_file, int l_max, struct externa
 // Destructor --
 //--------------
 ClassEngine::~ClassEngine() {
-  //print_FC();
+#ifdef DBUG
+  print_FC();
+#endif
   std::cout << "Deleting CLASS..." << std::endl;
   m_do_free && free_structs();
 
@@ -269,14 +285,14 @@ ClassEngine::update_parameters(const std::vector<double>& par) {
     double val = par[i];
     strcpy(m_fc.value[i], str(val).c_str());
 #ifdef DBUG
-    std::cout << "update par values " << m_parnames[i] << "\t" <<  val << "\t" << str(val).c_str() << std::endl;
+    std::cout << "Update par values " << m_parnames[i] << "\t" <<  val << "\t" << str(val).c_str() << std::endl;
 #endif
   }
 
   int status = compute_Cls();
 
 #ifdef DBUG
-  std::cout << "update par status=" << status << ", succes=" << _SUCCESS_ << std::endl;
+  std::cout << "update_parameters status = " << status << ", success = " << _SUCCESS_ << std::endl;
 #endif
 
   if (status == _FAILURE_) {
@@ -284,10 +300,10 @@ ClassEngine::update_parameters(const std::vector<double>& par) {
   }
 }
 
-//print content of file_content
+// Print content of file_content
 void
 ClassEngine::print_FC() {
-  printf("FILE_CONTENT SIZE=%d\n", m_fc.size);
+  std::cout << "FILE_CONTENT SIZE = " << m_fc.size << std::endl;
   for (int i = 0; i < m_fc.size; i++) {
     printf("%d : %s = %s\n", i, m_fc.name[i], m_fc.value[i]);
   }
@@ -310,14 +326,14 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (input_init(pfc, ppr, pba, pth, ppt, ptr, ppm, psp, pnl, ple, pop, m_info, errmsg) == _FAILURE_) {
     printf("\n\nError running input_init_from_arguments \n=>%s\n",errmsg);
-    m_do_free=false;
+    m_do_free = false;
     return _FAILURE_;
   }
 
   if (background_init(ppr, pba) == _FAILURE_) {
     strcpy(m_errmsg, pba->error_message);
     background_free(&m_ba);
-    m_do_free=false;
+    m_do_free = false;
     return _FAILURE_;
   }
 
@@ -325,7 +341,7 @@ ClassEngine::class_main(struct file_content *pfc,
     strcpy(m_errmsg, pth->error_message);
     thermodynamics_free(&m_th);
     background_free(&m_ba);
-    m_do_free=false;
+    m_do_free = false;
     return _FAILURE_;
   }
 
@@ -334,7 +350,7 @@ ClassEngine::class_main(struct file_content *pfc,
     perturb_free(&m_pt);
     thermodynamics_free(&m_th);
     background_free(&m_ba);
-    m_do_free=false;
+    m_do_free = false;
     return _FAILURE_;
   }
 
@@ -344,7 +360,7 @@ ClassEngine::class_main(struct file_content *pfc,
     perturb_free(&m_pt);
     thermodynamics_free(&m_th);
     background_free(&m_ba);
-    m_do_free=false;
+    m_do_free = false;
     return _FAILURE_;
   }
 
@@ -355,7 +371,7 @@ ClassEngine::class_main(struct file_content *pfc,
     perturb_free(&m_pt);
     thermodynamics_free(&m_th);
     background_free(&m_ba);
-    m_do_free=false;
+    m_do_free = false;
     return _FAILURE_;
   }
 
@@ -367,7 +383,7 @@ ClassEngine::class_main(struct file_content *pfc,
     perturb_free(&m_pt);
     thermodynamics_free(&m_th);
     background_free(&m_ba);
-    m_do_free=false;
+    m_do_free = false;
     return _FAILURE_;
   }
 
@@ -380,7 +396,7 @@ ClassEngine::class_main(struct file_content *pfc,
     perturb_free(&m_pt);
     thermodynamics_free(&m_th);
     background_free(&m_ba);
-    m_do_free=false;
+    m_do_free = false;
     return _FAILURE_;
   }
 
@@ -394,18 +410,18 @@ ClassEngine::class_main(struct file_content *pfc,
     perturb_free(&m_pt);
     thermodynamics_free(&m_th);
     background_free(&m_ba);
-    m_do_free=false;
+    m_do_free = false;
     return _FAILURE_;
   }
 
 
-  m_do_free=true;
+  m_do_free = true;
   return _SUCCESS_;
 }
 
 
 int
-ClassEngine::compute_Cls(){
+ClassEngine::compute_Cls() {
 #ifdef DBUG
   std::cout << "call compute_Cls" << std::endl;
   print_FC();
@@ -414,7 +430,7 @@ ClassEngine::compute_Cls(){
   int status = this->class_main(&m_fc, &m_pr, &m_ba, &m_th, &m_pt, &m_tr, &m_pm, &m_sp, &m_nl, &m_le, &m_op, m_errmsg);
 
 #ifdef DBUG
-  std::cout << "status=" << status << std::endl;
+  std::cout << "status = " << status << std::endl;
 #endif
   return status;
 }
@@ -488,48 +504,48 @@ ClassEngine::write_pars_to_fc(const ClassParams& pars, struct file_content* fc) 
     }
   }
 
-  std::cout << __FILE__ << " : using lmax=" << m_lmax << std::endl;
+  std::cout << __FILE__ << " : using lmax = " << m_lmax << std::endl;
   assert(m_lmax>0);
 }
 
 double
-ClassEngine::get_Cl_value_at(const long &l, Engine::cltype t){
+ClassEngine::get_Cl_value_at(const long &l, Engine::cltype t) {
 
   if (!m_do_free) {
-    throw std::out_of_range("no Cl available because CLASS failed");
+    throw std::out_of_range("No Cl available because CLASS failed");
   }
 
   if (output_total_cl_at_l(&m_sp, &m_le, &m_op, static_cast<double>(l), m_cl) == _FAILURE_) {
-    std::cerr << ">>>fail getting Cl type=" << (int)t << " @l=" << l << std::endl;
+    std::cerr << "[ERROR] get_Cl_value_at(): Failed getting Cl type " << t << " at l = " << l << std::endl;
     throw std::out_of_range(m_sp.error_message);
   }
 
   double zecl = -1;
 
-  double tomuk = 1e6 * get_T_cmb();
-  double tomuk2 = tomuk * tomuk;
+  double T0_muK = 1e6 * get_T_cmb();
+  double T0_muK2 = T0_muK * T0_muK;
 
   switch(t) {
     case TT:
-      (m_sp.has_tt==_TRUE_) ? zecl = tomuk2*m_cl[m_sp.index_ct_tt] : throw std::invalid_argument("no ClTT available");
+      (m_sp.has_tt == _TRUE_) ? zecl = T0_muK2*m_cl[m_sp.index_ct_tt] : throw std::invalid_argument("No Cl_TT available");
       break;
     case TE:
-      (m_sp.has_te==_TRUE_) ? zecl = tomuk2*m_cl[m_sp.index_ct_te] : throw std::invalid_argument("no ClTE available");
+      (m_sp.has_te == _TRUE_) ? zecl = T0_muK2*m_cl[m_sp.index_ct_te] : throw std::invalid_argument("No Cl_TE available");
       break;
     case EE:
-      (m_sp.has_ee==_TRUE_) ? zecl = tomuk2*m_cl[m_sp.index_ct_ee] : throw std::invalid_argument("no ClEE available");
+      (m_sp.has_ee == _TRUE_) ? zecl = T0_muK2*m_cl[m_sp.index_ct_ee] : throw std::invalid_argument("No Cl_EE available");
       break;
     case BB:
-      (m_sp.has_bb==_TRUE_) ? zecl = tomuk2*m_cl[m_sp.index_ct_bb] : throw std::invalid_argument("no ClBB available");
+      (m_sp.has_bb == _TRUE_) ? zecl = T0_muK2*m_cl[m_sp.index_ct_bb] : throw std::invalid_argument("No Cl_BB available");
       break;
     case PP:
-      (m_sp.has_pp==_TRUE_) ? zecl = m_cl[m_sp.index_ct_pp] : throw std::invalid_argument("no ClPhi-Phi available");
+      (m_sp.has_pp == _TRUE_) ? zecl = m_cl[m_sp.index_ct_pp] : throw std::invalid_argument("No Cl_PhiPhi available");
       break;
     case TP:
-      (m_sp.has_tp==_TRUE_) ? zecl = tomuk*m_cl[m_sp.index_ct_tp] : throw std::invalid_argument("no ClT-Phi available");
+      (m_sp.has_tp == _TRUE_) ? zecl = T0_muK*m_cl[m_sp.index_ct_tp] : throw std::invalid_argument("No Cl_TPhi available");
       break;
     case EP:
-      (m_sp.has_ep==_TRUE_) ? zecl = tomuk*m_cl[m_sp.index_ct_ep] : throw std::invalid_argument("no ClE-Phi available");
+      (m_sp.has_ep == _TRUE_) ? zecl = T0_muK*m_cl[m_sp.index_ct_ep] : throw std::invalid_argument("No Cl_EPhi available");
       break;
     default:
       throw std::invalid_argument("invalid spectra");
@@ -539,7 +555,7 @@ ClassEngine::get_Cl_value_at(const long &l, Engine::cltype t){
 }
 
 void
-ClassEngine::get_Cls(const std::vector<unsigned>& lvec, //input
+ClassEngine::get_Cls(const std::vector<unsigned>& lvec, // input
                      std::vector<double>& cltt,
                      std::vector<double>& clte,
                      std::vector<double>& clee,
@@ -550,7 +566,7 @@ ClassEngine::get_Cls(const std::vector<unsigned>& lvec, //input
   clee.resize(lvec.size());
   clbb.resize(lvec.size());
 
-  for (std::size_t i=0;i<lvec.size();i++){
+  for (std::size_t i = 0; i < lvec.size(); i++) {
     try {
       cltt[i] = get_Cl_value_at(lvec[i], Engine::TT);
       clte[i] = get_Cl_value_at(lvec[i], Engine::TE);
@@ -558,14 +574,14 @@ ClassEngine::get_Cls(const std::vector<unsigned>& lvec, //input
       clbb[i] = get_Cl_value_at(lvec[i], Engine::BB);
     }
     catch (std::exception &e) {
-      throw e;
+      throw;
     }
   }
 
 }
 
 bool
-ClassEngine::get_lensing_Cls(const std::vector<unsigned>& lvec, //input
+ClassEngine::get_lensing_Cls(const std::vector<unsigned>& lvec, // input
                         std::vector<double>& clpp,
                         std::vector<double>& cltp,
                         std::vector<double>& clep) {
@@ -574,13 +590,13 @@ ClassEngine::get_lensing_Cls(const std::vector<unsigned>& lvec, //input
   cltp.resize(lvec.size());
   clep.resize(lvec.size());
 
-  for (std::size_t i=0;i<lvec.size();i++){
+  for (std::size_t i = 0; i < lvec.size(); i++) {
     try {
       clpp[i] = get_Cl_value_at(lvec[i], Engine::PP);
       cltp[i] = get_Cl_value_at(lvec[i], Engine::TP);
       clep[i] = get_Cl_value_at(lvec[i], Engine::EP);
     }
-    catch(std::exception &e){
+    catch(std::exception &e) {
       std::cout << "plantage!" << std::endl;
       std::cout << __FILE__ << e.what() << std::endl;
       return false;
@@ -595,13 +611,13 @@ double ClassEngine::get_f(double z)
   double tau;
   int index;
   double *pvecback;
-  //transform redshift in conformal time
+  // Transform redshift in conformal time
   background_tau_of_z(&m_ba, z, &tau);
 
-  //pvecback must be allocated
+  // pvecback must be allocated
   pvecback = new double[m_ba.bg_size];
 
-  //call to fill pvecback
+  // Call to fill pvecback
   background_at_tau(&m_ba, tau, m_ba.long_info, m_ba.inter_normal, &index, pvecback);
 
   double f_z = pvecback[m_ba.index_bg_f];
@@ -609,7 +625,7 @@ double ClassEngine::get_f(double z)
   delete[] pvecback;
 
 #ifdef DBUG
-  std::cout << "f_of_z= "<< f_z << std::endl;
+  std::cout << "f_of_z = "<< f_z << std::endl;
 #endif
   return f_z;
 }
@@ -621,21 +637,21 @@ double ClassEngine::get_sigma8(double z)
   int index;
   double *pvecback;
   double sigma8 = 0.;
-  //transform redshift in conformal time
+  // Transform redshift in conformal time
   background_tau_of_z(&m_ba, z, &tau);
 
-  //pvecback must be allocated
+  // pvecback must be allocated
   pvecback = new double[m_ba.bg_size];
 
-  //call to fill pvecback
+  // Call to fill pvecback
   background_at_tau(&m_ba,tau,m_ba.long_info,m_ba.inter_normal, &index, pvecback);
-  //background_at_tau(pba,tau,pba->long_info,pba->inter_normal,&last_index,pvecback);
+  // background_at_tau(pba,tau,pba->long_info,pba->inter_normal,&last_index,pvecback);
   spectra_sigma(&m_ba,&m_pm,&m_sp,8./m_ba.h,z,&sigma8);
 
   delete[] pvecback;
 
 #ifdef DBUG
-  std::cout << "sigma_8= "<< sigma8 << std::endl;
+  std::cout << "sigma_8 = "<< sigma8 << std::endl;
 #endif
   return sigma8;
 }
@@ -644,7 +660,7 @@ double ClassEngine::get_sigma8(double z)
 double ClassEngine::get_Az(double z)
 {
   double Dv = get_Dv(z);
-  // A(z)=100DV(z)sqrt(~mh2)/cz
+  // A(z) = 100DV(z)sqrt(~mh2)/cz
   double omega_bidon = 0.12 ;
   double Az = 100.*Dv*sqrt(omega_bidon)/(_c_ * z);
 
@@ -657,28 +673,28 @@ double ClassEngine::get_Dv(double z)
   double tau;
   int index;
   double *pvecback;
-  //transform redshift in conformal time
+  // Transform redshift in conformal time
   background_tau_of_z(&m_ba,z,&tau);
 
-  //pvecback must be allocated
+  // pvecback must be allocated
   pvecback = new double[m_ba.bg_size];
 
-  //call to fill pvecback
+  // Call to fill pvecback
   background_at_tau(&m_ba,tau,m_ba.long_info,m_ba.inter_normal, &index, pvecback);
 
 
-  double H_z=pvecback[m_ba.index_bg_H];
-  double D_ang=pvecback[m_ba.index_bg_ang_distance];
+  double H_z = pvecback[m_ba.index_bg_H];
+  double D_ang = pvecback[m_ba.index_bg_ang_distance];
 
   delete[] pvecback;
 #ifdef DBUG
-  std::cout << "H_z= "<< H_z << std::endl;
-  std::cout << "D_ang= "<< D_ang << std::endl;
+  std::cout << "H_z = "<< H_z << std::endl;
+  std::cout << "D_ang = "<< D_ang << std::endl;
 #endif
   double D_v;
 
-  D_v=pow(D_ang*(1+z),2)*z/H_z; // H_z is given in Mpc^-1 (i.e. H_z * c)
-  D_v=pow(D_v,1./3.);
+  D_v = pow(D_ang*(1+z),2)*z/H_z; // H_z is given in Mpc^-1 (i.e. H_z * c)
+  D_v = pow(D_v,1./3.);
 #ifdef DBUG
   std::cout << D_v << std::endl;
 #endif
@@ -690,24 +706,24 @@ double ClassEngine::get_Fz(double z)
   double tau;
   int index;
   double *pvecback;
-  //transform redshift in conformal time
+  // Transform redshift in conformal time
   background_tau_of_z(&m_ba,z,&tau);
 
-  //pvecback must be allocated
+  // pvecback must be allocated
   pvecback = new double[m_ba.bg_size];
 
-  //call to fill pvecback
+  // Call to fill pvecback
   background_at_tau(&m_ba,tau,m_ba.long_info,m_ba.inter_normal, &index, pvecback);
 
 
-  double H_z=pvecback[m_ba.index_bg_H];
-  double D_ang=pvecback[m_ba.index_bg_ang_distance];
+  double H_z = pvecback[m_ba.index_bg_H];
+  double D_ang = pvecback[m_ba.index_bg_ang_distance];
 
   delete[] pvecback;
 
 #ifdef DBUG
-  std::cout << "H_z= "<< H_z << std::endl;
-  std::cout << "D_ang= "<< D_ang << std::endl;
+  std::cout << "H_z = "<< H_z << std::endl;
+  std::cout << "D_ang = "<< D_ang << std::endl;
 #endif
   double F_z = (1.+z) * D_ang * H_z /_c_;
   return F_z;
@@ -718,16 +734,16 @@ double ClassEngine::get_Hz(double z)
   double tau;
   int index;
   double *pvecback;
-  //transform redshift in conformal time
+  // Transform redshift in conformal time
   background_tau_of_z(&m_ba,z,&tau);
 
-  //pvecback must be allocated
+  // pvecback must be allocated
   pvecback = new double[m_ba.bg_size];
 
-  //call to fill pvecback
+  // Call to fill pvecback
   background_at_tau(&m_ba,tau,m_ba.long_info,m_ba.inter_normal, &index, pvecback);
 
-  double H_z=pvecback[m_ba.index_bg_H];
+  double H_z = pvecback[m_ba.index_bg_H];
 
   delete[] pvecback;
 
@@ -740,23 +756,25 @@ double ClassEngine::get_Da(double z)
   double tau;
   int index;
   double *pvecback;
-  //transform redshift in conformal time
+  // Transform redshift in conformal time
   background_tau_of_z(&m_ba,z,&tau);
 
-  //pvecback must be allocated
+  // pvecback must be allocated
   pvecback = new double[m_ba.bg_size];
 
-  //call to fill pvecback
+  // Call to fill pvecback
   background_at_tau(&m_ba,tau,m_ba.long_info,m_ba.inter_normal, &index, pvecback);
 
-  double H_z=pvecback[m_ba.index_bg_H];
-  double D_ang=pvecback[m_ba.index_bg_ang_distance];
+#ifdef DBUG
+  double H_z = pvecback[m_ba.index_bg_H];
+#endif
+  double D_ang = pvecback[m_ba.index_bg_ang_distance];
 
   delete[] pvecback;
 
 #ifdef DBUG
-  std::cout << "H_z= "<< H_z << std::endl;
-  std::cout << "D_ang= "<< D_ang << std::endl;
+  std::cout << "H_z = " << H_z << std::endl;
+  std::cout << "D_ang = " << D_ang << std::endl;
 #endif
   return D_ang;
 }

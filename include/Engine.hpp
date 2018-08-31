@@ -2,11 +2,12 @@
 //
 // Description:
 //  class Engine :
-//base class for Boltzmann code
+// base class for Boltzmann code
 //
 //
 // Author List:
 //  Stephane Plaszczynski (plaszczy@lal.in2p3.fr)
+//  Harry Poulter (harry.poulter@adelaide.edu.au)
 //
 // History (add to end):
 //  creation:      Tue Mar 13 15:28:50 CET 2012
@@ -17,17 +18,15 @@
 #ifndef Engine_hh
 #define Engine_hh
 
-#include <vector>
 #include <ostream>
+#include <vector>
 
-class Engine
-{
+class Engine {
+ public:
+  // P stands for lensing potential phi
+  enum cltype {TT = 0, EE, TE, BB, PP, TP, EP};
 
-public:
-
-  enum cltype {TT=0, EE, TE, BB, PP, TP, EP}; //P stands for phi (lensing potential)
-
-  //constructors
+  // Constructors
   Engine();
   Engine(int lmax);
 
@@ -36,14 +35,14 @@ public:
 
   // Throws std::exception on failure
   // units = (micro-K)^2
-  virtual void get_Cls(const std::vector<unsigned>& lVec, //input
+  virtual void get_Cls(const std::vector<unsigned>& lVec, // input
                        std::vector<double>& cltt,
                        std::vector<double>& clte,
                        std::vector<double>& clee,
                        std::vector<double>& clbb) = 0;
 
 
-  virtual bool get_lensing_Cls(const std::vector<unsigned>& lVec, //input
+  virtual bool get_lensing_Cls(const std::vector<unsigned>& lVec, // input
                                std::vector<double>& clpp,
                                std::vector<double>& cltp,
                                std::vector<double>& clep) = 0;
@@ -64,13 +63,13 @@ public:
   virtual double get_tau_reio() const = 0;
 
   // destructor
-  virtual ~Engine() {};
+  virtual ~Engine() {}
 
-  //write Cl model+lensing in ostream
+  // write Cl model+lensing in ostream
   virtual void write_Cls(std::ostream &o);
   inline int lmax() { return m_lmax; }
 
-protected:
+ protected:
   int m_lmax;
 };
 
