@@ -16,6 +16,7 @@ DIVER_DIR := $(ROOT_DIR)/diver
 # Location of pc_multinest
 PC_MULTINEST_DIR := $(PWD)
 WORK_DIR := $(PC_MULTINEST_DIR)/build
+OUTPUT_DIR := $(PC_MULTINEST_DIR)/output
 
 MACHINE = intel
 
@@ -88,6 +89,7 @@ all: .base pc_multinest_mpi
 # Work directory building
 .base:
 	if ! [ -e $(WORK_DIR) ]; then mkdir $(WORK_DIR) ; fi;
+	if ! [ -e $(OUTPUT_DIR) ]; then mkdir $(OUTPUT_DIR) ; fi;
 	touch $(WORK_DIR)/.base
 
 vpath %.cpp src:tests
@@ -102,21 +104,18 @@ vpath .base $(WORK_DIR)
 # MultiNest-compatible program compiled with MPI
 pc_multinest_mpi: pc_multinest_mpi.o $(PC_BUILD_OBJS)
 	$(FC_MPI) $(FC_MPI_FLAGS) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
-	rm -rf output/*
 
 pc_multinest_mpi.o: pc_multinest.cpp .base
 	$(CPPC) -c -o $(addprefix $(WORK_DIR)/, $@) $< $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(PC_MULTINEST_FILES) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 pc_diver: pc_diver.o $(PC_BUILD_OBJS)
 	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
-	rm -rf output/*
 
 test_diver: test_diver.o $(PC_BUILD_OBJS)
 	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS)
 
 test_multinest: test_multinest.o $(PC_BUILD_OBJS)
 	$(FC_MPI) $(FC_MPI_FLAGS) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
-	rm -rf output/*
 
 point_multinest: point_multinest.o $(PC_BUILD_OBJS)
 	$(FC_MPI) $(FC_MPI_FLAGS) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $^)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS) $(BATCH_PLC_FLAGS) $(BATCH_LIB_FLAGS) $(FC_LIBS)
@@ -125,4 +124,7 @@ output_chain_files: output_chain_files.o
 	$(CPPC) -o $@ $(addprefix $(WORK_DIR)/,$(notdir $<)) $(OPT_FLAGS) $(PC_MULTINEST_DEFS) $(INC_FLAGS)
 
 clean:
-	rm -rf build/* output/*
+	rm -rf $(WORK_DIR)
+
+clean-output:
+	rm -rf $(OUTPUT_DIR)
