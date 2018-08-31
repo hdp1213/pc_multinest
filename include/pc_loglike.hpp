@@ -52,12 +52,12 @@ extern double m_stddev[];
  * useful information already extracted.
 **/
 double pc_loglike(std::vector<clik_struct*>& clik_objs,
-                  ClassEngine*& class_engine,
-                  std::vector<unsigned>& cl_ls,
+                  ClassEngine* class_engine,
+                  const std::vector<unsigned>& cl_ls,
                   double raw_params[],
                   double in_vals[]);
 
-double calculate_PLC_likelihood(clik_struct*& clik_obj,
+double calculate_PLC_likelihood(clik_struct* clik_obj,
                                 double in_vals[],
                                 std::vector<std::vector<double> >& class_spectra);
 // implicitly uses global arrays

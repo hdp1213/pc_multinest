@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 
-void read_axes(std::string& root, external_info* info) {
+void read_axes(const std::string& root, external_info* info) {
   std::ostringstream axes_filename;
 
   axes_filename << root << "axes.dat";
@@ -30,7 +30,7 @@ void read_axes(std::string& root, external_info* info) {
   axes_file.close();
 }
 
-void read_bicubic_bspline(std::string& root, const char* channel, bspline_2d* spline) {
+void read_bicubic_bspline(const std::string& root, const char* channel, bspline_2d* spline) {
   int deg = 3;
   int n_coeffs;
 

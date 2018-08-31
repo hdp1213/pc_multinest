@@ -5,11 +5,10 @@
 #include <iomanip>
 
 double pc_loglike(std::vector<clik_struct*>& clik_objs,
-                  ClassEngine*& class_engine,
-                  std::vector<unsigned>& cl_ls,
+                  ClassEngine* class_engine,
+                  const std::vector<unsigned>& cl_ls,
                   double raw_params[],
                   double in_vals[]) {
-
   std::vector<double> class_params;
   std::vector<double> cl_tt, cl_ee, cl_bb, cl_te;
   std::vector<std::vector<double> > class_cls;
@@ -58,7 +57,8 @@ double pc_loglike(std::vector<clik_struct*>& clik_objs,
   class_cls.push_back(cl_te);
 
   // Calculate total likelihoods from PLC
-  for (std::vector<clik_struct*>::iterator clik_obj_it = clik_objs.begin(); clik_obj_it != clik_objs.end(); ++clik_obj_it) {
+  for (std::vector<clik_struct*>::iterator clik_obj_it = clik_objs.begin();
+       clik_obj_it != clik_objs.end(); ++clik_obj_it) {
     loglike += calculate_PLC_likelihood(*clik_obj_it,
                                         in_vals,
                                         class_cls);
@@ -71,7 +71,7 @@ double pc_loglike(std::vector<clik_struct*>& clik_objs,
   return loglike;
 }
 
-double calculate_PLC_likelihood(clik_struct*& clik_obj,
+double calculate_PLC_likelihood(clik_struct* clik_obj,
                                 double in_vals[],
                                 std::vector<std::vector<double> >& class_spectra) {
   // First must create cl_and_pars array
@@ -79,16 +79,13 @@ double calculate_PLC_likelihood(clik_struct*& clik_obj,
 
   int cap_ind = 0;
   for (int cl_ind = 0; cl_ind < CL_AMT; ++cl_ind) {
-    int old_cl_ind = cl_ind;
-
-    if (clik_obj->has_cl[cl_ind]) { // if spectra exists
+    if (clik_obj->has_cl[cl_ind]) {  // if spectra exists
       for (int l = 0; l <= clik_obj->max_l; ++l) {
         // Correct for PLC wanting l=0,1 multipoles
         // These cannot be computed by CLASS and so are set to zero
         if (l < CLASS_MIN_L) {
           cl_and_pars[cap_ind] = ZERO_CL;
-        }
-        else {
+        } else {
           cl_and_pars[cap_ind] = class_spectra[cl_ind][l - CLASS_MIN_L];
         }
 
@@ -102,27 +99,26 @@ double calculate_PLC_likelihood(clik_struct*& clik_obj,
   // Then add nuisance parameters at the end
   // Nuisance parameters need to be stored in the same order they
   //  initialise the clik_struct with
-  for (std::vector<param_t>::iterator param_it = clik_obj->nuis_pars.begin(); param_it != clik_obj->nuis_pars.end(); ++param_it) {
-
+  for (std::vector<param_t>::iterator param_it = clik_obj->nuis_pars.begin();
+       param_it != clik_obj->nuis_pars.end(); ++param_it) {
     cl_and_pars[cap_ind] = in_vals[*param_it];
-    // std::cout << *param_it << " = " << in_vals[*param_it] << std::endl;
 
     cap_ind++;
   }
 
   // Now must use that with the clik_id to compute log likelihood
-  error* _err = initError();
-  error** err = &_err;
+  error* err = initError();
 
   double loglike = MIN_LOGLIKE;
-  loglike = clik_compute(clik_obj->clik_id, cl_and_pars, err);
-  quitOnError(*err, __LINE__, stderr);
+  loglike = clik_compute(clik_obj->clik_id, cl_and_pars, &err);
+  quitOnError(err, __LINE__, stderr);
 
 #ifdef DBUG
-  std::cout << "[calculate_PLC_likelihood] Calculated loglike of " << loglike << std::endl;
+  std::cout << "[calculate_PLC_likelihood] Calculated loglike of "
+            << loglike << std::endl;
 #endif
 
-  free(_err);
+  free(err);
 
   return loglike;
 }

@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
   settings.pWrap = new int[settings.ndims];
   for(int i = 0; i < settings.ndims; i++) settings.pWrap[i] = 0;
 
-  // settings.root = 'test';
+  settings.root = "output/pc_multinest-";
   settings.seed = -1;
   settings.fb = true;
   settings.resume = true;
@@ -69,21 +69,21 @@ int main(int argc, char* argv[]) {
   void* context = 0;
   int total_max_l = -1;
 
-  std::vector<clik_struct*> clik_objects;
   plc_bundle* plc_pack = new plc_bundle();
 
   // High l full likelihood variables
-  std::string hi_l_clik_path = std::string(PLIK_HI_L_FILE_DIR);
 #ifdef LITE_HI_L
-  hi_l_clik_path += "/plik_lite_v18_TTTEEE.clik/";
+  const std::string hi_l_clik_path = std::string(PLIK_HI_L_FILE_DIR) \
+    + "/plik_lite_v18_TTTEEE.clik/";
 #else
-  hi_l_clik_path += "/plik_dx11dr2_HM_v18_TTTEEE.clik/";
+  const std::string hi_l_clik_path = std::string(PLIK_HI_L_FILE_DIR) \
+    + "/plik_dx11dr2_HM_v18_TTTEEE.clik/";
 #endif
   std::vector<param_t> hi_l_nuis_enums;
   clik_struct* hi_l_clik;
 
   // Low l likelihood variables
-  std::string lo_l_clik_path = std::string(PLIK_LOW_L_FILE_DIR) \
+  const std::string lo_l_clik_path = std::string(PLIK_LOW_L_FILE_DIR) \
     + "/lowl_SMW_70_dx11d_2014_10_03_v5c_Ap.clik/";
   std::vector<param_t> lo_l_nuis_enums;
   clik_struct* lo_l_clik;
@@ -99,13 +99,9 @@ int main(int argc, char* argv[]) {
   if (argc == 2) {
     settings.root = argv[1];
   }
-  else {
-    settings.root = "output/pc_multinest-";
-  }
 
   std::cout << "Printing results to " << settings.root << std::endl;
 
-  //*
   // Push nuisance parameters in the order they appear in cl_and_pars
 #ifndef LITE_HI_L
 // TT & TTTEEE
@@ -213,11 +209,9 @@ int main(int argc, char* argv[]) {
   // Create new clik object for high l likelihood
   hi_l_clik = initialise_clik_struct(hi_l_clik_path,
                                      hi_l_nuis_enums,
-                                     total_max_l);
+                                     &total_max_l);
   plc_pack->clik_objs.push_back(hi_l_clik);
-  //*/
 
-  //*
   lo_l_nuis_enums.push_back(A_planck);
 
   std::cout << "Opening " << lo_l_clik_path << std::endl;
@@ -225,9 +219,8 @@ int main(int argc, char* argv[]) {
   // Create new clik object for low l likelihood
   lo_l_clik = initialise_clik_struct(lo_l_clik_path,
                                      lo_l_nuis_enums,
-                                     total_max_l);
+                                     &total_max_l);
   plc_pack->clik_objs.push_back(lo_l_clik);
-  //*/
 
   // Read in external PBH files
   info = initialise_external_info(pbh_file_root, hyrec_file_root);
@@ -238,22 +231,15 @@ int main(int argc, char* argv[]) {
     plc_pack->cl_ls.push_back(l);
   }
 
-  //*
   // Initialise CLASS before runing MultiNest
   initialise_CLASS_engine(plc_pack->engine, total_max_l, info);
 
   context = plc_pack;
-  //*/
 
   // Initialise m_min, m_max and the rest
   initialise_param_arrays();
 
-  // Initialise CLASS before runing MultiNest
-  // plc_pack->read_pbh_files(pbh_file_root);
-  // plc_pack->initialise_CLASS();
-
   // Calling MultiNest
-
   pc_multinest(multinest_loglike, multinest_dumper, settings, context);
 
   // Deallocate memory

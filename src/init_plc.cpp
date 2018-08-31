@@ -1,16 +1,15 @@
 #include "init_plc.hpp"
 
+#include <cstdio>  // stderr
+#include <exception>  // std::exception
+#include <iostream>  // std::cerr, std::cout
+
 #include "pbh_io.hpp"
 #include "hyrec_io.hpp"
 
-#include <cstdio> // for stderr
-#include <exception> // for std::exception
-#include <iostream> // you know, for kids
-
-
-clik_struct* initialise_clik_struct(std::string& clik_path,
+clik_struct* initialise_clik_struct(const std::string& clik_path,
                                     std::vector<param_t>& nuis_params,
-                                    int& total_max_l) {
+                                    int* total_max_l) {
   std::cout << "[init_plc] initialising clik_struct"
             << std::endl;
 
@@ -20,34 +19,34 @@ clik_struct* initialise_clik_struct(std::string& clik_path,
   int cl_max_ls[CL_AMT];
   parname* nuis_param_names;
 
-
-  error* _err = initError();
-  error** err = &_err;
-  char* clik_path_c = const_cast<char*>(clik_path.c_str());
+  // Initialise PLC error struct
+  error* err = initError();
 
   // Initialise clik_id
-  res_struct->clik_id = clik_init(clik_path_c, err);
-  quitOnError(*err, __LINE__, stderr);
+  char* clik_path_c = const_cast<char*>(clik_path.c_str());
+  res_struct->clik_id = clik_init(clik_path_c, &err);
+  quitOnError(err, __LINE__, stderr);
 
-  // Get flags indicating what spectra are contained in .clik file:
-  //   TT EE BB TE TB EB
-  clik_get_has_cl(res_struct->clik_id, cl_flags, err);
-  quitOnError(*err, __LINE__, stderr);
+  // Get flags indicating what spectra are contained in the .clik file
+  // In order:  TT EE BB TE TB EB
+  clik_get_has_cl(res_struct->clik_id, cl_flags, &err);
+  quitOnError(err, __LINE__, stderr);
 
-  // Get array of maximum multipole for each existing spectra
-  clik_get_lmax(res_struct->clik_id, cl_max_ls, err);
-  quitOnError(*err, __LINE__, stderr);
+  clik_get_lmax(res_struct->clik_id, cl_max_ls, &err);
+  quitOnError(err, __LINE__, stderr);
 
-  // !!!! Assuming compatibility with CLASS !!!!
-
+  // The following line assumes all other Cl max_ls are equal and that the TT
+  // spectrum is actually defined
   res_struct->max_l = cl_max_ls[0];
 
-  if (res_struct->max_l > total_max_l) {
-    total_max_l = res_struct->max_l;
+  if (res_struct->max_l > *total_max_l) {
+    *total_max_l = res_struct->max_l;
   }
 
-  res_struct->nuis_par_amt = clik_get_extra_parameter_names(res_struct->clik_id, &nuis_param_names, err);
-  quitOnError(*err, __LINE__, stderr);
+  res_struct->nuis_par_amt = clik_get_extra_parameter_names(res_struct->clik_id,
+                                                            &nuis_param_names,
+                                                            &err);
+  quitOnError(err, __LINE__, stderr);
 
   // Calculate size of cl_and_pars array
   res_struct->cap_size = 0;
@@ -55,7 +54,7 @@ clik_struct* initialise_clik_struct(std::string& clik_path,
     res_struct->has_cl[cl] = (cl_flags[cl] == 1);
 
     if (res_struct->has_cl[cl]) {
-      res_struct->cap_size += cl_max_ls[cl] + 1; // +1 for l=0 case
+      res_struct->cap_size += cl_max_ls[cl] + 1;  // +1 for l=0 case
     }
   }
   res_struct->cap_size += res_struct->nuis_par_amt;
@@ -76,7 +75,7 @@ clik_struct* initialise_clik_struct(std::string& clik_path,
   res_struct->nuis_pars.reserve(res_struct->nuis_par_amt);
   res_struct->nuis_pars = nuis_params;
 
-  free(_err);
+  free(err);
   free(nuis_param_names);
 
   return res_struct;
@@ -139,11 +138,12 @@ void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_inf
               << "failed, throwing exception "
               << e.what()
               << std::endl;
-    throw e;
+    throw;
   }
 }
 
-external_info* initialise_external_info(std::string& pbh_root, std::string& hyrec_root) {
+external_info* initialise_external_info(const std::string& pbh_root,
+                                        const std::string& hyrec_root) {
   std::cout << "[init_plc] initialising external_info struct"
             << std::endl;
 

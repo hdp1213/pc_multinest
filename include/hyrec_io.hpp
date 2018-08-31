@@ -7,9 +7,9 @@
 
 void hyrec_free_2D_array(int n1, double** matrix);
 
-void read_alpha(std::string& root, external_info* info);
-void read_RR(std::string& root, external_info* info);
-void read_two_photon(std::string& root, external_info* info);
+void read_alpha(const std::string& root, external_info* info);
+void read_RR(const std::string& root, external_info* info);
+void read_two_photon(const std::string& root, external_info* info);
 
 void initialise_temp_tables(external_info* info);
 

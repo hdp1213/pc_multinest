@@ -49,13 +49,13 @@ struct plc_bundle {
   std::vector<unsigned> cl_ls;
 };
 
-clik_struct* initialise_clik_struct(std::string& clik_path,
+clik_struct* initialise_clik_struct(const std::string& clik_path,
                                     std::vector<param_t>& nuis_params,
-                                    int& total_max_l);
+                                    int* total_max_l);
 
 void initialise_CLASS_engine(ClassEngine*& class_engine, int max_l, external_info* info);
 
-external_info* initialise_external_info(std::string& pbh_root, std::string& hyrec_root);
+external_info* initialise_external_info(const std::string& pbh_root, const std::string& hyrec_root);
 
 inline double pow10(double x) { return pow(10., x); }
 inline double self(double x) { return x; }

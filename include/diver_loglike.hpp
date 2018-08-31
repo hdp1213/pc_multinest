@@ -1,16 +1,15 @@
 #ifndef DIVER_LOGLIKE
 #define DIVER_LOGLIKE
 
-#include "pc_loglike.hpp"
-
-#include <algorithm> // for std::copy
+#include <algorithm>  // for std::copy
 #include <limits>
+
+#include "pc_loglike.hpp"
 
 // Function to be minimized.  Corresponds to -ln(Likelihood).  Redirects to the target of context pointer.
 // params contains only free and derived parameters
 // at the end of likelihood computation, the latter part of the array should have derived parameters set as appropriate
 double diver_loglike(double params[], const int param_dim, int &fcall, bool &quit, const bool validvector, void*& context) {
-
   double loglike = std::numeric_limits<double>::max();
 
   // If params[] is within the parameter bounds, evaluate its likelihood

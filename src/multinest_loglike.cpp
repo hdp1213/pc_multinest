@@ -1,11 +1,11 @@
 #include "multinest_loglike.hpp"
 
-#include <algorithm> // for std::copy
+#include <algorithm>  // for std::copy
 #include <iostream>
 
 #include "pc_loglike.hpp"
 
-void multinest_loglike(double *Cube, int &ndim, int &npars, double &lnew, void *context) {
+void multinest_loglike(double* Cube, int& ndim, int& npars, double& lnew, void* context) {
   plc_bundle* plc_pack;
   double in_vals[UP_TO_FIXED_PARAMS];
   trans_t func;
@@ -30,7 +30,7 @@ void multinest_loglike(double *Cube, int &ndim, int &npars, double &lnew, void *
             << std::endl;
 }
 
-void multinest_loglike_pt(std::vector<double>& new_vals, int &ndim, int &npars, double &lnew, void *context) {
+void multinest_loglike_pt(std::vector<double>& new_vals, int& ndim, int& npars, double& lnew, void* context) {
   double* Cube = new double[npars];
 
   plc_bundle* plc_pack;

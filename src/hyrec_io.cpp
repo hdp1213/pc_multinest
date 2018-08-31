@@ -39,7 +39,7 @@ void hyrec_maketab(double xmin, double xmax, unsigned Nx, double *xtab) {
 
 /*********** Effective rates *************/
 
-void read_alpha(std::string& root, external_info* info) {
+void read_alpha(const std::string& root, external_info* info) {
   std::ostringstream alpha_filename;
 
   alpha_filename << root << "Alpha_inf_unity.dat";
@@ -74,7 +74,7 @@ void read_alpha(std::string& root, external_info* info) {
   alpha_file.close();
 }
 
-void read_RR(std::string& root, external_info* info) {
+void read_RR(const std::string& root, external_info* info) {
   std::ostringstream RR_filename;
 
   RR_filename << root << "R_inf.dat";
@@ -104,7 +104,7 @@ void read_RR(std::string& root, external_info* info) {
 
 /************ Two-photon rates ************/
 
-void read_two_photon(std::string& root, external_info* info) {
+void read_two_photon(const std::string& root, external_info* info) {
   std::ostringstream two_phot_filename;
 
   two_phot_filename << root << "two_photon_tables.dat";
