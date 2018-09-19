@@ -229,14 +229,12 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (background_init(ppr, pba) == _FAILURE_) {
     strcpy(m_errmsg, pba->error_message);
-    background_free(&m_ba);
     m_do_free = false;
     return _FAILURE_;
   }
 
   if (thermodynamics_init(ppr, pba, pth) == _FAILURE_) {
     strcpy(m_errmsg, pth->error_message);
-    thermodynamics_free(&m_th);
     background_free(&m_ba);
     m_do_free = false;
     return _FAILURE_;
@@ -244,7 +242,6 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (perturb_init(ppr, pba, pth, ppt) == _FAILURE_) {
     strcpy(m_errmsg, ppt->error_message);
-    perturb_free(&m_pt);
     thermodynamics_free(&m_th);
     background_free(&m_ba);
     m_do_free = false;
@@ -253,7 +250,6 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (primordial_init(ppr, ppt, ppm) == _FAILURE_) {
     strcpy(m_errmsg, ppm->error_message);
-    primordial_free(&m_pm);
     perturb_free(&m_pt);
     thermodynamics_free(&m_th);
     background_free(&m_ba);
@@ -263,7 +259,6 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (nonlinear_init(ppr, pba, pth, ppt, ppm, pnl) == _FAILURE_)  {
     strcpy(m_errmsg, pnl->error_message);
-    nonlinear_free(&m_nl);
     primordial_free(&m_pm);
     perturb_free(&m_pt);
     thermodynamics_free(&m_th);
@@ -274,7 +269,6 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (transfer_init(ppr, pba, pth, ppt, pnl, ptr) == _FAILURE_) {
     strcpy(m_errmsg, ptr->error_message);
-    transfer_free(&m_tr);
     nonlinear_free(&m_nl);
     primordial_free(&m_pm);
     perturb_free(&m_pt);
@@ -286,7 +280,6 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (spectra_init(ppr, pba, ppt, ppm, pnl, ptr, psp) == _FAILURE_) {
     strcpy(m_errmsg, psp->error_message);
-    spectra_free(&m_sp);
     transfer_free(&m_tr);
     nonlinear_free(&m_nl);
     primordial_free(&m_pm);
@@ -299,7 +292,6 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (lensing_init(ppr, ppt, psp, pnl, ple) == _FAILURE_) {
     strcpy(m_errmsg, ple->error_message);
-    lensing_free(&m_le);
     spectra_free(&m_sp);
     transfer_free(&m_tr);
     nonlinear_free(&m_nl);
