@@ -84,7 +84,11 @@ $(BIN_DIR)/test_likelihood: test_likelihood.o $(filter-out $(MAIN), $(OBJECTS))
 	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
 	@echo "Linking" $@ "..."
 
-test: $(BIN_DIR)/test_clikobject $(BIN_DIR)/test_classengine $(BIN_DIR)/test_likelihood
+$(BIN_DIR)/test_point: test_point.o $(filter-out $(MAIN), $(OBJECTS))
+	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
+	@echo "Linking" $@ "..."
+
+test: $(BIN_DIR)/test_clikobject $(BIN_DIR)/test_classengine $(BIN_DIR)/test_likelihood $(BIN_DIR)/test_point
 
 clean:
 	@rm -rf $(BUILD_DIR)/ $(BIN_DIR)/*
