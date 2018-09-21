@@ -51,7 +51,7 @@ LDFLAGS = -fPIC -std=c++11 $(OPTFLAGS) $(CCDBUG)
 
 # Includes and libraries
 INCLUDES = -I$(INC_DIR) -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include
-LIBS = -L$(PLIK_DIR)/lib -L$(CLASS_DIR) -liomp5 -lclik -lclass-2.5.0
+LIBS = -L$(PLIK_DIR)/lib -L$(CLASS_DIR) -liomp5 -lclik -lclass-2.6.3
 FCLIBS := -L$(MULTINEST_DIR)/lib -lnest3 -lstdc++
 
 # Object files to compile
