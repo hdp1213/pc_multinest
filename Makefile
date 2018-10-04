@@ -38,7 +38,7 @@ vpath .base $(BUILD_DIR)
 
 # Compilers
 CC = icpc
-FC = mpifort
+FC = mpiifort
 
 # Flags
 OPTFLAGS = -O3
