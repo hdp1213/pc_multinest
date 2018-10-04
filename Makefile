@@ -23,7 +23,7 @@ HEADEXT := hpp
 SRCEXT := cpp
 
 # Macros
-MACROS := -D'PLIK_HI_L_FILE_DIR="$(PLIK_HI_L_FILE_DIR)"' -D'PLIK_LOW_L_FILE_DIR="$(PLIK_LOW_L_FILE_DIR)"' -D'CLASS_PBH_FILE_DIR="$(CLASS_PBH_FILE_DIR)"' -D'HYREC_FILE_DIR="$(HYREC_FILE_DIR)"' -DHYREC
+MACROS := -D'PLIK_HI_L_FILE_DIR="$(PLIK_HI_L_FILE_DIR)"' -D'PLIK_LOW_L_FILE_DIR="$(PLIK_LOW_L_FILE_DIR)"' -D'CLASS_PBH_FILE_DIR="$(CLASS_PBH_FILE_DIR)"'# -D'HYREC_FILE_DIR="$(HYREC_FILE_DIR)"' -DHYREC
 
 all: .base $(BIN_DIR)/base_planck
 
@@ -51,7 +51,7 @@ LDFLAGS = -fPIC -std=c++11 $(OPTFLAGS) $(CCDBUG)
 
 # Includes and libraries
 INCLUDES = -I$(INC_DIR) -I$(CLASS_DIR)/include -I$(PLIK_DIR)/include
-LIBS = -L$(PLIK_DIR)/lib -L$(CLASS_DIR) -liomp5 -lclik -lclass-2.6.3
+LIBS = -L$(PLIK_DIR)/lib -L$(CLASS_DIR) -liomp5 -lclik -lclass_pbh
 FCLIBS := -L$(MULTINEST_DIR)/lib -lnest3 -lstdc++
 
 # Object files to compile

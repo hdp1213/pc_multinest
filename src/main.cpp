@@ -1,6 +1,7 @@
 #include "main.hpp"
 #include "multinest_loglike.hpp"
 #include "loglike.hpp"
+#include "external.hpp"
 
 #include <iostream>
 #include <numeric>
@@ -175,6 +176,10 @@ int main(int argc, char const *argv[])
   // Initialise global parameter arrays
   initialise_param_arrays();
 
+  // Initialise external info
+  string pbh_root = string(CLASS_PBH_FILE_DIR) + "/";
+  external_info* info = initialise_external_info(pbh_root);
+
   // Allocate bundle
   likelihood_context* bundle = new likelihood_context();
 
@@ -202,6 +207,12 @@ int main(int argc, char const *argv[])
   params.add("N_ncdm", 1);
   params.add("m_ncdm", 0.06); // MeV
 
+  params.add("Omega_pbh_ratio", 1e-90);
+  params.add("pbh_mass_mean", 1e7);
+
+  params.add("pbh_mass_dist", "pbh_delta");
+  params.add("read external files", false);
+
   params.add("output", "tCl,pCl,lCl");
   params.add("lensing", true);
   params.add("l_max_scalars", lmax);
@@ -210,7 +221,7 @@ int main(int argc, char const *argv[])
   cout << "[INFO] Initialising CLASS engine..." << endl;
 
   try {
-    bundle->engine = new ClassEngine(params);
+    bundle->engine = new ClassEngine(params, info);
   }
   catch (exception const& e) {
     cerr << "[ERROR] " << e.what() << endl;

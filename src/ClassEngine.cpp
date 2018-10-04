@@ -67,11 +67,11 @@ template std::string str(const unsigned long long &x);
 //---------------
 // Constructors --
 //----------------
-ClassEngine::ClassEngine(const ClassParams& pars): m_cl(0), m_do_free(true) {
+ClassEngine::ClassEngine(const ClassParams& pars): m_cl(0), m_do_free(true), m_info(NULL) {
   write_pars_to_fc(pars, &m_fc);
 
   // Initialise input
-  if (input_init(&m_fc, &m_pr, &m_ba, &m_th, &m_pt, &m_tr, &m_pm, &m_sp, &m_nl, &m_le, &m_op, m_errmsg) == _FAILURE_) {
+  if (input_init(&m_fc, &m_pr, &m_ba, &m_th, &m_pt, &m_tr, &m_pm, &m_sp, &m_nl, &m_le, &m_op, m_info, m_errmsg) == _FAILURE_) {
     throw std::invalid_argument(m_errmsg);
   }
 
@@ -101,7 +101,7 @@ ClassEngine::ClassEngine(const ClassParams& pars): m_cl(0), m_do_free(true) {
 }
 
 
-ClassEngine::ClassEngine(const ClassParams& pars, const std::string & precision_file): m_cl(0), m_do_free(true) {
+ClassEngine::ClassEngine(const ClassParams& pars, const std::string & precision_file): m_cl(0), m_do_free(true), m_info(NULL) {
 
   // Decode precision structure
   struct file_content fc_precision;
@@ -125,7 +125,7 @@ ClassEngine::ClassEngine(const ClassParams& pars, const std::string & precision_
   parser_free(&fc_precision);
 
   // Initialise input
-  if (input_init(&m_fc, &m_pr, &m_ba, &m_th, &m_pt, &m_tr, &m_pm, &m_sp, &m_nl, &m_le, &m_op, m_errmsg) == _FAILURE_) {
+  if (input_init(&m_fc, &m_pr, &m_ba, &m_th, &m_pt, &m_tr, &m_pm, &m_sp, &m_nl, &m_le, &m_op, m_info, m_errmsg) == _FAILURE_) {
     throw std::invalid_argument(m_errmsg);
   }
 
@@ -133,6 +133,40 @@ ClassEngine::ClassEngine(const ClassParams& pars, const std::string & precision_
   for (std::size_t i = 0; i < pars.size(); i++) {
     if (m_fc.read[i] != _TRUE_) {
       throw std::invalid_argument(std::string("Invalid CLASS parameter: ") + m_fc.name[i]);
+    }
+  }
+
+  // Run CLASS
+  int status;
+  status = compute_Cls();
+
+  if (status == _FAILURE_) {
+    throw std::out_of_range(m_errmsg);
+  }
+
+#ifdef DBUG
+  std::cout << "Creating " << m_sp.ct_size << " arrays" << std::endl;
+#endif
+  m_cl = new double[m_sp.ct_size];
+
+#ifdef DBUG
+  print_FC();
+#endif
+}
+
+ClassEngine::ClassEngine(const ClassParams& pars, struct external_info* info): m_cl(0), m_do_free(true), m_info(info) {
+  // Prepare fp structure
+  write_pars_to_fc(pars, &m_fc);
+
+  // Initialise input
+  if (input_init(&m_fc, &m_pr, &m_ba, &m_th, &m_pt, &m_tr, &m_pm, &m_sp, &m_nl, &m_le, &m_op, m_info, m_errmsg) == _FAILURE_) {
+    throw std::invalid_argument(m_errmsg);
+  }
+
+  // Protection against invalid parameters that haven't been read
+  for (std::size_t i = 0; i < pars.size(); i++) {
+    if (m_fc.read[i] != _TRUE_) {
+      throw std::invalid_argument(std::string("invalid CLASS parameter: ") + m_fc.name[i]);
     }
   }
 
@@ -221,7 +255,7 @@ ClassEngine::class_main(struct file_content *pfc,
                         ErrorMsg errmsg) {
 
 
-  if (input_init(pfc, ppr, pba, pth, ppt, ptr, ppm, psp, pnl, ple, pop, errmsg) == _FAILURE_) {
+  if (input_init(pfc, ppr, pba, pth, ppt, ptr, ppm, psp, pnl, ple, pop, m_info, errmsg) == _FAILURE_) {
     printf("\n\nError running input_init_from_arguments \n=>%s\n",errmsg);
     m_do_free = false;
     return _FAILURE_;
@@ -229,12 +263,14 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (background_init(ppr, pba) == _FAILURE_) {
     strcpy(m_errmsg, pba->error_message);
+    background_free(&m_ba);
     m_do_free = false;
     return _FAILURE_;
   }
 
-  if (thermodynamics_init(ppr, pba, pth) == _FAILURE_) {
+  if (thermodynamics_init(ppr, pba, pth, m_info) == _FAILURE_) {
     strcpy(m_errmsg, pth->error_message);
+    thermodynamics_free(&m_th);
     background_free(&m_ba);
     m_do_free = false;
     return _FAILURE_;
@@ -242,6 +278,7 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (perturb_init(ppr, pba, pth, ppt) == _FAILURE_) {
     strcpy(m_errmsg, ppt->error_message);
+    perturb_free(&m_pt);
     thermodynamics_free(&m_th);
     background_free(&m_ba);
     m_do_free = false;
@@ -250,6 +287,7 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (primordial_init(ppr, ppt, ppm) == _FAILURE_) {
     strcpy(m_errmsg, ppm->error_message);
+    primordial_free(&m_pm);
     perturb_free(&m_pt);
     thermodynamics_free(&m_th);
     background_free(&m_ba);
@@ -259,6 +297,7 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (nonlinear_init(ppr, pba, pth, ppt, ppm, pnl) == _FAILURE_)  {
     strcpy(m_errmsg, pnl->error_message);
+    nonlinear_free(&m_nl);
     primordial_free(&m_pm);
     perturb_free(&m_pt);
     thermodynamics_free(&m_th);
@@ -269,6 +308,7 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (transfer_init(ppr, pba, pth, ppt, pnl, ptr) == _FAILURE_) {
     strcpy(m_errmsg, ptr->error_message);
+    transfer_free(&m_tr);
     nonlinear_free(&m_nl);
     primordial_free(&m_pm);
     perturb_free(&m_pt);
@@ -280,6 +320,7 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (spectra_init(ppr, pba, ppt, ppm, pnl, ptr, psp) == _FAILURE_) {
     strcpy(m_errmsg, psp->error_message);
+    spectra_free(&m_sp);
     transfer_free(&m_tr);
     nonlinear_free(&m_nl);
     primordial_free(&m_pm);
@@ -292,6 +333,7 @@ ClassEngine::class_main(struct file_content *pfc,
 
   if (lensing_init(ppr, ppt, psp, pnl, ple) == _FAILURE_) {
     strcpy(m_errmsg, ple->error_message);
+    lensing_free(&m_le);
     spectra_free(&m_sp);
     transfer_free(&m_tr);
     nonlinear_free(&m_nl);

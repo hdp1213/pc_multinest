@@ -68,6 +68,8 @@ class ClassEngine : public Engine {
   explicit ClassEngine(const ClassParams& pars);
   // With a CLASS .pre file
   ClassEngine(const ClassParams& pars, const std::string& precision_file);
+  // From parameters with PBH splines
+  ClassEngine(const ClassParams& pars, struct external_info* info);
 
   // Destructor
   ~ClassEngine();
@@ -180,6 +182,7 @@ class ClassEngine : public Engine {
 
   // Parameter names
   std::vector<std::string> m_parnames;
+  struct external_info* m_info;
 };
 
 #endif
