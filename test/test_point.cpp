@@ -4,6 +4,8 @@
 #include <numeric>
 #include <stdexcept>
 
+#include "external.hpp"
+
 using namespace std;
 
 const unsigned MIN_CL = 2;
@@ -15,6 +17,11 @@ initialise_CLASS()
   ClassEngine* engine;
 
   unsigned lmax = 2000;
+
+  // Initialise external info
+  string pbh_root = string(CLASS_PBH_FILE_DIR) + "/";
+  external_info* info = initialise_external_info(pbh_root);
+
   ClassParams params;
 
   params.add("omega_b", 0.022231);
@@ -29,13 +36,21 @@ initialise_CLASS()
   params.add("N_ncdm", 1);
   params.add("m_ncdm", 0.06); // MeV
 
+  params.add("Omega_pbh_ratio", 1e-90);
+  params.add("pbh_mass_mean", 1e7);
+
+  params.add("pbh_mass_dist", "pbh_delta");
+  params.add("read external files", false);
+
   params.add("output", "tCl,pCl,lCl"); // mPk
   params.add("lensing", true);
   params.add("l_max_scalars", lmax);
   params.add("format", "camb");
 
+  params.add("input_verbose", 3);
+
   try {
-    engine = new ClassEngine(params);
+    engine = new ClassEngine(params, info);
   }
   catch (exception const& e) {
     cerr << "[ERROR] " << e.what() << endl;
@@ -86,12 +101,12 @@ main(int argc, char const *argv[])
   iota(cl_ls.begin(), cl_ls.end(), MIN_CL);
 
   vector<double> params = {
-    1.8450602769851686e-02,
-    1.1472739458084107e-01,
-    1.0414851102828979e+00,
-    1.9071202278137207e-02,
-    3.0650629663467406e+00,
-    9.7408867597579962e-01
+    2.1884959457017052e-02,
+    1.2495854312444295e-01,
+    1.0414785351882943e+00,
+    4.9241400412509184e-02,
+    3.0760186012521729e+00,
+    9.4614236669140450e-01
   };
 
   cout << "updating CLASS" << endl;
