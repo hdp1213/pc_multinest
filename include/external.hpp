@@ -3,8 +3,9 @@
 
 #include <string>
 
-#include "pbh_io.hpp"
+#include "class.h"
 
-external_info* initialise_external_info(const std::string& pbh_root);
+external_info* initialise_external_info(const std::string& pbh_root,
+                                        const std::string& hyrec_root);
 
 #endif

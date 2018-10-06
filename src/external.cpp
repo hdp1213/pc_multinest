@@ -1,10 +1,13 @@
 #include "external.hpp"
 
+#include "pbh_io.hpp"
+#include "hyrec_io.hpp"
+
 #include <iostream>
 
 using namespace std;
 
-external_info* initialise_external_info(const string& pbh_root) {
+external_info* initialise_external_info(const string& pbh_root, const string& hyrec_root) {
   cout << "[INFO] Initialising external_info struct"
        << endl;
 
@@ -27,6 +30,20 @@ external_info* initialise_external_info(const string& pbh_root) {
 
   // Read in plasma heating
   read_bicubic_bspline(pbh_root, "heat.dat", info->heat);
+
+  /* Then read in HyRec files */
+
+  // This is good to do, too
+  initialise_temp_tables(info);
+
+  read_alpha(hyrec_root, info);
+
+  read_RR(hyrec_root, info);
+
+  read_two_photon(hyrec_root, info);
+
+  // Normalise the stuff
+  normalise_atomic(info);
 
   return info;
 }

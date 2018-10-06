@@ -3,6 +3,9 @@
 #include "loglike.hpp"
 #include "external.hpp"
 
+#include "hyrec_io.hpp"
+#include "io_params.h"
+
 #include <iostream>
 #include <numeric>
 #include <stdexcept>
@@ -178,7 +181,8 @@ int main(int argc, char const *argv[])
 
   // Initialise external info
   string pbh_root = string(CLASS_PBH_FILE_DIR) + "/";
-  external_info* info = initialise_external_info(pbh_root);
+  string hyrec_root = string(HYREC_FILE_DIR) + "/";
+  external_info* info = initialise_external_info(pbh_root, hyrec_root);
 
   // Allocate bundle
   likelihood_context* bundle = new likelihood_context();
@@ -206,6 +210,8 @@ int main(int argc, char const *argv[])
   params.add("N_ur", 2.0328);
   params.add("N_ncdm", 1);
   params.add("m_ncdm", 0.06); // MeV
+
+  params.add("recombination", "HyRec");
 
   params.add("Omega_pbh_ratio", 1e-90);
   params.add("pbh_mass_mean", 1e7);
@@ -245,6 +251,11 @@ int main(int argc, char const *argv[])
   }
 
   delete bundle;
+
+  hyrec_free_2D_array(NTM, info->logAlpha_tab[0]);
+  hyrec_free_2D_array(NTM, info->logAlpha_tab[1]);
+
+  delete info;
 
   return 0;
 }
