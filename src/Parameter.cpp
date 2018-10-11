@@ -17,12 +17,12 @@ double pow10(double x) {return pow(10, x);};
 void
 initialise_param_arrays() {
   // Free CLASS parameter flat priors
-  add_free_param(omega_b, 0.016, 0.028);
-  add_free_param(omega_cdm, 0.108, 0.130);
-  add_free_param(hundredxtheta_s, 1.039, 1.043);
-  add_free_param(tau_reio, 0.01, 0.15);
-  add_free_param(ln10_10_A_s, 2.98, 3.20);
-  add_free_param(n_s, 0.92, 1.04);
+  // add_free_param(omega_b, 0.016, 0.028);
+  // add_free_param(omega_cdm, 0.108, 0.130);
+  // add_free_param(hundredxtheta_s, 1.039, 1.043);
+  // add_free_param(tau_reio, 0.01, 0.15);
+  // add_free_param(ln10_10_A_s, 2.98, 3.20);
+  // add_free_param(n_s, 0.92, 1.04);
 
   add_free_param(pbh_frac, -8.0, 0.0);
   add_free_param(pbh_mass, 5.0, 7.0);

@@ -10,12 +10,12 @@ typedef enum
   // Free parameters (CLASS)
   pbh_frac,
   pbh_mass,
-  omega_b,
-  omega_cdm,
-  hundredxtheta_s,
-  tau_reio,
-  ln10_10_A_s,
-  n_s,
+  // omega_b,
+  // omega_cdm,
+  // hundredxtheta_s,
+  // tau_reio,
+  // ln10_10_A_s,
+  // n_s,
   UP_TO_CLASS_PARAMS,
   // Free parameters (PLC TT nuisance)
   A_planck = UP_TO_CLASS_PARAMS,

@@ -205,12 +205,12 @@ int main(int argc, char const *argv[])
   params.add("Omega_pbh_ratio", 1e-90);
   params.add("pbh_mass_mean", 1e6);
 
-  params.add("omega_b", 0.022231);
-  params.add("omega_cdm", 0.12003);
-  params.add("100*theta_s", 1.041740);
-  params.add("tau_reio", 0.0807);
-  params.add("ln10^{10}A_s", 3.0933);
-  params.add("n_s", 0.96749);
+  params.add("omega_b", 0.022239);
+  params.add("omega_cdm", 0.11959);
+  params.add("100*theta_s", 1.041477);
+  params.add("tau_reio", 0.0783);
+  params.add("ln10^{10}A_s", 3.0946);
+  params.add("n_s", 0.96492);
 
   params.add("N_ur", 2.0328);
   params.add("N_ncdm", 1);
