@@ -8,6 +8,7 @@
 typedef enum
 {
   // Free parameters (CLASS)
+  pbh_frac,
   omega_b,
   omega_cdm,
   hundredxtheta_s,

@@ -200,6 +200,8 @@ int main(int argc, char const *argv[])
   // Initialise CLASS
   ClassParams params;
 
+  params.add("Omega_pbh_ratio", 1e-90);
+
   params.add("omega_b", 0.022231);
   params.add("omega_cdm", 0.12003);
   params.add("100*theta_s", 1.041740);
@@ -213,8 +215,7 @@ int main(int argc, char const *argv[])
 
   params.add("recombination", "HyRec");
 
-  params.add("Omega_pbh_ratio", 1e-90);
-  params.add("pbh_mass_mean", 1e7);
+  params.add("pbh_mass_mean", 1e6);
 
   params.add("pbh_mass_dist", "pbh_delta");
   params.add("read external files", false);
