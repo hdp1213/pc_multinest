@@ -1,5 +1,7 @@
 #include "Parameter.hpp"
 
+#include <cmath>
+
 using namespace std;
 
 double g_value[FIXED_PARAM_AMT];
@@ -9,6 +11,8 @@ double g_max[FREE_PARAM_AMT];
 forward_list<gauss_t> g_gauss;
 
 trans_t g_transform[FREE_PARAM_AMT];
+
+double pow10(double x) {return pow(10, x);};
 
 void
 initialise_param_arrays() {
@@ -20,7 +24,8 @@ initialise_param_arrays() {
   add_free_param(ln10_10_A_s, 2.98, 3.20);
   add_free_param(n_s, 0.92, 1.04);
 
-  add_free_param(pbh_frac, 0.0, 1.0);
+  add_free_param(pbh_frac, -8.0, 0.0);
+  add_free_param(pbh_mass, 5.0, 7.0);
 
   // Free PLC parameter flat priors
   add_free_param(A_planck, 0.9, 1.1);
@@ -157,4 +162,6 @@ initialise_param_arrays() {
   }
 
   // Add any non-identity parameter transforms...
+  add_transform(pbh_frac, pow10);
+  add_transform(pbh_mass, pow10);
 }

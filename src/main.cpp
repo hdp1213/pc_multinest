@@ -203,6 +203,7 @@ int main(int argc, char const *argv[])
   ClassParams params;
 
   params.add("Omega_pbh_ratio", 1e-90);
+  params.add("pbh_mass_mean", 1e6);
 
   params.add("omega_b", 0.022231);
   params.add("omega_cdm", 0.12003);
@@ -216,8 +217,6 @@ int main(int argc, char const *argv[])
   params.add("m_ncdm", 0.06); // MeV
 
   params.add("recombination", "HyRec");
-
-  params.add("pbh_mass_mean", 1e6);
 
   params.add("pbh_mass_dist", "pbh_delta");
   params.add("read external files", false);
