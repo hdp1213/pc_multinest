@@ -67,6 +67,7 @@ int main(int argc, char const *argv[])
   + "/plik_dx11dr2_HM_v18_TTTEEE.clik/";
 #endif
   vector<param_t> hi_params = {
+#ifndef LITE_HI_L
     A_cib_217,
     cib_index,
     xi_sz_cib,
@@ -160,6 +161,7 @@ int main(int argc, char const *argv[])
     calib_143P,
     calib_217P,
     A_pol,
+#endif
     A_planck
   };
   ClikObject* hi_l_clik(0);
