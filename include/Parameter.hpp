@@ -18,9 +18,8 @@ typedef enum
   // n_s,
   UP_TO_CLASS_PARAMS,
   // Free parameters (PLC TT nuisance)
-  A_planck = UP_TO_CLASS_PARAMS,
 #ifndef LITE_HI_L
-  A_cib_217,
+  A_cib_217 = UP_TO_CLASS_PARAMS,
   xi_sz_cib,
   A_sz,
   ps_A_100_100,
@@ -47,11 +46,14 @@ typedef enum
   galf_TE_A_217,
   calib_100T,
   calib_217T,
-#endif
   UP_TO_FREE_PARAMS,
+#else
+  UP_TO_FREE_PARAMS = UP_TO_CLASS_PARAMS,
+#endif
+  A_planck = UP_TO_FREE_PARAMS,
 #ifndef LITE_HI_L
   // Fixed parameters (PLC TT nuisance)
-  cib_index = UP_TO_FREE_PARAMS,
+  cib_index,
   // Fixed parameters (PLC TTTEEE nuisance)
   galf_EE_index,
   galf_TE_index,
@@ -119,10 +121,8 @@ typedef enum
   calib_143P,
   calib_217P,
   A_pol,
-  UP_TO_FIXED_PARAMS,
-#else // remove all nuisance params for LITE_HI_L except A_planck
-  UP_TO_FIXED_PARAMS = UP_TO_FREE_PARAMS,
 #endif
+  UP_TO_FIXED_PARAMS,
   // Derived parameters (LCDM)
   H0 = UP_TO_FIXED_PARAMS,
   Omega_b,

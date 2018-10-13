@@ -28,7 +28,8 @@ initialise_param_arrays() {
   add_free_param(pbh_mass, 5.0, 7.0);
 
   // Free PLC parameter flat priors
-  add_free_param(A_planck, 0.9, 1.1);
+  // Fix the A_planck value for all fixed LCDM runs
+  add_fixed_param(A_planck, 1.00166);
 #ifndef LITE_HI_L
   add_free_param(A_cib_217, 30.0, 100.0);
   add_free_param(xi_sz_cib, 0.0, 1.0);
