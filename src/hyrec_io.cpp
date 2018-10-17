@@ -45,7 +45,7 @@ void read_alpha(const string& root, external_info* info) {
   ostringstream alpha_filename;
 
   alpha_filename << root << "Alpha_inf_unity.dat";
-  cout << "reading in: '" << alpha_filename.str() << "'" << endl;
+  cout << "[INFO] Reading '" << alpha_filename.str() << "'" << endl;
 
   /* what the hell am i doing */
   info->logAlpha_tab[0] = hyrec_create_2D_array(NTM, NTR);
@@ -80,7 +80,7 @@ void read_RR(const string& root, external_info* info) {
   ostringstream RR_filename;
 
   RR_filename << root << "R_inf.dat";
-  cout << "reading in: '" << RR_filename.str() << "'" << endl;
+  cout << "[INFO] Reading '" << RR_filename.str() << "'" << endl;
 
   // Read in RR file
 
@@ -110,7 +110,7 @@ void read_two_photon(const string& root, external_info* info) {
   ostringstream two_phot_filename;
 
   two_phot_filename << root << "two_photon_tables.dat";
-  cout << "reading in: '" << two_phot_filename.str() << "'" << endl;
+  cout << "[INFO] Reading '" << two_phot_filename.str() << "'" << endl;
 
   // Read in two photon file
 
