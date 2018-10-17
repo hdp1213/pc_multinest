@@ -22,9 +22,15 @@ main(int argc, char const *argv[])
   ClikObject* lo_l_clik(0);
 
   // High-l clik parameters
-  const string hi_l_clik_file = string(PLIK_HI_L_FILE_DIR) \
+#ifdef LITE_HI_L
+  const std::string hi_l_clik_file = std::string(PLIK_HI_L_FILE_DIR) \
+  + "/plik_lite_v18_TTTEEE.clik/";
+#else
+  const std::string hi_l_clik_file = std::string(PLIK_HI_L_FILE_DIR) \
   + "/plik_dx11dr2_HM_v18_TTTEEE.clik/";
+#endif
   vector<param_t> hi_params = {
+#ifndef LITE_HI_L
     A_cib_217,
     cib_index,
     xi_sz_cib,
@@ -118,6 +124,7 @@ main(int argc, char const *argv[])
     calib_143P,
     calib_217P,
     A_pol,
+#endif
     A_planck
   };
   ClikObject* hi_l_clik(0);
@@ -166,6 +173,8 @@ main(int argc, char const *argv[])
   params.add("l_max_scalars", lmax);
   params.add("format", "camb");
 
+  params.add("pbh_root", "/home/a1648400/class/pbh/pbh_bspline_");
+
   // Initialise Cuuube
   double Cube[] = {
     // CLASS free variables
@@ -177,6 +186,7 @@ main(int argc, char const *argv[])
     0.96475,
     // PLC free values
     1.00029,
+#ifndef LITE_HI_L
     66.4,
     0.13,
     7.17,
@@ -203,6 +213,7 @@ main(int argc, char const *argv[])
     1.667,
     0.99818,
     0.99598,
+#endif
     // Derived variables (to set)
     0.0,
     0.0,
