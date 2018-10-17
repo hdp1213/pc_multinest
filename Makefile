@@ -13,6 +13,7 @@ MULTINEST_DIR := $(ROOT_DIR)/MultiNest_v3.10
 CFITSIO_DIR := $(ROOT_DIR)/cfitsio
 
 # Project directories
+APP_DIR := apps
 SRC_DIR := src
 BIN_DIR := bin
 TEST_DIR := test
@@ -32,7 +33,7 @@ all: .base $(BIN_DIR)/base_planck
 	@if ! [ -e $(BUILD_DIR) ]; then mkdir $(BUILD_DIR); fi;
 	@touch $(BUILD_DIR)/.base
 
-vpath %.$(SRCEXT) $(SRC_DIR):$(TEST_DIR)
+vpath %.$(SRCEXT) $(APP_DIR):$(SRC_DIR):$(TEST_DIR)
 vpath %.o $(BUILD_DIR)
 vpath .base $(BUILD_DIR)
 
@@ -68,23 +69,23 @@ MAIN = main.o
 	@$(CC) $(CCFLAGS) $(INCLUDES) $(MACROS) -c -o $(BUILD_DIR)/$@ $<
 	@echo "Compiling" $@ "..."
 
-$(BIN_DIR)/base_planck: $(OBJECTS)
+$(BIN_DIR)/base_planck: $(MAIN) $(OBJECTS)
 	@$(FC) $(FCFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS) $(FCLIBS)
 	@echo "Linking" $@ "..."
 
-$(BIN_DIR)/test_clikobject: test_ClikObject.o $(filter-out $(MAIN), $(OBJECTS))
+$(BIN_DIR)/test_clikobject: test_ClikObject.o $(OBJECTS)
 	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
 	@echo "Linking" $@ "..."
 
-$(BIN_DIR)/test_classengine: test_ClassEngine.o $(filter-out $(MAIN), $(OBJECTS))
+$(BIN_DIR)/test_classengine: test_ClassEngine.o $(OBJECTS)
 	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
 	@echo "Linking" $@ "..."
 
-$(BIN_DIR)/test_likelihood: test_likelihood.o $(filter-out $(MAIN), $(OBJECTS))
+$(BIN_DIR)/test_likelihood: test_likelihood.o $(OBJECTS)
 	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
 	@echo "Linking" $@ "..."
 
-$(BIN_DIR)/test_point: test_point.o $(filter-out $(MAIN), $(OBJECTS))
+$(BIN_DIR)/test_point: test_point.o $(OBJECTS)
 	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
 	@echo "Linking" $@ "..."
 
