@@ -32,6 +32,8 @@ int main(int argc, char const *argv[])
   params.add("l_max_scalars", lmax);
   params.add("format", "camb");
 
+  params.add("pbh_root", "/home/a1648400/class/pbh/pbh_bspline_");
+
   try {
     engine = new ClassEngine(params);
   }

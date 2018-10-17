@@ -12,9 +12,15 @@ int main(int argc, char const *argv[])
   vector<param_t> lo_params = {A_planck};
   ClikObject* lo_l_clik(0);
 
-  const string hi_l_clik_file = string(PLIK_HI_L_FILE_DIR) \
+#ifdef LITE_HI_L
+  const std::string hi_l_clik_file = std::string(PLIK_HI_L_FILE_DIR) \
+  + "/plik_lite_v18_TTTEEE.clik/";
+#else
+  const std::string hi_l_clik_file = std::string(PLIK_HI_L_FILE_DIR) \
   + "/plik_dx11dr2_HM_v18_TTTEEE.clik/";
+#endif
   vector<param_t> hi_params = {
+#ifndef LITE_HI_L
     A_cib_217,
     cib_index,
     xi_sz_cib,
@@ -108,6 +114,7 @@ int main(int argc, char const *argv[])
     calib_143P,
     calib_217P,
     A_pol,
+#endif
     A_planck
   };
   ClikObject* hi_l_clik(0);

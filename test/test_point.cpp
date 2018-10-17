@@ -20,7 +20,8 @@ initialise_CLASS()
 
   // Initialise external info
   string pbh_root = string(CLASS_PBH_FILE_DIR) + "/";
-  external_info* info = initialise_external_info(pbh_root);
+  string hyrec_root = string(HYREC_FILE_DIR) + "/";
+  external_info* info = initialise_external_info(pbh_root, hyrec_root);
 
   ClassParams params;
 
