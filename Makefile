@@ -66,33 +66,33 @@ MAIN = main.o
 
 # Rules
 %.o: %.$(SRCEXT) .base
-	@$(CC) $(CCFLAGS) $(INCLUDES) $(MACROS) -c -o $(BUILD_DIR)/$@ $<
 	@echo "Compiling" $@ "..."
+	@$(CC) $(CCFLAGS) $(INCLUDES) $(MACROS) -c -o $(BUILD_DIR)/$@ $<
 
 $(BIN_DIR)/base_planck: $(MAIN) $(OBJECTS)
-	@$(FC) $(FCFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS) $(FCLIBS)
 	@echo "Linking" $@ "..."
+	@$(FC) $(FCFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS) $(FCLIBS)
 
 $(BIN_DIR)/test_clikobject: test_ClikObject.o $(OBJECTS)
-	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
 	@echo "Linking" $@ "..."
+	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
 
 $(BIN_DIR)/test_classengine: test_ClassEngine.o $(OBJECTS)
-	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
 	@echo "Linking" $@ "..."
+	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
 
 $(BIN_DIR)/test_likelihood: test_likelihood.o $(OBJECTS)
-	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
 	@echo "Linking" $@ "..."
+	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
 
 $(BIN_DIR)/test_point: test_point.o $(OBJECTS)
-	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
 	@echo "Linking" $@ "..."
+	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
 
 test: $(BIN_DIR)/test_clikobject $(BIN_DIR)/test_classengine $(BIN_DIR)/test_likelihood $(BIN_DIR)/test_point
 
 clean:
-	@rm -rf $(BUILD_DIR)/ $(BIN_DIR)/*
 	@echo "Cleaning project ..."
+	@rm -rf $(BUILD_DIR)/ $(BIN_DIR)/*
 
 .PHONY: all clean
