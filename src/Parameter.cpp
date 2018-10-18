@@ -24,7 +24,7 @@ initialise_param_arrays() {
   // add_free_param(ln10_10_A_s, 2.98, 3.20);
   // add_free_param(n_s, 0.92, 1.04);
 
-  add_free_param(pbh_frac, -8.0, 0.0);
+  // add_free_param(pbh_frac, -8.0, 0.0);
   add_free_param(pbh_mass, 5.0, 7.0);
 
   // Free PLC parameter flat priors
@@ -163,6 +163,6 @@ initialise_param_arrays() {
   }
 
   // Add any non-identity parameter transforms...
-  add_transform(pbh_frac, pow10);
+  // add_transform(pbh_frac, pow10);
   add_transform(pbh_mass, pow10);
 }

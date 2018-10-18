@@ -73,6 +73,10 @@ $(BIN_DIR)/base_planck: $(MAIN) $(OBJECTS)
 	@echo "Linking" $@ "..."
 	@$(FC) $(FCFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS) $(FCLIBS)
 
+$(BIN_DIR)/profile: profile.o $(OBJECTS)
+	@echo "Linking" $@ "..."
+	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
+
 $(BIN_DIR)/test_clikobject: test_ClikObject.o $(OBJECTS)
 	@echo "Linking" $@ "..."
 	@$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(notdir $^)) $(LIBS)
@@ -91,8 +95,10 @@ $(BIN_DIR)/test_point: test_point.o $(OBJECTS)
 
 test: $(BIN_DIR)/test_clikobject $(BIN_DIR)/test_classengine $(BIN_DIR)/test_likelihood $(BIN_DIR)/test_point
 
+profile: $(BIN_DIR)/profile
+
 clean:
 	@echo "Cleaning project ..."
 	@rm -rf $(BUILD_DIR)/ $(BIN_DIR)/*
 
-.PHONY: all clean
+.PHONY: all clean profile
