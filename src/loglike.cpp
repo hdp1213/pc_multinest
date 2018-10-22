@@ -56,7 +56,8 @@ calculate_extra_likelihood(double free_params[]) {
 
   // Calculate Gaussian priors
   for (auto gauss : g_gauss) {
-    loglike -= pow((free_params[gauss.param] - gauss.mean)/gauss.stddev, 2.0) / 2.0;
+    double param_value = (gauss.param < UP_TO_FREE_PARAMS) ? free_params[gauss.param] : g_value[gauss.param - UP_TO_FREE_PARAMS];
+    loglike -= pow((param_value - gauss.mean)/gauss.stddev, 2.0) / 2.0;
   }
 
   // Calculate SZ degeneracy prior
