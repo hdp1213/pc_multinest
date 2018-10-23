@@ -3,12 +3,13 @@
 
 typedef enum
 {
-  // Free parameters (CLASS)
+  // Free parameter (CLASS)
   pbh_mass,
   UP_TO_CLASS_PARAMS,
-  // Free parameters (PLC TT nuisance)
+  UP_TO_FREE_PARAMS = UP_TO_CLASS_PARAMS,
+  A_planck = UP_TO_FREE_PARAMS,
 #ifndef LITE_HI_L
-  A_cib_217 = UP_TO_CLASS_PARAMS,
+  A_cib_217,
   xi_sz_cib,
   A_sz,
   ps_A_100_100,
@@ -35,12 +36,6 @@ typedef enum
   galf_TE_A_217,
   calib_100T,
   calib_217T,
-  UP_TO_FREE_PARAMS,
-#else
-  UP_TO_FREE_PARAMS = UP_TO_CLASS_PARAMS,
-#endif
-  A_planck = UP_TO_FREE_PARAMS,
-#ifndef LITE_HI_L
   // Fixed parameters (PLC TT nuisance)
   cib_index,
   // Fixed parameters (PLC TTTEEE nuisance)

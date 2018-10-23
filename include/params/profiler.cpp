@@ -5,35 +5,35 @@
 add_free_param(pbh_mass, 5.0, 7.0);
 
 // Free PLC parameter flat priors
-// Fix the A_planck value for all Clark runs
+// Fix all to best-fit for profiler
 add_fixed_param(A_planck, 1.00166);
 #ifndef LITE_HI_L
-add_free_param(A_cib_217, 30.0, 100.0);
-add_free_param(xi_sz_cib, 0.0, 1.0);
-add_free_param(A_sz, 0.0, 10.0);
-add_free_param(ps_A_100_100, 140.0, 370.0);
-add_free_param(ps_A_143_143, 10.0, 80.0);
-add_free_param(ps_A_143_217, 0.0, 80.0);
-add_free_param(ps_A_217_217, 50.0, 140.0);
-add_free_param(ksz_norm, 0.0, 10.0);
-add_free_param(gal545_A_100, 0.0, 20.0);
-add_free_param(gal545_A_143, 0.0, 20.0);
-add_free_param(gal545_A_143_217, 0.0, 40.0);
-add_free_param(gal545_A_217, 50.0, 110.0);
-add_free_param(calib_100T, 0.0, 2.0);
-add_free_param(calib_217T, 0.0, 2.0);
-add_free_param(galf_EE_A_100, 0.04, 0.12);
-add_free_param(galf_EE_A_100_143, 0.01, 0.09);
-add_free_param(galf_EE_A_100_217, 0.00, 0.26);
-add_free_param(galf_EE_A_143, 0.060, 0.150);
-add_free_param(galf_EE_A_143_217, 0.0, 0.6);
-add_free_param(galf_EE_A_217, 0.0, 1.5);
-add_free_param(galf_TE_A_100, 0.0, 0.4);
-add_free_param(galf_TE_A_100_143, 0.0, 0.3);
-add_free_param(galf_TE_A_100_217, 0.0, 0.8);
-add_free_param(galf_TE_A_143, 0.0, 0.5);
-add_free_param(galf_TE_A_143_217, 0.0, 1.0);
-add_free_param(galf_TE_A_217, 0.0, 4.5);
+add_fixed_param(A_cib_217, 60.3);
+add_fixed_param(xi_sz_cib, 0.79);
+add_fixed_param(A_sz, 7.06);
+add_fixed_param(ps_A_100_100, 255.9);
+add_fixed_param(ps_A_143_143, 49.5);
+add_fixed_param(ps_A_143_217, 57.3);
+add_fixed_param(ps_A_217_217, 108);
+add_fixed_param(ksz_norm, 0.95);
+add_fixed_param(gal545_A_100, 5.87);
+add_fixed_param(gal545_A_143, 8.56);
+add_fixed_param(gal545_A_143_217, 21.35);
+add_fixed_param(gal545_A_217, 90.1);
+add_fixed_param(calib_100T, 0.0866);
+add_fixed_param(calib_217T, 0.0522);
+add_fixed_param(galf_EE_A_100, 0.104);
+add_fixed_param(galf_EE_A_100_143, 0.09758);
+add_fixed_param(galf_EE_A_100_217, 0.2019);
+add_fixed_param(galf_EE_A_143, 0.583);
+add_fixed_param(galf_EE_A_143_217, 0.1209);
+add_fixed_param(galf_EE_A_217, 0.1217);
+add_fixed_param(galf_TE_A_100, 0.319);
+add_fixed_param(galf_TE_A_100_143, 0.161);
+add_fixed_param(galf_TE_A_100_217, 0.355);
+add_fixed_param(galf_TE_A_143, 1.904);
+add_fixed_param(galf_TE_A_143_217, 0.99892);
+add_fixed_param(galf_TE_A_217, 0.99658);
 
 // Fixed parameters
 add_fixed_param(cib_index, -1.3);
