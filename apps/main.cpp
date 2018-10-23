@@ -60,10 +60,10 @@ int main(int argc, char const *argv[])
 
   // High-l clik parameters
 #ifdef LITE_HI_L
-  const std::string hi_l_clik_file = std::string(PLIK_HI_L_FILE_DIR) \
+  const string hi_l_clik_file = string(PLIK_HI_L_FILE_DIR) \
   + "/plik_lite_v18_TTTEEE.clik/";
 #else
-  const std::string hi_l_clik_file = std::string(PLIK_HI_L_FILE_DIR) \
+  const string hi_l_clik_file = string(PLIK_HI_L_FILE_DIR) \
   + "/plik_dx11dr2_HM_v18_TTTEEE.clik/";
 #endif
   vector<param_t> hi_params = {
