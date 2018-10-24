@@ -53,4 +53,8 @@ inline void add_transform(const param_t param, const trans_t trans) {
   g_transform[param] = trans;
 }
 
+inline double get_value(param_t param, double free_params[]) {
+  return (param < UP_TO_FREE_PARAMS) ? free_params[param] : g_value[param - UP_TO_FREE_PARAMS];
+}
+
 #endif
