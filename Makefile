@@ -1,8 +1,13 @@
 # Data directories
 ROOT_DIR := /home/a1648400
 
-# PLIK_HI_L_FILE_DIR := $(ROOT_DIR)/staging/plc_2.0/hi_l/plik
+HI_L_LIKE = full
+
+ifeq ($(HI_L_LIKE),lite)
 PLIK_HI_L_FILE_DIR := $(ROOT_DIR)/staging/plc_2.0/hi_l/plik_lite
+else
+PLIK_HI_L_FILE_DIR := $(ROOT_DIR)/staging/plc_2.0/hi_l/plik
+endif
 PLIK_LOW_L_FILE_DIR := $(ROOT_DIR)/staging/plc_2.0/low_l/bflike
 CLASS_PBH_FILE_DIR := $(ROOT_DIR)/staging/pbh_bsplines
 HYREC_FILE_DIR := $(ROOT_DIR)/staging/hyrec_data
@@ -24,7 +29,11 @@ HEADEXT := hpp
 SRCEXT := cpp
 
 # Macros
-MACROS := -D'PLIK_HI_L_FILE_DIR="$(PLIK_HI_L_FILE_DIR)"' -D'PLIK_LOW_L_FILE_DIR="$(PLIK_LOW_L_FILE_DIR)"' -D'CLASS_PBH_FILE_DIR="$(CLASS_PBH_FILE_DIR)"' -D'HYREC_FILE_DIR="$(HYREC_FILE_DIR)"' -DHYREC -DLITE_HI_L
+MACROS := -D'PLIK_HI_L_FILE_DIR="$(PLIK_HI_L_FILE_DIR)"' -D'PLIK_LOW_L_FILE_DIR="$(PLIK_LOW_L_FILE_DIR)"' -D'CLASS_PBH_FILE_DIR="$(CLASS_PBH_FILE_DIR)"' -D'HYREC_FILE_DIR="$(HYREC_FILE_DIR)"' -DHYREC
+
+ifeq ($(HI_L_LIKE),lite)
+MACROS += -DLITE_HI_L
+endif
 
 all: .base $(BIN_DIR)/base_planck
 
