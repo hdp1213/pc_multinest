@@ -45,7 +45,7 @@ typedef enum
   UP_TO_FREE_PARAMS,
 #ifndef LITE_HI_L
   // Fixed parameters (PLC TT nuisance)
-  cib_index,
+  cib_index = UP_TO_FREE_PARAMS,
   // Fixed parameters (PLC TTTEEE nuisance)
   galf_EE_index,
   galf_TE_index,
