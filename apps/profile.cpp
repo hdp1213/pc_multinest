@@ -207,12 +207,12 @@ int main(int argc, char const *argv[])
   params.add("Omega_pbh_ratio", 1e-7);
   params.add("pbh_mass_width", 1e-2);
 
-  params.add("omega_b", 0.022239);
-  params.add("omega_cdm", 0.11959);
-  params.add("100*theta_s", 1.041477);
-  params.add("tau_reio", 0.0783);
-  params.add("ln10^{10}A_s", 3.0946);
-  params.add("n_s", 0.96492);
+  params.add("omega_b", 0.022220);
+  params.add("omega_cdm", 0.11983);
+  params.add("100*theta_s", 1.041788);
+  params.add("tau_reio", 0.0803);
+  params.add("ln10^{10}A_s", 3.0957);
+  params.add("n_s", 0.96352);
 
   params.add("N_ur", 2.0328);
   params.add("N_ncdm", 1);

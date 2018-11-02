@@ -6,7 +6,7 @@ add_free_param(pbh_mass, 5.0, 7.0);
 
 // Free PLC parameter flat priors
 // Fix all to best-fit for profiler
-add_fixed_param(A_planck, 1.00166);
+add_fixed_param(A_planck, 1.00047);
 #ifndef LITE_HI_L
 add_fixed_param(A_cib_217, 60.3);
 add_fixed_param(xi_sz_cib, 0.79);
