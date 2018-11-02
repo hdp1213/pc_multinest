@@ -13,7 +13,7 @@ add_free_param(n_s, 0.92, 1.04);
 
 // Free PLC parameter flat priors
 // Fix the A_planck value for all Clark runs
-add_fixed_param(A_planck, 1.00166);
+add_fixed_param(A_planck, 1.00047);
 #ifndef LITE_HI_L
 add_free_param(A_cib_217, 30.0, 100.0);
 add_free_param(xi_sz_cib, 0.0, 1.0);
