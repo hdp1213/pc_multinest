@@ -21,5 +21,5 @@ initialise_param_arrays() {
     add_transform((param_t) param, identity);
   }
 
-  #include "params/clark_free_lcdm_nuisance.cpp"
+  #include "params/tau_degen_fixed_lcdm_nuisance.cpp"
 }

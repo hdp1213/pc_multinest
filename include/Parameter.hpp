@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <forward_list>
 
-#include "params/clark_free_lcdm_nuisance.hpp"
+#include "params/tau_degen_fixed_lcdm_nuisance.hpp"
 
 // Transformation function typedef
 typedef double (*trans_t)(double);
